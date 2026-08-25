@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecordDeletion, createLocalDocument, createLocalPayment, createLocalRecord, createLocalSemedDatabase, deleteLocalDocument, deleteLocalPayment, deleteLocalRecord, getLocalUserIdentity, hydrateLocalDatabase, listLocalRecords, loadLocalDatabase, loginLocalUser, logoutLocalSession, parseBrazilianAmount, requiresDeleteConfirmation, saveLocalDatabase, serializeLocalDatabase, updateLocalDocument, updateLocalRecord } from "../client/src/pages/sigaLocalStore";
 
 describe("estrutura local compatível com o SIGA SEMED", () => {
-  it("mantém as cinco coleções estruturais da referência", () => {
+  it("mantém as coleções estruturais e administrativas da referência", () => {
     const database = createLocalSemedDatabase();
-    expect(database).toMatchObject({ schemaVersion: 1 });
+    expect(database).toMatchObject({ schemaVersion: 2 });
     expect(database.semedUsers).toHaveLength(3);
+    expect(database.semedUserPermissions.length).toBeGreaterThan(0);
+    expect(database.semedUserAuditLog).toEqual([]);
     expect(database.semedRecords).toHaveLength(4);
     expect(database.semedRecordPayments.length).toBeGreaterThan(0);
     expect(database.semedDocuments).toHaveLength(3);

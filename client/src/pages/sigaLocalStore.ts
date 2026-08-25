@@ -4,20 +4,102 @@ export type SemedRecordKind = "Contrato" | "Processo";
 export type SemedFinancialCategory = "Sem controle" | "Contrato geral" | "Aluguel";
 export type SemedDocumentKind = "Ofício" | "Memorando" | "Despacho";
 
+export const SEMED_USER_PROFILES = [
+  "Administrador",
+  "Técnico",
+  "Gestor Escolar",
+  "Secretário Escolar",
+  "Auditoria Externa",
+  "Contadora Municipal",
+] as const;
+export type SemedUserProfile = (typeof SEMED_USER_PROFILES)[number];
+export type SemedLoginType = "matricula" | "cpf";
+
+export const SEMED_MODULE_KEYS = [
+  "inicio",
+  "gestao",
+  "cadastros_gerais",
+  "contratos",
+  "documentos",
+  "financeiro",
+  "unidades_escolares",
+  "unidades.mapa",
+  "unidades.uex",
+  "unidades.turmas",
+  "educa_paco",
+  "rh",
+  "rh.cadastro_servidores",
+  "rh.ficha_financeira",
+  "rh.holerite",
+  "rh.frequencia",
+  "rh.relatorios",
+  "nutricao",
+  "nutricao.planejamento_semanal",
+  "nutricao.planejamento_anual",
+  "estoque",
+  "estoque.industrializado",
+  "estoque.agricultura_familiar",
+  "estoque.kit_aluno",
+  "estoque.categorias",
+  "estoque.relatorios",
+  "frota",
+  "frota.veiculos",
+  "frota.abastecimento",
+  "frota.manutencao",
+  "frota.ocorrencias",
+  "frota.relatorios",
+  "usuarios",
+] as const;
+export type SemedModuleKey = (typeof SEMED_MODULE_KEYS)[number];
+
+export type SemedUserAuditAction =
+  | "usuario.criado"
+  | "usuario.editado"
+  | "usuario.ativado"
+  | "usuario.desativado"
+  | "usuario.permissoes"
+  | "usuario.senha_provisoria";
+
 /** Estrutura local compatível com semed_users; nunca contém senhas ou hashes da referência. */
 export type SemedLocalUser = {
   id: string;
   username: string;
   displayName: string;
-  role: string;
+  role: SemedUserProfile;
+  profile: SemedUserProfile;
+  loginType: SemedLoginType;
+  cpf: string;
+  schoolUnitId: string;
+  serverRegistrationId: string;
   passwordHash: string;
   passwordSalt: string;
   passwordIterations: number;
   mustChangePassword: boolean;
+  provisionalPasswordIssuedAt: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
+  lastActivityAt: string;
+};
+
+export type SemedLocalUserPermission = {
+  id: string;
+  userId: string;
+  moduleKey: SemedModuleKey;
+  granted: boolean;
+  grantedBy: string;
+  grantedAt: string;
+};
+
+export type SemedLocalUserAudit = {
+  id: string;
+  userId: string;
+  action: SemedUserAuditAction;
+  changedFields: string[];
+  summary: string;
+  actorUserId: string;
+  createdAt: string;
 };
 
 /** Estrutura local compatível com semed_sessions; tokenHash é apenas um identificador simulado. */
@@ -85,9 +167,11 @@ export type SemedDocument = {
 export type SemedDocumentInput = Omit<SemedDocument, "id" | "createdAt" | "updatedAt">;
 
 export type SemedLocalDatabase = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
+  semedUserPermissions: SemedLocalUserPermission[];
+  semedUserAuditLog: SemedLocalUserAudit[];
   semedRecords: Omit<SemedRecord, "payments" | "paidAmount" | "balanceAmount">[];
   semedRecordPayments: SemedRecordPayment[];
   semedDocuments: SemedDocument[];
@@ -98,6 +182,94 @@ const STORAGE_KEY = "siga-semed-local-schema-v1";
 function now() { return new Date().toISOString(); }
 function localId(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
 function upper(value: string) { return value.trim().toLocaleUpperCase("pt-BR"); }
+function normalizeCpf(value: string) { return value.replace(/\D/g, ""); }
+
+const SCHOOL_READ_KEYS: SemedModuleKey[] = ["inicio", "unidades_escolares", "unidades.mapa", "unidades.uex", "unidades.turmas"];
+const LEGACY_TECHNICIAN_KEYS: SemedModuleKey[] = ["inicio", "contratos", "documentos"];
+
+export function isSemedUserProfile(value: unknown): value is SemedUserProfile {
+  return typeof value === "string" && (SEMED_USER_PROFILES as readonly string[]).includes(value);
+}
+
+export function isSemedModuleKey(value: unknown): value is SemedModuleKey {
+  return typeof value === "string" && (SEMED_MODULE_KEYS as readonly string[]).includes(value);
+}
+
+export function profileLoginType(profile: SemedUserProfile): SemedLoginType {
+  return profile === "Auditoria Externa" || profile === "Contadora Municipal" ? "cpf" : "matricula";
+}
+
+export function defaultModuleKeysForProfile(profile: SemedUserProfile, technicianKeys: SemedModuleKey[] = []): SemedModuleKey[] {
+  if (profile === "Administrador") return [...SEMED_MODULE_KEYS];
+  if (profile === "Técnico") return Array.from(new Set(technicianKeys.filter(isSemedModuleKey)));
+  if (profile === "Gestor Escolar" || profile === "Secretário Escolar") return [...SCHOOL_READ_KEYS];
+  return SEMED_MODULE_KEYS.filter((key) => key !== "usuarios");
+}
+
+export function buildLocalUserPermissions(userId: string, profile: SemedUserProfile, grantedBy: string, grantedAt: string, technicianKeys: SemedModuleKey[] = []): SemedLocalUserPermission[] {
+  return defaultModuleKeysForProfile(profile, technicianKeys).map((moduleKey) => ({
+    id: `permission-${userId}-${moduleKey.replace(/\./g, "-")}`,
+    userId,
+    moduleKey,
+    granted: true,
+    grantedBy,
+    grantedAt,
+  }));
+}
+
+function hasGrantedPermission(database: SemedLocalDatabase, userId: string, moduleKey: SemedModuleKey) {
+  const direct = database.semedUserPermissions.some((permission) => permission.userId === userId && permission.moduleKey === moduleKey && permission.granted);
+  if (direct) return true;
+  if (!moduleKey.includes(".")) {
+    return database.semedUserPermissions.some((permission) => permission.userId === userId && permission.granted && permission.moduleKey.startsWith(`${moduleKey}.`));
+  }
+  return false;
+}
+
+export function canReadLocalModule(database: SemedLocalDatabase, user: Pick<SemedLocalUser, "id" | "profile" | "active">, moduleKey: SemedModuleKey) {
+  if (!user.active) return false;
+  if (user.profile === "Administrador") return true;
+  if (user.profile === "Auditoria Externa" || user.profile === "Contadora Municipal") return moduleKey !== "usuarios";
+  return hasGrantedPermission(database, user.id, moduleKey);
+}
+
+export function canWriteLocalModule(database: SemedLocalDatabase, user: Pick<SemedLocalUser, "id" | "profile" | "active">, moduleKey: SemedModuleKey) {
+  if (!canReadLocalModule(database, user, moduleKey)) return false;
+  if (user.profile === "Administrador") return true;
+  if (user.profile === "Auditoria Externa" || user.profile === "Gestor Escolar" || user.profile === "Secretário Escolar") return false;
+  if (user.profile === "Contadora Municipal") return moduleKey === "financeiro" || moduleKey.startsWith("financeiro.");
+  return hasGrantedPermission(database, user.id, moduleKey);
+}
+
+export function canManageLocalUsers(user: Pick<SemedLocalUser, "profile" | "active">) {
+  return user.active && user.profile === "Administrador";
+}
+
+export function canAccessLocalSchoolUnit(user: Pick<SemedLocalUser, "profile" | "schoolUnitId" | "active">, schoolUnitId: string) {
+  if (!user.active) return false;
+  if (user.profile === "Gestor Escolar" || user.profile === "Secretário Escolar") return Boolean(user.schoolUnitId) && user.schoolUnitId === schoolUnitId;
+  return true;
+}
+
+export function recordLocalUserAudit(database: SemedLocalDatabase, input: Omit<SemedLocalUserAudit, "id" | "createdAt">, timestamp = now()) {
+  const entry: SemedLocalUserAudit = {
+    ...input,
+    id: localId("user-audit"),
+    changedFields: Array.from(new Set(input.changedFields)).filter((field) => !/password|senha|cpf/i.test(field)),
+    summary: input.summary.replace(/\b\d{11}\b/g, "CPF PROTEGIDO"),
+    createdAt: timestamp,
+  };
+  database.semedUserAuditLog.unshift(entry);
+  return entry;
+}
+
+export function replaceLocalUserPermissions(database: SemedLocalDatabase, userId: string, profile: SemedUserProfile, grantedBy: string, moduleKeys: SemedModuleKey[], timestamp = now()) {
+  database.semedUserPermissions = database.semedUserPermissions.filter((permission) => permission.userId !== userId);
+  const permissions = buildLocalUserPermissions(userId, profile, grantedBy, timestamp, moduleKeys);
+  database.semedUserPermissions.push(...permissions);
+  recordLocalUserAudit(database, { userId, action: "usuario.permissoes", changedFields: ["permissions"], summary: `${permissions.length} permissão(ões) local(is) definida(s).`, actorUserId: grantedBy }, timestamp);
+  return permissions;
+}
 function normalizeCategory(input: Pick<SemedRecordInput, "kind" | "financialCategory" | "department" | "object">): SemedFinancialCategory {
   if (input.kind !== "Contrato") return "Sem controle";
   if (/ALUGUEL|ARRENDAMENTO/.test(`${input.department} ${input.object}`.toLocaleUpperCase("pt-BR"))) return "Aluguel";
@@ -122,17 +294,19 @@ function normalizeDocument(input: SemedDocumentInput) {
 }
 
 const localUsers: SemedLocalUser[] = [
-  { id: "u-admin", username: "admin", displayName: "Administrador", role: "Administrador", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
-  { id: "u-tecnico1", username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
-  { id: "u-tecnico2", username: "tecnico2", displayName: "Técnico SEMED 2", role: "Técnico", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
+  { id: "u-admin", username: "admin", displayName: "Administrador", role: "Administrador", profile: "Administrador", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico1", username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico2", username: "tecnico2", displayName: "Técnico SEMED 2", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
 ];
 
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = "2026-01-10T12:00:00.000Z";
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
+    semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
+    semedUserAuditLog: [],
     semedRecords: [
       { id: "r12", kind: "Contrato", number: "012/2026", object: "FORNECIMENTO DE MERENDA ESCOLAR", party: "COOPERATIVA VALE VERDE", department: "ALIMENTAÇÃO ESCOLAR", responsible: "EQUIPE TÉCNICA SEMED", amount: 348500, financialCategory: "Contrato geral", paymentDueDate: "2026-03-15", startDate: "2025-11-08", endDate: "2026-04-08", status: "Vigente", notes: "PREPARAR ANÁLISE PARA POSSÍVEL PRORROGAÇÃO.", alertDays: 30, createdAt, updatedAt: createdAt },
       { id: "r189", kind: "Processo", number: "189/2026", object: "AQUISIÇÃO DE KITS ESCOLARES", party: "SETOR DE COMPRAS", department: "ADMINISTRATIVO", responsible: "TÉCNICO RESPONSÁVEL", amount: 0, financialCategory: "Sem controle", paymentDueDate: "", startDate: "2026-02-11", endDate: "2026-05-12", status: "Em andamento", notes: "AGUARDANDO CONSOLIDAÇÃO DAS DEMANDAS DAS ESCOLAS.", alertDays: 45, createdAt, updatedAt: createdAt },
@@ -154,7 +328,8 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
 
 export function getLocalUserIdentity(username: string) {
   const cleanUsername = username.trim().toLowerCase() || "tecnico1";
-  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername);
+  const cleanCpf = normalizeCpf(username);
+  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf));
   return user
     ? { username: user.username, displayName: user.displayName, role: user.role }
     : { username: cleanUsername, displayName: cleanUsername, role: "Técnico" };
@@ -167,7 +342,8 @@ export function requiresDeleteConfirmation(value: string) { return value.trim().
 
 export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now()): SemedLocalLogin | null {
   const cleanUsername = username.trim().toLowerCase();
-  const user = database.semedUsers.find((candidate) => candidate.username === cleanUsername && candidate.active);
+  const cleanCpf = normalizeCpf(username);
+  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf)));
   if (!user) return null;
   const session: SemedLocalSession = {
     tokenHash: `local-session-${user.id}-${Date.parse(timestamp)}`,
@@ -178,6 +354,7 @@ export function loginLocalUser(database: SemedLocalDatabase, username: string, t
   database.semedSessions = database.semedSessions.filter((item) => item.userId !== user.id);
   database.semedSessions.push(session);
   user.lastLoginAt = timestamp;
+  user.lastActivityAt = timestamp;
   user.updatedAt = timestamp;
   return { user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role, mustChangePassword: user.mustChangePassword }, session };
 }
@@ -296,8 +473,68 @@ export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: s
 }
 
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
+type LegacySemedLocalUser = Omit<SemedLocalUser, "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
+type LegacySemedLocalDatabase = Omit<SemedLocalDatabase, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
+
+function normalizeLegacyProfile(role: string): SemedUserProfile {
+  if (role === "Administrador") return "Administrador";
+  return "Técnico";
+}
+
+export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedLocalDatabase {
+  const migratedUsers = database.semedUsers.map((user) => {
+    const profile = normalizeLegacyProfile(user.role);
+    return {
+      ...user,
+      role: profile,
+      profile,
+      loginType: profileLoginType(profile),
+      cpf: "",
+      schoolUnitId: "",
+      serverRegistrationId: "",
+      provisionalPasswordIssuedAt: user.mustChangePassword ? user.createdAt : "",
+      lastActivityAt: user.lastLoginAt,
+    } satisfies SemedLocalUser;
+  });
+  const migratedAt = now();
+  return {
+    ...database,
+    schemaVersion: 2,
+    semedUsers: migratedUsers,
+    semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
+    semedUserAuditLog: [],
+  };
+}
+
+function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
+  return {
+    ...database,
+    schemaVersion: 2,
+    semedUsers: database.semedUsers.map((user) => ({
+      ...user,
+      profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
+      role: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
+      loginType: user.loginType === "cpf" ? "cpf" : "matricula",
+      cpf: normalizeCpf(user.cpf ?? ""),
+      schoolUnitId: user.schoolUnitId ?? "",
+      serverRegistrationId: user.serverRegistrationId ?? "",
+      provisionalPasswordIssuedAt: user.provisionalPasswordIssuedAt ?? "",
+      lastActivityAt: user.lastActivityAt ?? user.lastLoginAt ?? "",
+    })),
+    semedUserPermissions: Array.isArray(database.semedUserPermissions) ? database.semedUserPermissions.filter((permission) => isSemedModuleKey(permission.moduleKey)) : [],
+    semedUserAuditLog: Array.isArray(database.semedUserAuditLog) ? database.semedUserAuditLog : [],
+  };
+}
+
 export function hydrateLocalDatabase(serialized: string) {
-  try { const parsed = JSON.parse(serialized) as SemedLocalDatabase; return parsed.schemaVersion === 1 ? parsed : null; } catch { return null; }
+  try {
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | LegacySemedLocalDatabase;
+    if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
+    if (parsed.schemaVersion === 2) return normalizeCurrentDatabase(parsed);
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function cloneDatabase(database: SemedLocalDatabase) { return structuredClone(database); }
@@ -306,7 +543,11 @@ function browserStorage(): SemedLocalStorage | null { return typeof window === "
 export function loadLocalDatabase(storage: SemedLocalStorage | null = browserStorage()) {
   const stored = storage?.getItem(STORAGE_KEY);
   if (!stored) return createLocalSemedDatabase();
-  return hydrateLocalDatabase(stored) ?? createLocalSemedDatabase();
+  const hydrated = hydrateLocalDatabase(stored);
+  if (!hydrated) return createLocalSemedDatabase();
+  const normalized = serializeLocalDatabase(hydrated);
+  if (normalized !== stored) storage?.setItem(STORAGE_KEY, normalized);
+  return hydrated;
 }
 export function saveLocalDatabase(database: SemedLocalDatabase, storage: SemedLocalStorage | null = browserStorage()) { storage?.setItem(STORAGE_KEY, serializeLocalDatabase(database)); }
 
@@ -324,7 +565,7 @@ export function useSigaLocalRepository() {
   const records = useMemo(() => listLocalRecords(database), [database]);
   const documents = useMemo(() => [...database.semedDocuments].sort((left, right) => (left.dueDate || "9999-12-31").localeCompare(right.dueDate || "9999-12-31") || right.updatedAt.localeCompare(left.updatedAt)), [database]);
   return {
-    records, documents,
+    records, documents, users: database.semedUsers, userPermissions: database.semedUserPermissions, userAuditLog: database.semedUserAuditLog,
     login(username: string) { return mutate((draft) => loginLocalUser(draft, username)); },
     completeFirstAccess(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },
     changePassword(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },

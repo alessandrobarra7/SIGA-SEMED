@@ -41,4 +41,30 @@ describe("persistência do repositório local no navegador", () => {
     const reloaded = loadLocalDatabase(window.localStorage);
     expect(loginLocalUser(reloaded, "tecnico1", "2026-08-25T12:02:00.000Z")?.user.mustChangePassword).toBe(false);
   });
+
+  it("migra e persiste automaticamente uma base legada v1 no primeiro carregamento", () => {
+    const current = loadLocalDatabase(window.localStorage);
+    const legacy = structuredClone(current) as Record<string, unknown> & { semedUsers: Array<Record<string, unknown>> };
+    legacy.schemaVersion = 1;
+    delete legacy.semedUserPermissions;
+    delete legacy.semedUserAuditLog;
+    legacy.semedUsers.forEach((user) => {
+      delete user.profile;
+      delete user.loginType;
+      delete user.cpf;
+      delete user.schoolUnitId;
+      delete user.serverRegistrationId;
+      delete user.provisionalPasswordIssuedAt;
+      delete user.lastActivityAt;
+    });
+    window.localStorage.setItem("siga-semed-local-schema-v1", JSON.stringify(legacy));
+
+    const migrated = loadLocalDatabase(window.localStorage);
+    const persisted = JSON.parse(window.localStorage.getItem("siga-semed-local-schema-v1")!);
+    expect(migrated.schemaVersion).toBe(2);
+    expect(persisted.schemaVersion).toBe(2);
+    expect(persisted.semedUserPermissions.length).toBeGreaterThan(0);
+    expect(persisted.semedRecords).toHaveLength(current.semedRecords.length);
+    expect(persisted.semedDocuments).toHaveLength(current.semedDocuments.length);
+  });
 });

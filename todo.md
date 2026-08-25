@@ -146,7 +146,7 @@
 - [x] Implementar Cadastros com páginas elaboradas para Escolas, Núcleos, Prédios Administrativos e Biblioteca, usando apenas dados demonstrativos.
 - [x] Preservar o retorno a Início, Contratos e Documentos pela barra lateral sem alterar seus fluxos locais.
 - [x] Criar regressões de navegação, validar desktop/mobile, testes, checagem e build deste grupo.
-- [ ] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
+- [x] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
 - [x] Substituir painéis de Relatórios, Anexos e Aprovações por interações locais completas, sem textos de continuidade.
 - [x] Implementar criação local de cadastros demonstrativos para os quatro contextos, sem mensagens de funcionalidade futura.
 
@@ -165,5 +165,29 @@
 - [x] Confirmar no preview o estado mais recente do shell, Gestão e Cadastros já implementados.
 - [x] Revisar e concluir no checklist os fluxos locais implementados sem placeholders.
 - [x] Validar testes, tipos, build e responsividade da base atual.
-- [ ] Salvar novo checkpoint do preview antes das próximas modificações.
-- [ ] Apresentar a base atualizada e alinhar o próximo grupo de páginas a modificar.
+- [x] Salvar novo checkpoint do preview antes das próximas modificações.
+- [x] Apresentar a base atualizada e alinhar o próximo grupo de páginas a modificar.
+
+## Especificação funcional — Usuários, perfis e permissões
+
+- [x] Preservar integralmente a aparência oficial do checkpoint `c8d87f2f` durante todas as alterações funcionais.
+- [x] Comparar o relatório de usuários recebido com `sigaLocalStore.ts`, o fluxo de login e o shell atuais.
+- [x] Consolidar os seis perfis: Administrador, Técnico, Gestor Escolar, Secretário Escolar, Auditoria Externa e Contadora Municipal.
+- [x] Definir as permissões hierárquicas por módulo e submódulo, incluindo as regras específicas de RH e Estoque.
+- [x] Definir cadastro, edição, ativação, desativação, pesquisa, vínculo escolar, vínculo com servidor e senha provisória local.
+- [x] Definir bloqueios de leitura e escrita por perfil e a mensagem de acesso restrito no shell.
+- [x] Definir registro local de auditoria para criação, alteração de permissões e desativação de usuários.
+- [x] Apresentar a primeira entrega funcional proposta e obter autorização antes de alterar o módulo Usuários.
+
+## Implementação autorizada — domínio local de Usuários
+
+- [x] Evoluir o esquema local para uma nova versão sem perder registros, documentos, pagamentos ou sessões existentes.
+- [x] Criar tipos fechados para os seis perfis e para as chaves hierárquicas de módulos e submódulos.
+- [x] Criar o modelo local de permissões com concessão, responsável e data/hora.
+- [x] Criar o modelo local de auditoria administrativa sem armazenar senha provisória nem CPF completo.
+- [x] Migrar Administrador, Técnico 1 e Técnico 2 para o novo modelo com permissões coerentes.
+- [x] Implementar políticas puras de leitura, escrita, escopo escolar e acesso ao módulo Usuários.
+- [x] Preservar a API atual de login e o funcionamento de Contratos e Documentos durante a migração.
+- [x] Cobrir perfis, permissões, auditoria, migração e compatibilidade regressiva com testes Vitest.
+- [x] Confirmar por comparação visual que nenhuma aparência do checkpoint `c8d87f2f` foi alterada.
+- [ ] Salvar checkpoint do primeiro bloco funcional e apresentar o resultado.
