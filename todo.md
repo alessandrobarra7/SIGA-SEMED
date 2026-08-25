@@ -127,7 +127,7 @@
 - [x] Abrir e registrar as páginas internas de Unidades Escolares, Educa Paço, Recursos Humanos, Nutrição, Estoque, Frota e Usuários, sem alterar dados.
 - [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
 - [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
-- [ ] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
+- [x] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
 - [x] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
 
 ## Reprodução visual autorizada — shell operacional
@@ -139,3 +139,31 @@
 - [x] Validar desktop, mobile, testes automatizados e build do primeiro incremento do shell.
 - [x] Validar em viewport mobile o fluxo final de login, boas-vindas, Início, submenus e acesso a Contratos/Documentos sem atalhos temporários.
 - [x] Salvar checkpoint e apresentar o primeiro incremento visual do shell.
+
+## Reprodução visual autorizada — Gestão e Cadastros
+
+- [x] Implementar a central de Gestão com Minhas tarefas, Alertas, Relatórios, Anexos e Aprovações em estrutura local.
+- [x] Implementar Cadastros com páginas elaboradas para Escolas, Núcleos, Prédios Administrativos e Biblioteca, usando apenas dados demonstrativos.
+- [x] Preservar o retorno a Início, Contratos e Documentos pela barra lateral sem alterar seus fluxos locais.
+- [x] Criar regressões de navegação, validar desktop/mobile, testes, checagem e build deste grupo.
+- [ ] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
+- [x] Substituir painéis de Relatórios, Anexos e Aprovações por interações locais completas, sem textos de continuidade.
+- [x] Implementar criação local de cadastros demonstrativos para os quatro contextos, sem mensagens de funcionalidade futura.
+
+## Publicação autorizada do estado atual
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou artefatos temporários no envio.
+- [x] Validar os testes e o build do estado atual antes do envio remoto.
+- [x] Criar commit descritivo e enviar o frontend atual ao repositório remoto autorizado.
+- [x] Confirmar o hash remoto da publicação ao usuário.
+- [x] Revalidar a permissão GitHub após a autorização do usuário e repetir o envio do commit preparado.
+- [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
+- [x] Recomendar a revogação da credencial após confirmar o hash remoto.
+
+## Atualização do preview para novas modificações
+
+- [x] Confirmar no preview o estado mais recente do shell, Gestão e Cadastros já implementados.
+- [x] Revisar e concluir no checklist os fluxos locais implementados sem placeholders.
+- [x] Validar testes, tipos, build e responsividade da base atual.
+- [ ] Salvar novo checkpoint do preview antes das próximas modificações.
+- [ ] Apresentar a base atualizada e alinhar o próximo grupo de páginas a modificar.

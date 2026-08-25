@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { validateFirstAccess } from "./sigaFlow";
 import SemedOperationalShell, { ShellView, shellViewLabel } from "./SemedOperationalShell";
+import { GovernancePage, MastersPage } from "./SemedManagementPages";
 import {
   parseBrazilianAmount,
   SemedDocument,
@@ -273,8 +274,10 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
       {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
       {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
       {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} onViewChange={changeView} /> : null}
+      {activeView === "governance" ? <GovernancePage onNavigate={changeView} /> : null}
+      {activeView === "masters" ? <MastersPage /> : null}
       {activeView === "records" || activeView === "documents" ? localContent : null}
-      {!["welcome", "home", "records", "documents"].includes(activeView) ? <ModulePlaceholder view={activeView} onHome={() => changeView("home")} /> : null}
+      {!["welcome", "home", "governance", "masters", "records", "documents"].includes(activeView) ? <ModulePlaceholder view={activeView} onHome={() => changeView("home")} /> : null}
     </SemedOperationalShell>
   </>;
 }
