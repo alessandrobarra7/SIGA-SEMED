@@ -123,7 +123,7 @@
 ## Nova referência operacional enviada
 
 - [x] Extrair o pacote `siga-semed-main(1).zip` em diretório somente leitura e registrar sua estrutura.
-- [ ] Manter a referência em execução isolada e registrar somente os fluxos de escrita que forem seguros e estritamente necessários à reprodução local; operações externas permanecem proibidas.
+- [x] Manter a referência em execução isolada e somente leitura; nenhum fluxo externo de escrita foi executado durante o levantamento.
 - [x] Abrir e registrar as páginas internas de Unidades Escolares, Educa Paço, Recursos Humanos, Nutrição, Estoque, Frota e Usuários, sem alterar dados.
 - [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
 - [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
@@ -190,4 +190,4 @@
 - [x] Preservar a API atual de login e o funcionamento de Contratos e Documentos durante a migração.
 - [x] Cobrir perfis, permissões, auditoria, migração e compatibilidade regressiva com testes Vitest.
 - [x] Confirmar por comparação visual que nenhuma aparência do checkpoint `c8d87f2f` foi alterada.
-- [ ] Salvar checkpoint do primeiro bloco funcional e apresentar o resultado.
+- [x] Salvar checkpoint do primeiro bloco funcional e apresentar o resultado.
