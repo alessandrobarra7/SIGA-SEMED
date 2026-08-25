@@ -23,3 +23,55 @@
 .siga-form-actions { display: grid; grid-template-columns: .8fr 1.2fr; gap: 10px; }.siga-form-actions .siga-primary-button { width: auto; }.siga-payment-history li button { border: 1px solid #ecc2c4; border-radius: 3px; padding: 5px 7px; background: white; color: #a8444a; cursor: pointer; font: 800 9px Manrope, sans-serif; }
 .siga-filters.records { grid-template-columns: minmax(150px, 1fr) 132px 168px 132px; }.siga-payment-form { display: grid; gap: 11px; margin-top: 14px; border: 1px solid #b8d1be; border-left: 3px solid var(--siga-green); padding: 14px; background: #f2f8f3; }.siga-payment-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }.siga-payment-heading small { display: block; margin-bottom: 4px; color: var(--siga-green); font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }.siga-payment-heading strong, .siga-payment-history > div > strong { color: var(--siga-navy); font-family: "Source Serif 4", Georgia, serif; font-size: 19px; }.siga-payment-heading > button, .siga-confirmation-panel header > button { border: 0; background: transparent; color: #677780; cursor: pointer; }.siga-payment-form > p { margin: 0; color: #52636c; font-size: 11px; }.siga-payment-form label { display: grid; gap: 6px; color: #52646e; font-size: 10px; font-weight: 800; }.siga-payment-form input { width: 100%; border: 1px solid #cadbd0; border-radius: 4px; padding: 10px; background: white; color: #324650; font: 600 12px Manrope, sans-serif; }.siga-payment-form footer, .siga-confirmation-panel footer { display: grid; grid-template-columns: .8fr 1.2fr; gap: 10px; }.siga-payment-form footer .siga-primary-button { width: auto; }.siga-payment-history { margin-top: 14px; border-top: 1px dashed #d6e2da; padding-top: 14px; }.siga-payment-history > div { display: flex; align-items: end; justify-content: space-between; gap: 12px; }.siga-payment-history small { display: block; margin-bottom: 4px; color: #86928f; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }.siga-payment-history ul { display: grid; gap: 7px; margin: 9px 0 0; padding: 0; list-style: none; }.siga-payment-history li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 10px; border: 1px solid #e0e8e2; background: white; }.siga-payment-history li span { display: grid; flex: 0 0 auto; gap: 2px; }.siga-payment-history li span strong { color: #315770; font: 800 11px Manrope, sans-serif; }.siga-payment-history li span small { margin: 0; font-size: 9px; }.siga-payment-history li em { color: #5f6e75; font-size: 10px; font-style: normal; line-height: 1.4; text-align: right; }.siga-payment-history > p { margin: 8px 0 0; color: #66767c; font-size: 11px; }.siga-dialog-scrim { position: fixed; z-index: 11; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(13,39,57,.56); }.siga-confirmation-panel { display: grid; width: min(100%, 470px); gap: 15px; border-top: 4px solid #a8444a; padding: 28px; background: #fffefa; box-shadow: 0 22px 50px rgba(6,29,45,.27); }.siga-confirmation-panel header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 15px; border-bottom: 1px solid var(--siga-line); }.siga-confirmation-panel header p { margin: 0 0 6px; color: #a8444a; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }.siga-confirmation-panel header h2 { margin: 0; color: var(--siga-navy); font-family: "Source Serif 4", Georgia, serif; font-size: 31px; letter-spacing: -.05em; }.siga-confirmation-panel > p { margin: 0; color: #53636b; font-size: 12px; line-height: 1.55; }.siga-confirmation-panel > label { display: grid; gap: 7px; color: #52646e; font-size: 11px; font-weight: 800; }.siga-confirmation-panel input { width: 100%; border: 1px solid #d6dfda; border-radius: 4px; padding: 11px; outline: 0; background: white; font: 600 13px Manrope, sans-serif; }.siga-danger-button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; border: 0; border-radius: 5px; background: #a8444a; color: white; cursor: pointer; font: 800 13px Manrope, sans-serif; }
 @media (max-width: 840px) { .siga-filters.records { grid-template-columns: 1fr; }.siga-payment-history li { align-items: flex-start; flex-direction: column; gap: 5px; }.siga-payment-history li em { text-align: left; }.siga-dialog-scrim, .siga-security-scrim { align-items: start; overflow: auto; }.siga-confirmation-panel, .siga-security-panel { margin: 12px 0; padding: 22px; } }
+
+/* Composição fiel ao aplicativo de referência: cadastro em largura total e relatório abaixo. */
+.siga-workspace { width: min(1440px, 100%); margin: 0 auto; padding: 24px; background: #f6f8fb; }
+.siga-top-panel { display: grid; justify-items: center; gap: 18px; padding: 22px 0 18px; border-top: 0; border-bottom: 1px solid #d8e1ea; background: transparent; box-shadow: none; text-align: center; }
+.siga-top-brand { display: grid; max-width: 840px; justify-items: center; gap: 12px; }
+.siga-top-brand img { width: 118px; height: auto; border: 1px solid rgba(15, 118, 110, .16); border-radius: 8px; filter: saturate(.74) contrast(.96); }
+.siga-top-brand h1 { font-family: Arial, Helvetica, sans-serif; font-size: clamp(2rem, 4vw, 3.8rem); letter-spacing: 0; line-height: 1; }
+.siga-top-brand span { max-width: 760px; margin-top: 0; font-size: 1rem; line-height: 1.6; }
+.siga-top-actions { justify-content: center; width: 100%; flex-wrap: wrap; }
+.siga-user-chip { min-height: 40px; min-width: auto; margin: 0; padding: 5px 12px; border: 1px solid #d8e1ea; border-radius: 8px; background: #fff; text-align: left; }
+.siga-top-actions > button { width: 42px; height: 42px; border-color: #d8e1ea; border-radius: 8px; background: #fff; color: #115e59; }
+.siga-summary-grid { gap: 12px; margin: 20px 0; }
+.siga-metric-card { min-height: 106px; border-color: #d8e1ea; border-radius: 8px; background: #fff; }
+.siga-metric-card::before { top: 0; right: 0; bottom: auto; width: auto; height: 4px; }
+.siga-metric-card strong { color: #16202a; font-family: Arial, Helvetica, sans-serif; }
+.siga-module-tabs { gap: 10px; margin: 0 0 16px; }
+.siga-module-tabs button { min-height: 48px; border-color: #d8e1ea; border-radius: 8px; background: #fff; color: #16202a; }
+.siga-module-tabs button.active { border-color: #0f766e; background: #0f766e; }
+.siga-workspace-grid { grid-template-columns: 1fr; gap: 16px; }
+.siga-form-panel, .siga-list-panel { border-color: #d8e1ea; border-radius: 8px; background: #fff; }
+.siga-panel-trigger { min-height: 68px; padding: 16px 18px; border-bottom: 0; background: #fff; color: #16202a; }
+.siga-panel-trigger:hover { background: #f8fbfd; }
+.siga-panel-trigger strong { font-family: Arial, Helvetica, sans-serif; font-size: 1.12rem; letter-spacing: 0; }
+.siga-form-hint { border-top: 1px solid #d8e1ea; padding: 18px; }
+.siga-data-form { grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #d8e1ea; padding: 18px; }
+.siga-data-form .siga-form-heading, .siga-data-form > label:nth-of-type(2), .siga-data-form > label:nth-of-type(3), .siga-data-form > label:nth-of-type(12), .siga-data-form > label:nth-of-type(13), .siga-data-form > .siga-form-actions { grid-column: 1 / -1; }
+.siga-data-form label { color: #344252; font-size: .86rem; }
+.siga-data-form input, .siga-data-form select, .siga-data-form textarea { min-height: 42px; border-color: #d8e1ea; border-radius: 8px; color: #16202a; font: inherit; }
+.siga-data-form textarea { min-height: 92px; }
+.siga-list-panel { padding: 18px; }
+.siga-list-heading { padding-bottom: 0; border-bottom: 0; }
+.siga-list-heading h2 { font-family: Arial, Helvetica, sans-serif; font-size: 1.16rem; letter-spacing: 0; }
+.siga-list-heading > span { border-radius: 0; padding: 0; background: transparent; color: #5c6b7a; font-size: .9rem; }
+.siga-alerts-strip { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 10px; margin: 18px 0; }
+.siga-alert-item { min-height: 116px; border: 1px solid #d8e1ea; border-radius: 8px; padding: 12px; background: #fff; }
+.siga-alert-item span { display: inline-flex; min-height: 26px; align-items: center; border-radius: 999px; padding: 0 9px; background: #dcfce7; color: #166534; font-size: .78rem; font-weight: 900; }
+.siga-alert-item strong, .siga-alert-item small { display: block; }.siga-alert-item strong { margin-top: 10px; color: #16202a; line-height: 1.25; }.siga-alert-item small { margin-top: 6px; color: #5c6b7a; line-height: 1.35; }
+.siga-alert-item.warning { background: #fff1d7; }.siga-alert-item.warning span { background: #fff1d7; color: #7c3a03; }.siga-alert-item.danger { background: #fee2e2; }.siga-alert-item.danger span { background: #fee2e2; color: #b91c1c; }
+.siga-document-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }.siga-document-kpis .siga-metric-card { min-height: 86px; padding: 13px; }.siga-document-kpis .siga-metric-card strong { margin-top: 10px; font-size: 1.42rem; }
+.siga-filters { grid-template-columns: minmax(220px, 1.6fr) minmax(120px, .7fr) minmax(150px, .9fr) minmax(150px, .9fr); margin: 18px 0 14px; }
+.siga-filters.records > span { order: 1; }.siga-filters.records > select[aria-label="Filtrar por tipo"] { order: 2; }.siga-filters.records > select[aria-label="Filtrar por situação"] { order: 3; }.siga-filters.records > select[aria-label="Filtrar por setor"] { order: 4; }
+.siga-record-row { border-color: #d8e1ea; border-left: 4px solid #64748b; border-radius: 8px; background: #fff; }
+.siga-record-row.expanded { border-color: rgba(15, 118, 110, .28); box-shadow: 0 10px 24px rgba(22, 32, 42, .06); }
+.siga-record-summary { min-height: 56px; padding: 0 16px; }
+.siga-record-main small, .siga-record-main em, .siga-record-meta .siga-alert-tag { display: none; }
+.siga-record-main strong { margin: 0; color: #16202a; font-size: 1.05rem; }
+.siga-record-meta { color: #115e59; }
+.siga-record-detail { border-top-color: #d8e1ea; padding: 16px; background: #fff; }
+.siga-detail-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.siga-detail-wide { grid-column: 1 / -1; }
+.siga-finance-detail, .siga-payment-history, .siga-document-preview { border-top-color: #d8e1ea; }
+@media (max-width: 840px) { .siga-workspace { padding: 14px; }.siga-top-panel { align-items: stretch; text-align: left; }.siga-top-brand { justify-items: start; }.siga-top-brand img { width: 104px; }.siga-top-actions { justify-content: stretch; }.siga-user-chip { width: 100%; }.siga-data-form, .siga-filters, .siga-detail-grid, .siga-alerts-strip, .siga-document-kpis { grid-template-columns: 1fr; }.siga-data-form .siga-form-heading, .siga-data-form > label:nth-of-type(2), .siga-data-form > label:nth-of-type(3), .siga-data-form > label:nth-of-type(12), .siga-data-form > label:nth-of-type(13), .siga-data-form > .siga-form-actions { grid-column: auto; }.siga-filters.records > span, .siga-filters.records > select { order: initial; } }

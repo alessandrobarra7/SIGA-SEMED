@@ -112,3 +112,10 @@
 
 - [x] Concluir a verificação manual de login dos perfis locais `admin`, `tecnico1` e `tecnico2` no preview.
 - [x] Adicionar regressão automatizada para o acesso demonstrativo e validar no preview.
+
+## Fidelidade estrutural ao código de referência
+
+- [x] Reavaliar o agrupamento, ordem e geografia dos componentes do aplicativo original.
+- [x] Mapear as diferenças estruturais entre o shell original e o preview atual.
+- [x] Reorganizar as páginas do preview conforme a composição real da referência, sem mudar campos ou fluxos.
+- [x] Validar a nova organização em desktop e celular e preservar os fluxos locais já implementados.
