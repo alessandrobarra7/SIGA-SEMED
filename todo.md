@@ -154,5 +154,8 @@
 
 - [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou artefatos temporários no envio.
 - [x] Validar os testes e o build do estado atual antes do envio remoto.
-- [ ] Criar commit descritivo e enviar o frontend atual ao repositório remoto autorizado.
-- [ ] Confirmar o hash remoto da publicação ao usuário.
+- [x] Criar commit descritivo e enviar o frontend atual ao repositório remoto autorizado.
+- [x] Confirmar o hash remoto da publicação ao usuário.
+- [x] Revalidar a permissão GitHub após a autorização do usuário e repetir o envio do commit preparado.
+- [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
+- [ ] Recomendar a revogação da credencial após confirmar o hash remoto.
