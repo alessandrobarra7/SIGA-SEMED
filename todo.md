@@ -106,4 +106,53 @@
 
 ## Repositório do novo sistema
 
-- [ ] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` quando a integração GitHub possuir permissão efetiva de escrita.
+- [x] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` no commit remoto `6135fcbb7ee0158de6d278beb1d7a5d89a53f444`.
+
+## Correção de acesso demonstrativo
+
+- [x] Concluir a verificação manual de login dos perfis locais `admin`, `tecnico1` e `tecnico2` no preview.
+- [x] Adicionar regressão automatizada para o acesso demonstrativo e validar no preview.
+
+## Fidelidade estrutural ao código de referência
+
+- [x] Reavaliar o agrupamento, ordem e geografia dos componentes do aplicativo original.
+- [x] Mapear as diferenças estruturais entre o shell original e o preview atual.
+- [x] Reorganizar as páginas do preview conforme a composição real da referência, sem mudar campos ou fluxos.
+- [x] Validar a nova organização em desktop e celular e preservar os fluxos locais já implementados.
+
+## Nova referência operacional enviada
+
+- [x] Extrair o pacote `siga-semed-main(1).zip` em diretório somente leitura e registrar sua estrutura.
+- [ ] Manter a referência em execução isolada e registrar somente os fluxos de escrita que forem seguros e estritamente necessários à reprodução local; operações externas permanecem proibidas.
+- [x] Abrir e registrar as páginas internas de Unidades Escolares, Educa Paço, Recursos Humanos, Nutrição, Estoque, Frota e Usuários, sem alterar dados.
+- [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
+- [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
+- [ ] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
+- [x] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
+
+## Reprodução visual autorizada — shell operacional
+
+- [x] Preservar a página de login oficial e preparar o shell autenticado com dados demonstrativos locais.
+- [x] Implementar centro de boas-vindas com transição explícita para o painel, sem envio externo de comunicados.
+- [x] Implementar cabeçalho institucional, contexto de usuário, ações locais de conta e barra lateral ordenada conforme a referência.
+- [x] Implementar a visão Início com agenda, prazos, anotações e indicadores demonstrativos, sem alterar os fluxos existentes de contratos e documentos.
+- [x] Validar desktop, mobile, testes automatizados e build do primeiro incremento do shell.
+- [x] Validar em viewport mobile o fluxo final de login, boas-vindas, Início, submenus e acesso a Contratos/Documentos sem atalhos temporários.
+- [x] Salvar checkpoint e apresentar o primeiro incremento visual do shell.
+
+## Reprodução visual autorizada — Gestão e Cadastros
+
+- [ ] Implementar a central de Gestão com Minhas tarefas, Alertas, Relatórios, Anexos e Aprovações em estrutura local.
+- [ ] Implementar Cadastros com páginas elaboradas para Escolas, Núcleos, Prédios Administrativos e Biblioteca, usando apenas dados demonstrativos.
+- [x] Preservar o retorno a Início, Contratos e Documentos pela barra lateral sem alterar seus fluxos locais.
+- [ ] Criar regressões de navegação, validar desktop/mobile, testes, checagem e build deste grupo.
+- [ ] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
+- [ ] Substituir painéis de Relatórios, Anexos e Aprovações por interações locais completas, sem textos de continuidade.
+- [ ] Implementar criação local de cadastros demonstrativos para os quatro contextos, sem mensagens de funcionalidade futura.
+
+## Publicação autorizada do estado atual
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou artefatos temporários no envio.
+- [x] Validar os testes e o build do estado atual antes do envio remoto.
+- [ ] Criar commit descritivo e enviar o frontend atual ao repositório remoto autorizado.
+- [ ] Confirmar o hash remoto da publicação ao usuário.

@@ -20,6 +20,22 @@ Após recarregar a página, o mesmo usuário demonstrativo foi autenticado novam
 
 No shell, a exclusão de um contrato abriu o diálogo que identifica o registro e exige `EXCLUIR`. O diálogo foi fechado por Cancelar, sem remover o item demonstrativo. A suíte automatizada complementa essa verificação visual ao testar que a camada local bloqueia a exclusão com texto incorreto e remove o registro — junto das baixas relacionadas — apenas com a confirmação correta.
 
+## Revalidação de acesso demonstrativo
+
+O fluxo principal foi reexecutado com `admin` e `tecnico1`, usando uma senha demonstrativa não vazia. O perfil Administrativo abriu diretamente o shell quando o Primeiro acesso já estava concluído no navegador; o perfil Técnico abriu corretamente a etapa obrigatória de alteração de senha. A regressão automatizada passou a validar os três usuários locais (`admin`, `tecnico1` e `tecnico2`) e rejeita usuário inexistente.
+
+A revisão manual foi concluída com `tecnico2`: a autenticação abriu corretamente Primeiro acesso para **Técnico SEMED 2**. Assim, `admin`, `tecnico1` e `tecnico2` foram validados tanto no fluxo local quanto na cobertura de regressão, sem reprodução de falha de autenticação.
+
+## Reorganização conforme a referência
+
+No shell de revisão, o módulo Contratos e Processos passou a seguir a sequência observada na referência: cabeçalho institucional, resumo de cinco cartões, abas, cadastro expansível em largura total, painel “Acompanhamento / Relatório e alertas”, faixa de alertas, filtros e lista de accordions. A antiga composição com o cadastro lateral foi removida. Os filtros ficaram na ordem Buscar, Tipo, Situação e Setor; os accordions passaram a priorizar apenas o número no resumo.
+
+O módulo Documentos foi revisado na mesma estrutura vertical: cadastro expansível, painel “Controle documental”, cinco indicadores específicos, alertas documentais, filtros e lista. A captura móvel confirmou a leitura sequencial dos cartões, abas, cadastro, alertas, filtros e accordions em uma coluna, sem o painel lateral que divergira da referência.
+
+O accordion do Memorando 238/2026 também foi aberto após a reorganização. Os campos de tipo, situação, data, prazo, modelo, destino, destinatário, vínculo e assunto permanecem disponíveis, seguidos da prévia textual e das ações locais Editar e Excluir.
+
+O Contrato 012/2026 foi aberto no módulo reorganizado. O detalhe preserva os campos do registro, os valores de contrato, pago e saldo, o histórico de baixa local, além dos comandos Registrar baixa, Editar e Excluir.
+
 ## Operações locais validadas
 
 No módulo Contratos e Processos, busca, filtros por tipo/setor/situação, criação, edição, exclusão confirmada por `EXCLUIR`, baixa, remoção de baixa e exportação CSV operam sobre as coleções locais. A baixa atualiza o histórico, o valor pago e o saldo do contrato por relação `recordId`; valores acima do saldo são rejeitados.

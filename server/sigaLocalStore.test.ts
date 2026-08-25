@@ -29,6 +29,14 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     expect(getLocalUserIdentity("tecnico1")).toEqual({ username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico" });
   });
 
+  it("autoriza todos os perfis demonstrativos cadastrados", () => {
+    const database = createLocalSemedDatabase();
+    expect(loginLocalUser(database, "admin")?.user.role).toBe("Administrador");
+    expect(loginLocalUser(database, "tecnico1")?.user.displayName).toBe("Técnico SEMED 1");
+    expect(loginLocalUser(database, "tecnico2")?.user.displayName).toBe("Técnico SEMED 2");
+    expect(loginLocalUser(database, "usuario-invalido")).toBeNull();
+  });
+
   it("simula login, primeiro acesso e encerramento pela estrutura de sessões", () => {
     const database = createLocalSemedDatabase();
     const access = loginLocalUser(database, "admin", "2026-08-25T12:00:00.000Z");
