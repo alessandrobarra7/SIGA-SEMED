@@ -79,6 +79,8 @@ A fotografia institucional funciona como contexto documental, com tintura Azul G
 
 A folha de acesso deve permanecer deliberadamente mínima: título, matrícula, senha, mensagem de validação quando necessária e ação principal. O símbolo complementar, os metadados de cabeçalho, a orientação persistente de primeiro acesso e os textos auxiliares não serão reintroduzidos na tela de login, pois conflitam com a simplificação solicitada. A identidade institucional continuará sendo sustentada pelo Azul Gabinete, pela tipografia editorial, pelos filetes discretos e pela imagem documental de fundo.
 
+O login principal utiliza uma única folha administrativa, sem painel de benefícios, lista de ícones, parágrafo explicativo, rodapé institucional ou composição em duas colunas. O contexto municipal permanece exclusivamente no fundo, com tintura Azul Gabinete, enquanto a folha apresenta apenas a identidade SIGA SEMED, matrícula, senha, validação quando necessária e a ação Entrar.
+
 ## Referência para a futura área de trabalho
 
 A imagem institucional enviada pelo usuário — com a marca Prefeitura Paço do Lumiar, famílias, educação e livros — será a referência de tom humano e cívico para a futura área de trabalho. Ela não será reduzida a um plano de fundo genérico e não será aplicada antecipadamente à tela de login, cuja função é comunicar segurança e acesso institucional.

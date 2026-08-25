@@ -376,9 +376,9 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
   }
 
   return (
-    <main className="access-shell">
+    <main className="access-shell login-page-shell">
       <div className="access-canvas" style={{ backgroundImage: `linear-gradient(90deg, rgba(11,44,74,.72) 0%, rgba(11,44,74,.18) 45%, rgba(11,44,74,.11) 72%, rgba(11,44,74,.38) 100%), url(${ASSETS.pacoLumiarReference})` }} />
-      <section className="access-stage">
+      <section className="access-stage login-essential-stage">
         <aside className="access-story" aria-label="Apresentação do sistema">
           <div className="access-institution">
             <img src={ASSETS.officialLogo} alt="Prefeitura de Paço do Lumiar — SEMED" />
@@ -397,10 +397,8 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
           <p className="access-footer">SIGA SEMED · Gestão e acompanhamento técnico</p>
         </aside>
 
-        <form className="access-card simple-access-card" onSubmit={submit}>
-          <div className="access-card-copy">
-            <h2>Entre no<br /><em>SIGA SEMED.</em></h2>
-          </div>
+        <form className="access-card simple-access-card login-essential-card" onSubmit={submit}>
+          <p className="login-wordmark">SIGA SEMED</p>
           <label className="access-label">Matrícula
             <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" required value={matricula} onChange={(event) => setMatricula(event.target.value)} placeholder="Ex.: 700321-5" /></div>
           </label>

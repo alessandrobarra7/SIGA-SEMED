@@ -27,3 +27,10 @@
 - [x] Reduzir o texto de apoio, mantendo apenas identificação, matrícula, senha, primeiro acesso e botão Entrar.
 - [x] Validar a versão simplificada em desktop e celular.
 - [ ] Salvar checkpoint e entregar a simplificação.
+
+## Painel de acesso essencial
+
+- [x] Remover o título de boas-vindas do formulário.
+- [x] Reposicionar os campos para uma composição de acesso mais limpa.
+- [x] Validar a tela reduzida em desktop e celular.
+- [ ] Salvar checkpoint e entregar o ajuste final.
