@@ -25,3 +25,11 @@ Capturas em 1440 px e em 375 px confirmaram que a sequência funcional se manté
 ## Página de login institucional
 
 A página inicial passou a abrir na tela de acesso. Foram validados no previewer os campos de usuário e senha, o estado de processamento `Verificando acesso...` e a liberação posterior do dashboard React ao enviar credenciais demonstrativas. A autenticação permanece propositalmente local ao frontend nesta fase; não foram inseridas credenciais reais nem alterados endpoints, APIs ou regras do backend.
+
+## Correção de fidelidade do acesso
+
+O login foi corrigido para usar **Matrícula** e **Senha**, com a mensagem de preenchimento correspondente. A imagem institucional enviada pelo usuário é agora o contexto visual direto da tela. Após o envio de matrícula e senha demonstrativas, o preview não abre mais o dashboard: ele direciona à tela obrigatória de **Primeiro acesso**, com senha atual, nova senha, confirmação, validação de equivalência, mínimo de 10 caracteres e ação `Salvar senha`, reproduzindo a sequência protegida do código original antes da área de trabalho.
+
+Os campos de senha atual, nova senha e confirmação foram preenchidos com valores demonstrativos válidos no previewer. A etapa está pronta para concluir a ação `Salvar senha` e liberar o dashboard somente após a alteração da senha temporária.
+
+A ação `Salvar senha` foi concluída com sucesso no previewer. Somente então o dashboard foi exibido, acompanhado da mensagem `Senha atualizada.`, confirmando a sequência: matrícula e senha → primeiro acesso → alteração de senha → área de trabalho.

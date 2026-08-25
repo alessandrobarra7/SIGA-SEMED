@@ -12,3 +12,11 @@
 - [x] Implementar os estados de entrada, visibilidade de senha, recuperação e carregamento no frontend React.
 - [x] Validar a tela de acesso em desktop e celular no previewer.
 - [ ] Salvar checkpoint e entregar a página de login.
+
+## Correção de fidelidade ao código original
+
+- [x] Mapear matrícula, senha, recuperação, primeiro acesso e mensagens do login original.
+- [x] Usar a imagem institucional enviada diretamente como referência e ativo do login.
+- [x] Substituir o fluxo genérico pela sequência funcional original, preservando seus estados.
+- [x] Validar em desktop e celular a tela corrigida e a transição após autenticação.
+- [ ] Salvar checkpoint e entregar a correção de fidelidade.

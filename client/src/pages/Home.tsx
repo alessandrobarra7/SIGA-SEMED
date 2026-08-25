@@ -12,8 +12,6 @@ import {
   Copy,
   FileText,
   Filter,
-  Eye,
-  EyeOff,
   KeyRound,
   Landmark,
   LogOut,
@@ -92,6 +90,7 @@ const ASSETS = {
   finance: "/manus-storage/siga-semed-finance-texture_0746dc66.png",
   mark: "/manus-storage/siga-semed-operational-mark_0bf6dce6.png",
   officialLogo: "/manus-storage/semed-logo_62496e33.png",
+  pacoLumiarReference: "/manus-storage/paco-lumiar-login-reference_c8e73635.webp",
 };
 
 const currency = new Intl.NumberFormat("pt-BR", {
@@ -358,17 +357,15 @@ function buildDocumentPreview(document: DocumentItem) {
 }
 
 function LoginPage({ onEnter }: { onEnter: () => void }) {
-  const [username, setUsername] = useState("");
+  const [matricula, setMatricula] = useState("");
   const [password, setPassword] = useState("");
   const [notice, setNotice] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [remember, setRemember] = useState(true);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!username || !password) {
-      setNotice("Informe seu usuário institucional e sua senha para continuar.");
+    if (!matricula || !password) {
+      setNotice("Informe a matrícula e a senha para continuar.");
       return;
     }
     setIsSubmitting(true);
@@ -380,7 +377,7 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
 
   return (
     <main className="access-shell">
-      <div className="access-canvas" style={{ backgroundImage: `linear-gradient(115deg, rgba(13,47,80,.98) 0%, rgba(18,58,99,.91) 55%, rgba(18,58,99,.82) 100%), url(${ASSETS.header})` }} />
+      <div className="access-canvas" style={{ backgroundImage: `linear-gradient(90deg, rgba(11,44,74,.72) 0%, rgba(11,44,74,.18) 45%, rgba(11,44,74,.11) 72%, rgba(11,44,74,.38) 100%), url(${ASSETS.pacoLumiarReference})` }} />
       <section className="access-stage">
         <aside className="access-story" aria-label="Apresentação do sistema">
           <div className="access-institution">
@@ -388,9 +385,9 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
             <span>Prefeitura de Paço do Lumiar<br />Secretaria Municipal de Educação</span>
           </div>
           <div className="access-story-copy">
-            <p className="access-eyebrow">Ambiente institucional</p>
+            <p className="access-eyebrow">Sistema Integrado de Gestão e Acompanhamento</p>
             <h1>SIGA <em>SEMED</em></h1>
-            <p>Organize contratos, processos, documentos e prazos com uma visão técnica única para a equipe de acompanhamento.</p>
+            <p>Acompanhamento técnico de contratos, processos, documentos e prazos em um ambiente de trabalho da Secretaria Municipal de Educação.</p>
           </div>
           <div className="access-guides" aria-label="Recursos disponíveis">
             <article><FileText size={19} /><span><strong>Controle documental</strong><small>Ofícios, memorandos e despachos.</small></span></article>
@@ -403,30 +400,77 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
         <form className="access-card" onSubmit={submit}>
           <div className="access-card-header">
             <div className="access-operational-mark" aria-label="Documento validado em acompanhamento"><span><FileText size={22} /></span><BadgeCheck size={14} /><ArrowUpRight size={13} /></div>
-            <span>Registro de acesso · SIGA/02</span>
+            <span>Acesso restrito · SEMED</span>
           </div>
           <div className="access-card-copy">
-            <p className="access-eyebrow dark">Acesso ao monitoramento técnico</p>
-            <h2>Autorize o<br /><em>acompanhamento.</em></h2>
-            <p className="access-card-intro">Informe as credenciais atribuídas à equipe que acompanha contratos, processos, documentos e prazos.</p>
+            <p className="access-eyebrow dark">Identificação do servidor</p>
+            <h2>Entre no<br /><em>SIGA SEMED.</em></h2>
+            <p className="access-card-intro">Acesso restrito à equipe técnica. Informe os dados registrados para o seu vínculo funcional.</p>
           </div>
-          <label className="access-label">Usuário ou e-mail institucional
-            <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Ex.: tecnico1" aria-describedby="access-help" /></div>
+          <label className="access-label">Matrícula
+            <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" required value={matricula} onChange={(event) => setMatricula(event.target.value)} placeholder="Ex.: 700321-5" aria-describedby="access-help" /></div>
           </label>
           <label className="access-label">Senha
-            <div className="access-input-wrap"><ShieldCheck size={17} /><input type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" /><button className="password-visibility" type="button" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div>
+            <div className="access-input-wrap"><ShieldCheck size={17} /><input autoComplete="current-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" /></div>
           </label>
-          <div className="access-options">
-            <label className="remember-option"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /><span>Manter acesso neste dispositivo</span></label>
-            <button type="button" onClick={() => setNotice("Para recuperar o acesso, entre em contato com a administração do sistema.")}>Esqueci minha senha</button>
-          </div>
+          <p className="first-access-note"><BadgeCheck size={15} /><span>No primeiro acesso, a senha temporária deverá ser alterada antes da abertura do sistema.</span></p>
           {notice ? <p className="access-notice" role="status">{notice}</p> : null}
-          <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? <RefreshCw className="spin" size={18} /> : <ArrowUpRight size={18} />}{isSubmitting ? "Verificando acesso..." : "Entrar com segurança"}</button>
-          <p id="access-help" className="access-help">Uso exclusivo de usuários autorizados. O acesso é destinado ao acompanhamento técnico da SEMED.</p>
+          <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? <RefreshCw className="spin" size={18} /> : <ArrowUpRight size={18} />}{isSubmitting ? "Entrando..." : "Entrar"}</button>
+          <p id="access-help" className="access-help">Uso exclusivo de usuários autorizados. Matrícula e senha devem corresponder ao cadastro institucional.</p>
         </form>
       </section>
     </main>
   );
+}
+
+function FirstAccessPage({ onCancel, onChanged }: { onCancel: () => void; onChanged: () => void }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage("");
+    if (newPassword !== confirmPassword) {
+      setMessage("A confirmação precisa ser igual à nova senha.");
+      return;
+    }
+    if (newPassword.length < 10) {
+      setMessage("A nova senha precisa ter pelo menos 10 caracteres.");
+      return;
+    }
+    if (currentPassword === newPassword) {
+      setMessage("A nova senha deve ser diferente da senha atual.");
+      return;
+    }
+    setIsSubmitting(true);
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      onChanged();
+    }, 520);
+  }
+
+  return <main className="access-shell">
+    <div className="access-canvas" style={{ backgroundImage: `linear-gradient(90deg, rgba(11,44,74,.72) 0%, rgba(11,44,74,.18) 45%, rgba(11,44,74,.11) 72%, rgba(11,44,74,.38) 100%), url(${ASSETS.pacoLumiarReference})` }} />
+    <section className="access-stage first-access-stage">
+      <aside className="access-story" aria-label="Orientação de primeiro acesso">
+        <div className="access-institution"><img src={ASSETS.officialLogo} alt="Prefeitura de Paço do Lumiar — SEMED" /><span>Prefeitura de Paço do Lumiar<br />Secretaria Municipal de Educação</span></div>
+        <div className="access-story-copy"><p className="access-eyebrow">SIGA SEMED</p><h1>Primeiro<br /><em>acesso.</em></h1><p>Atualize a senha temporária para preservar a segurança do acompanhamento técnico e liberar o ambiente de trabalho.</p></div>
+        <p className="access-footer">SIGA SEMED · Gestão e acompanhamento técnico</p>
+      </aside>
+      <form className="access-card first-access-card" onSubmit={submit}>
+        <div className="access-card-header"><div className="access-operational-mark" aria-label="Documento validado em acompanhamento"><span><FileText size={22} /></span><BadgeCheck size={14} /><ArrowUpRight size={13} /></div><span>Segurança de acesso</span></div>
+        <div className="access-card-copy"><p className="access-eyebrow dark">Primeiro acesso</p><h2>Alterar<br /><em>senha.</em></h2><p className="access-card-intro">Altere a senha temporária antes de acessar o sistema.</p></div>
+        <label className="access-label">Senha atual<div className="access-input-wrap"><ShieldCheck size={17} /><input autoComplete="current-password" required type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></div></label>
+        <label className="access-label">Nova senha<div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="new-password" required minLength={10} type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} /></div></label>
+        <label className="access-label">Confirmar nova senha<div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="new-password" required minLength={10} type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} /></div></label>
+        {message ? <p className="access-notice" role="status">{message}</p> : null}
+        <div className="first-access-actions"><button className="quiet-action" type="button" onClick={onCancel}>Sair</button><button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? <RefreshCw className="spin" size={18} /> : <ShieldCheck size={18} />}{isSubmitting ? "Salvando..." : "Salvar senha"}</button></div>
+      </form>
+    </section>
+  </main>;
 }
 
 function MetricCard({ label, value, tone, icon: Icon, detail }: { label: string; value: string | number; tone: string; icon: typeof FileText; detail: string }) {
@@ -483,6 +527,7 @@ function DocumentRow({ document, open, onToggle, onEdit, onDelete, onCopy }: { d
 
 export default function Home() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
   const [activeModule, setActiveModule] = useState<ModuleKey>("records");
   const [records, setRecords] = useState<RecordItem[]>(initialRecords);
   const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
@@ -583,7 +628,8 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  if (!authenticated) return <LoginPage onEnter={() => { setAuthenticated(true); setNotice("Sessão de demonstração iniciada."); }} />;
+  if (!authenticated && !requiresPasswordChange) return <LoginPage onEnter={() => setRequiresPasswordChange(true)} />;
+  if (requiresPasswordChange) return <FirstAccessPage onCancel={() => setRequiresPasswordChange(false)} onChanged={() => { setRequiresPasswordChange(false); setAuthenticated(true); setNotice("Senha atualizada."); }} />;
 
   return <main className="siga-app-shell">
     <header className="siga-header" style={{ backgroundImage: `linear-gradient(90deg, rgba(18,58,99,.98) 0%, rgba(18,58,99,.91) 54%, rgba(18,58,99,.96) 100%), url(${ASSETS.header})` }}>

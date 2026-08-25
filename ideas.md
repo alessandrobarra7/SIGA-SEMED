@@ -71,7 +71,9 @@ O brasão institucional existente continua sendo a referência oficial. Um símb
 
 O preview adota superfícies de folhas administrativas sobre fundo aquecido, com divisórias finas em vez de sombras ou cantos como elemento predominante. Os filetes verticais, as etiquetas de status e os medidores lineares estruturam painéis, riscos e registros como uma assinatura recorrente. O Azul Gabinete organiza toda a hierarquia institucional; o verde SEMED fica restrito a confirmação, progresso e ação; âmbar e vermelho aparecem apenas como sinalização de atenção e risco.
 
-Na tela de login, o formulário funciona como uma folha administrativa segura: filetes institucionais, divisórias finas, metadados discretos e o símbolo geométrico de documento, selo e seta substituem uma estética de card genérico. A linguagem de acesso cita monitoramento técnico, contratos, processos, documentos e prazos; não utiliza convites genéricos de produto.
+Na tela de login, o formulário funciona como uma folha administrativa segura: filetes institucionais, divisórias finas, metadados discretos e o símbolo geométrico de documento, selo e seta substituem uma estética de card genérico. A estrutura preserva matrícula, senha, mensagem de validação, botão Entrar e a orientação obrigatória de primeiro acesso. A imagem institucional fornecida compõe diretamente o cenário e mantém o tom humano, educacional e cívico da Prefeitura de Paço do Lumiar.
+
+A fotografia institucional funciona como contexto documental, com tintura Azul Gabinete e contraste reduzido; ela não compete com a tarefa de acesso. O verde SEMED é reservado a filetes, confirmação, orientação de primeiro acesso e indicadores, enquanto o azul organiza a hierarquia dominante da tela.
 
 ## Referência para a futura área de trabalho
 
