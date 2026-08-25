@@ -107,3 +107,8 @@
 ## Repositório do novo sistema
 
 - [x] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` no commit remoto `6135fcbb7ee0158de6d278beb1d7a5d89a53f444`.
+
+## Correção de acesso demonstrativo
+
+- [x] Concluir a verificação manual de login dos perfis locais `admin`, `tecnico1` e `tecnico2` no preview.
+- [x] Adicionar regressão automatizada para o acesso demonstrativo e validar no preview.

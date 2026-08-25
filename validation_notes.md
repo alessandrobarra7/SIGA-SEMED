@@ -20,6 +20,12 @@ Após recarregar a página, o mesmo usuário demonstrativo foi autenticado novam
 
 No shell, a exclusão de um contrato abriu o diálogo que identifica o registro e exige `EXCLUIR`. O diálogo foi fechado por Cancelar, sem remover o item demonstrativo. A suíte automatizada complementa essa verificação visual ao testar que a camada local bloqueia a exclusão com texto incorreto e remove o registro — junto das baixas relacionadas — apenas com a confirmação correta.
 
+## Revalidação de acesso demonstrativo
+
+O fluxo principal foi reexecutado com `admin` e `tecnico1`, usando uma senha demonstrativa não vazia. O perfil Administrativo abriu diretamente o shell quando o Primeiro acesso já estava concluído no navegador; o perfil Técnico abriu corretamente a etapa obrigatória de alteração de senha. A regressão automatizada passou a validar os três usuários locais (`admin`, `tecnico1` e `tecnico2`) e rejeita usuário inexistente.
+
+A revisão manual foi concluída com `tecnico2`: a autenticação abriu corretamente Primeiro acesso para **Técnico SEMED 2**. Assim, `admin`, `tecnico1` e `tecnico2` foram validados tanto no fluxo local quanto na cobertura de regressão, sem reprodução de falha de autenticação.
+
 ## Operações locais validadas
 
 No módulo Contratos e Processos, busca, filtros por tipo/setor/situação, criação, edição, exclusão confirmada por `EXCLUIR`, baixa, remoção de baixa e exportação CSV operam sobre as coleções locais. A baixa atualiza o histórico, o valor pago e o saldo do contrato por relação `recordId`; valores acima do saldo são rejeitados.
