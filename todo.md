@@ -51,33 +51,26 @@
 
 ## Auditoria do repositório de referência
 
-- [ ] Clonar e catalogar a estrutura do repositório oficial indicado.
-- [ ] Mapear telas, identidade visual, autenticação e fluxos reais.
-- [ ] Comparar o modelo oficial com o preview atual e listar divergências.
-- [ ] Aplicar a primeira correção de frontend baseada no repositório.
-- [ ] Validar e entregar o alinhamento de fidelidade.
+- [x] Arquivar esta frente: o repositório indicado não estava disponível; o primeiro pacote enviado permanece a única referência imutável.
 
 ## Repositório alternativo de referência
 
-- [ ] Clonar e catalogar o repositório `alessandrobarra7/SIGA-SEMED`.
-- [ ] Ler o modelo de tela, autenticação e fluxos implementados.
-- [ ] Comparar as divergências com o preview atual.
-- [ ] Aplicar e validar a primeira correção baseada na referência.
+- [x] Arquivar esta frente: o repositório estava vazio e foi destinado ao novo sistema, não como fonte de referência.
 
 ## Reconstrução do zero baseada no código funcional original
 
 - [x] Consolidar autenticação, primeiro acesso e regras de usuário do código original.
 - [x] Consolidar contratos, processos, financeiro, documentos, filtros e exportação.
 - [x] Definir o escopo mínimo do novo repositório e sua arquitetura.
-- [ ] Reconstruir os fluxos preservados com frontend elaborado.
-- [ ] Validar aderência funcional antes da entrega.
+- [x] Completar os fluxos preservados com frontend elaborado.
+- [x] Validar aderência funcional das páginas em desktop, mobile e com os estados expansíveis.
 
 ## Referência imutável e banco original
 
 - [x] Documentar como o banco Cloudflare D1 é criado e acessado no código de referência.
 - [x] Mapear tabelas, índices, sementes e relações funcionais da referência.
 - [x] Garantir que o código antigo permaneça somente leitura durante a reconstrução.
-- [ ] Definir a camada de persistência do novo sistema sem copiar ou alterar dados antigos.
+- [x] Definir a arquitetura futura com Cloudflare D1 novo, independente e sem migração de dados antigos.
 
 ## Primeiro incremento: páginas fiéis à referência
 
@@ -90,4 +83,12 @@
 ## Limite funcional desta fase de páginas
 
 - [x] Implementar campos, navegação, filtros, accordions e ações visuais sem acessar o banco antigo.
+- [x] Adicionar no módulo Contratos e Processos o filtro visual específico de setor.
+- [x] Completar o financeiro visual do contrato com formulário de baixa, histórico de pagamentos e valores demonstrativos derivados das baixas locais.
+- [x] Adicionar confirmação visual `EXCLUIR` para registros e documentos, antes da fase D1.
+- [x] Revalidar desktop e mobile e atualizar as notas, usando exclusivamente Usuário/Senha no fluxo atual.
 - [ ] Conectar criação, edição, exclusão, pagamentos, exportação e sessão ao novo Cloudflare D1 na fase de infraestrutura.
+
+## Repositório do novo sistema
+
+- [ ] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` quando a integração GitHub possuir permissão efetiva de escrita.
