@@ -56,6 +56,8 @@ Após `Salvar senha`, o shell operacional foi exibido com identificação do usu
 
 A rota interna de revisão visual foi capturada em viewport móvel. O shell reorganiza o cabeçalho, os cinco indicadores, abas, painel de cadastro, filtros e lista de registros em uma coluna, sem ocultar os campos ou quebrar a leitura dos itens. A rota não é exposta na navegação; ela existe apenas para inspeção visual desta fase sem banco.
 
+A ação `Minha senha` do shell abre a página de Segurança em contexto, com Senha atual, Nova senha, Confirmar nova senha, Cancelar e Salvar senha. A tela reaproveita as regras de validação do primeiro acesso e mantém a área operacional visível, porém inativa, até que o painel seja fechado.
+
 ## Início da visualização dos módulos
 
 No previewer, a matrícula demonstrativa `700321-5` e a senha temporária acionaram corretamente a etapa de primeiro acesso. A sequência ainda exige senha atual, nova senha e confirmação antes da liberação dos módulos de Contratos e Processos e Documentos, conforme o comportamento preservado do código original.

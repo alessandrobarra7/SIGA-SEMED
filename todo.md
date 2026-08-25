@@ -85,7 +85,7 @@
 - [x] Construir Login por Usuário/Senha e Primeiro acesso sem integração de banco nesta etapa.
 - [x] Construir o shell operacional, Contratos e Processos e Documentos com os campos reais.
 - [x] Validar navegação e responsividade sem alterar o código de referência.
-- [ ] Documentar a integração Cloudflare D1 para a próxima fase.
+- [x] Documentar a integração Cloudflare D1 para a próxima fase.
 
 ## Limite funcional desta fase de páginas
 
