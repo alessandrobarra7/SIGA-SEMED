@@ -34,3 +34,10 @@
 - [x] Reposicionar os campos para uma composição de acesso mais limpa.
 - [x] Validar a tela reduzida em desktop e celular.
 - [ ] Salvar checkpoint e entregar o ajuste final.
+
+## Recomposição com barra lateral
+
+- [x] Restaurar a barra lateral institucional à esquerda sobre a imagem de fundo atual.
+- [x] Manter a folha clean de Matrícula, Senha e Entrar restrita à coluna direita.
+- [x] Validar a composição bilateral em desktop e celular.
+- [ ] Salvar checkpoint e entregar a recomposição.

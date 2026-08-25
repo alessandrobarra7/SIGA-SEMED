@@ -39,3 +39,7 @@ A ação `Salvar senha` foi concluída com sucesso no previewer. Somente então 
 A tela de acesso foi validada em desktop e celular após a remoção do símbolo operacional de cabeçalho, dos metadados, da orientação persistente de primeiro acesso e dos textos auxiliares do painel direito. O formulário mantém somente título, Matrícula, Senha, mensagem de validação quando necessária e botão `Entrar`; a sequência funcional de primeiro acesso permanece intacta.
 
 Na simplificação final, o título de boas-vindas também foi removido. A página passou a operar como uma única folha administrativa sobre o contexto institucional: identidade SIGA SEMED, Matrícula, Senha, retorno de validação quando necessário e ação `Entrar`. As capturas desktop e celular confirmaram a composição, e a checagem de tipos e build de produção foram concluídos sem erro.
+
+## Recomposição com barra lateral
+
+A barra institucional foi restaurada à esquerda, mantendo o tratamento mais legível da imagem de Paço do Lumiar. A folha clean com SIGA SEMED, Matrícula, Senha e `Entrar` permanece exclusivamente na coluna direita. Em celular, a barra institucional aparece antes do formulário. As capturas nos dois tamanhos e a nova checagem de tipos e build foram concluídas sem erro.

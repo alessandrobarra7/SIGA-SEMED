@@ -81,6 +81,12 @@ A folha de acesso deve permanecer deliberadamente mínima: título, matrícula, 
 
 O login principal utiliza uma única folha administrativa, sem painel de benefícios, lista de ícones, parágrafo explicativo, rodapé institucional ou composição em duas colunas. O contexto municipal permanece exclusivamente no fundo, com tintura Azul Gabinete, enquanto a folha apresenta apenas a identidade SIGA SEMED, matrícula, senha, validação quando necessária e a ação Entrar.
 
+## Ajuste de composição
+
+A composição final volta a usar duas colunas em desktop: a barra institucional da esquerda é restaurada sobre o contexto visual municipal e a folha clean permanece exclusivamente na barra direita. Em celular, a barra institucional antecede o formulário de acesso em uma única coluna.
+
+A barra lateral institucional mostra apenas a identidade oficial e a assinatura SIGA SEMED sobre o contexto municipal tinturado. Listas de benefícios, ícones de produto, texto explicativo e slogans são omitidos; o formulário da direita mantém a função de autenticação como endpoint visual da página.
+
 ## Referência para a futura área de trabalho
 
 A imagem institucional enviada pelo usuário — com a marca Prefeitura Paço do Lumiar, famílias, educação e livros — será a referência de tom humano e cívico para a futura área de trabalho. Ela não será reduzida a um plano de fundo genérico e não será aplicada antecipadamente à tela de login, cuja função é comunicar segurança e acesso institucional.
