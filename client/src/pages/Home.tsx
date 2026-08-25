@@ -2,35 +2,17 @@ import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, KeyRound, LockKeyhole, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import WorkspacePreview from "./WorkspacePreview";
 import { validateFirstAccess } from "./sigaFlow";
+import { SemedLocalAccessUser, useSigaLocalRepository } from "./sigaLocalStore";
 import "./siga-pages.css";
 
 type AccessScreen = "checking" | "login" | "firstAccess" | "workspace";
 
-type PreviewUser = {
-  username: string;
-  displayName: string;
-  role: string;
-};
+type PreviewUser = SemedLocalAccessUser & { sessionToken: string };
 
 const ASSETS = {
   officialLogo: "/manus-storage/semed-logo_62496e33.png",
   paçoLumiar: "/manus-storage/paco-lumiar-login-reference_c8e73635.webp",
 };
-
-function previewIdentity(username: string): PreviewUser {
-  const cleanUsername = username.trim().toLowerCase() || "tecnico1";
-  if (cleanUsername === "admin") {
-    return { username: cleanUsername, displayName: "Administrador", role: "Administrador" };
-  }
-  if (cleanUsername === "tecnico2") {
-    return { username: cleanUsername, displayName: "Técnico SEMED 2", role: "Técnico" };
-  }
-  return {
-    username: cleanUsername,
-    displayName: cleanUsername === "tecnico1" ? "Técnico SEMED 1" : cleanUsername,
-    role: "Técnico",
-  };
-}
 
 function InstitutionalContext() {
   return (
@@ -74,7 +56,7 @@ function CheckingAccess() {
   );
 }
 
-function LoginPage({ onLoggedIn }: { onLoggedIn: (user: PreviewUser) => void }) {
+function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -89,7 +71,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (user: PreviewUser) => void }) 
     }
     setIsSubmitting(true);
     window.setTimeout(() => {
-      onLoggedIn(previewIdentity(username));
+      if (!onLoggedIn(username)) setMessage("Usuário não encontrado na simulação local.");
       setIsSubmitting(false);
     }, 480);
   }
@@ -209,6 +191,7 @@ function FirstAccessPage({ user, onCancel, onChanged }: { user: PreviewUser; onC
 }
 
 export default function Home() {
+  const repository = useSigaLocalRepository();
   const [screen, setScreen] = useState<AccessScreen>("checking");
   const [user, setUser] = useState<PreviewUser | null>(null);
 
@@ -218,7 +201,19 @@ export default function Home() {
   }, []);
 
   if (screen === "checking") return <CheckingAccess />;
-  if (screen === "login") return <LoginPage onLoggedIn={(nextUser) => { setUser(nextUser); setScreen("firstAccess"); }} />;
-  if (screen === "firstAccess" && user) return <FirstAccessPage user={user} onCancel={() => { setUser(null); setScreen("login"); }} onChanged={() => setScreen("workspace")} />;
-  return <WorkspacePreview user={user ?? previewIdentity("tecnico1")} onLogout={() => { setUser(null); setScreen("login"); }} />;
+  if (screen === "login") return <LoginPage onLoggedIn={(username) => {
+    const access = repository.login(username);
+    if (!access) return false;
+    const nextUser = { ...access.user, sessionToken: access.session.tokenHash };
+    setUser(nextUser);
+    setScreen(access.user.mustChangePassword ? "firstAccess" : "workspace");
+    return true;
+  }} />;
+  if (screen === "firstAccess" && user) return <FirstAccessPage user={user} onCancel={() => { repository.logout(user.sessionToken); setUser(null); setScreen("login"); }} onChanged={() => {
+    const updated = repository.completeFirstAccess(user.id);
+    if (updated) setUser({ ...updated, sessionToken: user.sessionToken });
+    setScreen("workspace");
+  }} />;
+  if (screen === "workspace" && user) return <WorkspacePreview user={user} onLogout={() => { repository.logout(user.sessionToken); setUser(null); setScreen("login"); }} />;
+  return <LoginPage onLoggedIn={() => false} />;
 }

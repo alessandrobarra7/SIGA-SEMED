@@ -87,7 +87,22 @@
 - [x] Completar o financeiro visual do contrato com formulário de baixa, histórico de pagamentos e valores demonstrativos derivados das baixas locais.
 - [x] Adicionar confirmação visual `EXCLUIR` para registros e documentos, antes da fase D1.
 - [x] Revalidar desktop e mobile e atualizar as notas, usando exclusivamente Usuário/Senha no fluxo atual.
-- [ ] Conectar criação, edição, exclusão, pagamentos, exportação e sessão ao novo Cloudflare D1 na fase de infraestrutura.
+- [x] Arquivar a conexão com Cloudflare D1: por decisão atual, o novo sistema não acessará qualquer banco externo.
+
+## Simulação local compatível com a referência
+
+- [x] Criar modelo local compartilhado com estruturas compatíveis de usuários, sessões, registros, pagamentos e documentos.
+- [x] Implementar adaptador local de repositórios que preserve os campos, relações e cálculos da referência sem acessar D1.
+- [x] Substituir dados estáticos e avisos de ações por operações simuladas de criar, editar, excluir, baixar, filtrar e exportar.
+- [x] Documentar o mapeamento entre a simulação local e as tabelas/regras do código de referência.
+- [x] Implementar usuários e sessões locais com primeiro acesso e alteração de senha simulados, sem guardar senha real.
+- [x] Validar os fluxos locais e a compatibilidade estrutural com testes automatizados.
+- [x] Cobrir em testes o ciclo CRUD de registros/documentos, baixas, exclusão confirmada, armazenamento local e ciclo de primeiro acesso/sessão.
+- [x] Testar o ciclo do repositório com persistência real no `localStorage` após operações locais.
+- [x] Testar a exclusão integrada, bloqueando remoção sem `EXCLUIR` e aplicando-a com a confirmação correta.
+- [x] Testar primeiro acesso persistido com novo login local após recarga do repositório.
+- [x] Testar o adaptador usado pela UI com `window.localStorage` real após criar, editar, baixar, excluir e reidratar dados.
+- [x] Cobrir o hook real com bloqueio sem `EXCLUIR`, reentrada após Primeiro acesso e reidratação do `localStorage`.
 
 ## Repositório do novo sistema
 
