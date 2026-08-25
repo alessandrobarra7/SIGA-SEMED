@@ -119,3 +119,13 @@
 - [x] Mapear as diferenças estruturais entre o shell original e o preview atual.
 - [x] Reorganizar as páginas do preview conforme a composição real da referência, sem mudar campos ou fluxos.
 - [x] Validar a nova organização em desktop e celular e preservar os fluxos locais já implementados.
+
+## Nova referência operacional enviada
+
+- [x] Extrair o pacote `siga-semed-main(1).zip` em diretório somente leitura e registrar sua estrutura.
+- [ ] Manter a referência em execução isolada e registrar somente os fluxos de escrita que forem seguros e estritamente necessários à reprodução local; operações externas permanecem proibidas.
+- [x] Abrir e registrar as páginas internas de Unidades Escolares, Educa Paço, Recursos Humanos, Nutrição, Estoque, Frota e Usuários, sem alterar dados.
+- [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
+- [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
+- [ ] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
+- [ ] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
