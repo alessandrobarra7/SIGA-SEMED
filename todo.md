@@ -106,4 +106,4 @@
 
 ## Repositório do novo sistema
 
-- [ ] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` quando a integração GitHub possuir permissão efetiva de escrita.
+- [x] Publicar o primeiro incremento do novo frontend em `alessandrobarra7/SIGA-SEMED` no commit remoto `6135fcbb7ee0158de6d278beb1d7a5d89a53f444`.
