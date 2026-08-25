@@ -33,3 +33,7 @@ O login foi corrigido para usar **Matrícula** e **Senha**, com a mensagem de pr
 Os campos de senha atual, nova senha e confirmação foram preenchidos com valores demonstrativos válidos no previewer. A etapa está pronta para concluir a ação `Salvar senha` e liberar o dashboard somente após a alteração da senha temporária.
 
 A ação `Salvar senha` foi concluída com sucesso no previewer. Somente então o dashboard foi exibido, acompanhado da mensagem `Senha atualizada.`, confirmando a sequência: matrícula e senha → primeiro acesso → alteração de senha → área de trabalho.
+
+## Simplificação visual
+
+A tela de acesso foi validada em desktop e celular após a remoção do símbolo operacional de cabeçalho, dos metadados, da orientação persistente de primeiro acesso e dos textos auxiliares do painel direito. O formulário mantém somente título, Matrícula, Senha, mensagem de validação quando necessária e botão `Entrar`; a sequência funcional de primeiro acesso permanece intacta.

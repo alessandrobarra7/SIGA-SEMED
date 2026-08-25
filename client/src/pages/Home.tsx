@@ -397,26 +397,18 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
           <p className="access-footer">SIGA SEMED · Gestão e acompanhamento técnico</p>
         </aside>
 
-        <form className="access-card" onSubmit={submit}>
-          <div className="access-card-header">
-            <div className="access-operational-mark" aria-label="Documento validado em acompanhamento"><span><FileText size={22} /></span><BadgeCheck size={14} /><ArrowUpRight size={13} /></div>
-            <span>Acesso restrito · SEMED</span>
-          </div>
+        <form className="access-card simple-access-card" onSubmit={submit}>
           <div className="access-card-copy">
-            <p className="access-eyebrow dark">Identificação do servidor</p>
             <h2>Entre no<br /><em>SIGA SEMED.</em></h2>
-            <p className="access-card-intro">Acesso restrito à equipe técnica. Informe os dados registrados para o seu vínculo funcional.</p>
           </div>
           <label className="access-label">Matrícula
-            <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" required value={matricula} onChange={(event) => setMatricula(event.target.value)} placeholder="Ex.: 700321-5" aria-describedby="access-help" /></div>
+            <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" required value={matricula} onChange={(event) => setMatricula(event.target.value)} placeholder="Ex.: 700321-5" /></div>
           </label>
           <label className="access-label">Senha
             <div className="access-input-wrap"><ShieldCheck size={17} /><input autoComplete="current-password" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" /></div>
           </label>
-          <p className="first-access-note"><BadgeCheck size={15} /><span>No primeiro acesso, a senha temporária deverá ser alterada antes da abertura do sistema.</span></p>
           {notice ? <p className="access-notice" role="status">{notice}</p> : null}
           <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? <RefreshCw className="spin" size={18} /> : <ArrowUpRight size={18} />}{isSubmitting ? "Entrando..." : "Entrar"}</button>
-          <p id="access-help" className="access-help">Uso exclusivo de usuários autorizados. Matrícula e senha devem corresponder ao cadastro institucional.</p>
         </form>
       </section>
     </main>
@@ -460,9 +452,8 @@ function FirstAccessPage({ onCancel, onChanged }: { onCancel: () => void; onChan
         <div className="access-story-copy"><p className="access-eyebrow">SIGA SEMED</p><h1>Primeiro<br /><em>acesso.</em></h1><p>Atualize a senha temporária para preservar a segurança do acompanhamento técnico e liberar o ambiente de trabalho.</p></div>
         <p className="access-footer">SIGA SEMED · Gestão e acompanhamento técnico</p>
       </aside>
-      <form className="access-card first-access-card" onSubmit={submit}>
-        <div className="access-card-header"><div className="access-operational-mark" aria-label="Documento validado em acompanhamento"><span><FileText size={22} /></span><BadgeCheck size={14} /><ArrowUpRight size={13} /></div><span>Segurança de acesso</span></div>
-        <div className="access-card-copy"><p className="access-eyebrow dark">Primeiro acesso</p><h2>Alterar<br /><em>senha.</em></h2><p className="access-card-intro">Altere a senha temporária antes de acessar o sistema.</p></div>
+      <form className="access-card first-access-card simple-access-card" onSubmit={submit}>
+        <div className="access-card-copy"><h2>Alterar<br /><em>senha.</em></h2></div>
         <label className="access-label">Senha atual<div className="access-input-wrap"><ShieldCheck size={17} /><input autoComplete="current-password" required type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} /></div></label>
         <label className="access-label">Nova senha<div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="new-password" required minLength={10} type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} /></div></label>
         <label className="access-label">Confirmar nova senha<div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="new-password" required minLength={10} type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} /></div></label>

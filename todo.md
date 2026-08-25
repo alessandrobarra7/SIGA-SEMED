@@ -20,3 +20,10 @@
 - [x] Substituir o fluxo genérico pela sequência funcional original, preservando seus estados.
 - [x] Validar em desktop e celular a tela corrigida e a transição após autenticação.
 - [ ] Salvar checkpoint e entregar a correção de fidelidade.
+
+## Simplificação da área de acesso
+
+- [x] Remover o símbolo operacional e os metadados do cabeçalho do formulário.
+- [x] Reduzir o texto de apoio, mantendo apenas identificação, matrícula, senha, primeiro acesso e botão Entrar.
+- [x] Validar a versão simplificada em desktop e celular.
+- [ ] Salvar checkpoint e entregar a simplificação.

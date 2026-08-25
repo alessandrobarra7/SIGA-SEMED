@@ -109,3 +109,6 @@ h1, h2, h3, p { margin-top: 0; }
 
 .first-access-actions { display: grid; grid-template-columns: .5fr 1fr; gap: 8px; }.first-access-actions .access-submit { width: 100%; }.first-access-card { gap: 15px; }.first-access-stage .access-story-copy { margin-top: auto; }.first-access-stage .access-story h1 { font-size: clamp(3rem, 5.1vw, 5.35rem); }
 @media (max-width: 780px) { .first-access-actions { grid-template-columns: 1fr; }.first-access-stage .access-story { min-height: 285px; }.first-access-stage .access-story h1 { font-size: 3.35rem; } }
+
+/* Simplificação solicitada: folha de acesso sem símbolo de cabeçalho, metadados ou textos auxiliares; apenas identificação, campos e ação principal. */
+.simple-access-card { gap: 20px; }.simple-access-card::after { display: none; }.simple-access-card .access-card-copy { border-bottom: 0; padding: 0 0 4px; }.simple-access-card .access-card-copy::after { display: none; }.simple-access-card .access-card-copy h2 { margin: 0; }.simple-access-card .access-label::before { display: none; }.simple-access-card .access-label { gap: 7px; }
