@@ -11,7 +11,7 @@
 - [x] Definir a composição da tela de acesso com identidade institucional e hierarquia de segurança.
 - [x] Implementar os estados de entrada, visibilidade de senha, recuperação e carregamento no frontend React.
 - [x] Validar a tela de acesso em desktop e celular no previewer.
-- [ ] Salvar checkpoint e entregar a página de login.
+- [x] Salvar checkpoint e entregar a página de login.
 
 ## Correção de fidelidade ao código original
 
@@ -19,25 +19,75 @@
 - [x] Usar a imagem institucional enviada diretamente como referência e ativo do login.
 - [x] Substituir o fluxo genérico pela sequência funcional original, preservando seus estados.
 - [x] Validar em desktop e celular a tela corrigida e a transição após autenticação.
-- [ ] Salvar checkpoint e entregar a correção de fidelidade.
+- [x] Salvar checkpoint e entregar a correção de fidelidade.
 
 ## Simplificação da área de acesso
 
 - [x] Remover o símbolo operacional e os metadados do cabeçalho do formulário.
 - [x] Reduzir o texto de apoio, mantendo apenas identificação, matrícula, senha, primeiro acesso e botão Entrar.
 - [x] Validar a versão simplificada em desktop e celular.
-- [ ] Salvar checkpoint e entregar a simplificação.
+- [x] Salvar checkpoint e entregar a simplificação.
 
 ## Painel de acesso essencial
 
 - [x] Remover o título de boas-vindas do formulário.
 - [x] Reposicionar os campos para uma composição de acesso mais limpa.
 - [x] Validar a tela reduzida em desktop e celular.
-- [ ] Salvar checkpoint e entregar o ajuste final.
+- [x] Salvar checkpoint e entregar o ajuste final.
 
 ## Recomposição com barra lateral
 
 - [x] Restaurar a barra lateral institucional à esquerda sobre a imagem de fundo atual.
 - [x] Manter a folha clean de Matrícula, Senha e Entrar restrita à coluna direita.
 - [x] Validar a composição bilateral em desktop e celular.
-- [ ] Salvar checkpoint e entregar a recomposição.
+- [x] Salvar checkpoint e entregar a recomposição.
+
+## Visualização progressiva do código original
+
+- [x] Confirmar a sequência de módulos e estados disponíveis após o acesso.
+- [x] Preparar a demonstração inicial de Contratos e Processos.
+- [x] Validar a troca para Documentos e os detalhes expansíveis.
+- [x] Apresentar a ordem de revisão dos módulos no previewer.
+
+## Auditoria do repositório de referência
+
+- [ ] Clonar e catalogar a estrutura do repositório oficial indicado.
+- [ ] Mapear telas, identidade visual, autenticação e fluxos reais.
+- [ ] Comparar o modelo oficial com o preview atual e listar divergências.
+- [ ] Aplicar a primeira correção de frontend baseada no repositório.
+- [ ] Validar e entregar o alinhamento de fidelidade.
+
+## Repositório alternativo de referência
+
+- [ ] Clonar e catalogar o repositório `alessandrobarra7/SIGA-SEMED`.
+- [ ] Ler o modelo de tela, autenticação e fluxos implementados.
+- [ ] Comparar as divergências com o preview atual.
+- [ ] Aplicar e validar a primeira correção baseada na referência.
+
+## Reconstrução do zero baseada no código funcional original
+
+- [x] Consolidar autenticação, primeiro acesso e regras de usuário do código original.
+- [x] Consolidar contratos, processos, financeiro, documentos, filtros e exportação.
+- [x] Definir o escopo mínimo do novo repositório e sua arquitetura.
+- [ ] Reconstruir os fluxos preservados com frontend elaborado.
+- [ ] Validar aderência funcional antes da entrega.
+
+## Referência imutável e banco original
+
+- [x] Documentar como o banco Cloudflare D1 é criado e acessado no código de referência.
+- [x] Mapear tabelas, índices, sementes e relações funcionais da referência.
+- [x] Garantir que o código antigo permaneça somente leitura durante a reconstrução.
+- [ ] Definir a camada de persistência do novo sistema sem copiar ou alterar dados antigos.
+
+## Primeiro incremento: páginas fiéis à referência
+
+- [x] Mapear as páginas e os estados reais do código de referência.
+- [x] Construir Login por Usuário/Senha e Primeiro acesso sem integração de banco nesta etapa.
+- [x] Construir o shell operacional, Contratos e Processos e Documentos com os campos reais.
+- [x] Validar navegação e responsividade sem alterar o código de referência.
+- [ ] Documentar a integração Cloudflare D1 para a próxima fase.
+
+## Limite funcional desta fase de páginas
+
+- [x] Implementar campos, navegação, filtros, accordions e ações visuais sem acessar o banco antigo.
+- [ ] Conectar criação, edição, exclusão, pagamentos, exportação e sessão ao novo Cloudflare D1 na fase de infraestrutura.

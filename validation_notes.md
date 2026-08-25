@@ -43,3 +43,31 @@ Na simplificação final, o título de boas-vindas também foi removido. A pági
 ## Recomposição com barra lateral
 
 A barra institucional foi restaurada à esquerda, mantendo o tratamento mais legível da imagem de Paço do Lumiar. A folha clean com SIGA SEMED, Matrícula, Senha e `Entrar` permanece exclusivamente na coluna direita. Em celular, a barra institucional aparece antes do formulário. As capturas nos dois tamanhos e a nova checagem de tipos e build foram concluídas sem erro.
+
+## Páginas reconstruídas a partir da referência
+
+O novo conjunto de páginas substitui a antiga simulação por Matrícula. Em desktop e celular, o acesso agora usa **Usuário** (placeholder `Ex.: tecnico1`) e **Senha**, como no primeiro código funcional. O preenchimento demonstrativo conduziu corretamente ao estado **Primeiro acesso**, que apresenta senha atual, nova senha, confirmação, mensagem obrigatória e as ações `Sair` e `Salvar senha` antes da área operacional. Nenhuma chamada ao banco antigo foi executada.
+
+O build do conjunto de páginas foi concluído sem erro. A navegação foi reiniciada no previewer e as credenciais demonstrativas foram preenchidas na nova tela por Usuário/Senha para validar novamente a passagem para Primeiro acesso antes dos módulos operacionais.
+
+No fluxo retomado, o botão `Entrar` abriu a etapa obrigatória de Primeiro acesso. Senha atual, Nova senha e Confirmar nova senha foram preenchidas com valores demonstrativos válidos, mantendo o dashboard bloqueado até a ação `Salvar senha`.
+
+Após `Salvar senha`, o shell operacional foi exibido com identificação do usuário/papel, ações de senha, atualização, impressão, exportação e saída, além dos cinco indicadores de resumo. A aba inicial de Contratos e Processos mostrou cadastro, filtros e quatro registros expansíveis; a troca para Documentos mostrou cadastro, filtros e os três tipos documentais da referência: Ofício, Memorando e Despacho.
+
+A rota interna de revisão visual foi capturada em viewport móvel. O shell reorganiza o cabeçalho, os cinco indicadores, abas, painel de cadastro, filtros e lista de registros em uma coluna, sem ocultar os campos ou quebrar a leitura dos itens. A rota não é exposta na navegação; ela existe apenas para inspeção visual desta fase sem banco.
+
+## Início da visualização dos módulos
+
+No previewer, a matrícula demonstrativa `700321-5` e a senha temporária acionaram corretamente a etapa de primeiro acesso. A sequência ainda exige senha atual, nova senha e confirmação antes da liberação dos módulos de Contratos e Processos e Documentos, conforme o comportamento preservado do código original.
+
+Os três campos de alteração de senha foram preenchidos com dados demonstrativos válidos no previewer. A próxima ação `Salvar senha` libera a primeira área prevista para revisão: Contratos e Processos.
+
+Após salvar a senha demonstrativa, o previewer abriu a área inicial de **Contratos e Processos**. Ela contém indicadores, abas de módulos, cadastro expansível, relatório/alertas, gráficos, filtros e registros expansíveis; a área **Documentos** permanece como a próxima etapa da revisão.
+
+A sessão demonstrativa foi retomada para continuar a revisão pelo módulo Documentos, sem inserção, alteração ou exclusão de dados do preview.
+
+A etapa de primeiro acesso foi novamente confirmada durante a retomada, com senha atual, nova senha e confirmação preenchidas de forma demonstrativa antes de retornar ao dashboard.
+
+O módulo **Documentos** foi aberto com sucesso. Ele preserva cadastro expansível de ofício, memorando e despacho, indicadores documentais, gráfico por tipo, leitura de prazos, filtros e três itens expansíveis com prévia textual, edição e exclusão.
+
+A lista documental e seus três registros foram visualizados no previewer junto aos controles de filtro e aos acionadores expansíveis. Nenhum dado foi modificado durante a revisão.

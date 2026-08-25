@@ -5,12 +5,18 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import WorkspacePreview from "./pages/WorkspacePreview";
 
+function WorkspaceVisualReview() {
+  return <WorkspacePreview user={{ displayName: "Técnico SEMED 1", role: "Técnico" }} onLogout={() => undefined} />;
+}
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/pages-preview"} component={WorkspaceVisualReview} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
