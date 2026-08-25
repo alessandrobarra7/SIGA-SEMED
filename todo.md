@@ -128,4 +128,14 @@
 - [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
 - [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
 - [ ] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
-- [ ] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
+- [x] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
+
+## Reprodução visual autorizada — shell operacional
+
+- [x] Preservar a página de login oficial e preparar o shell autenticado com dados demonstrativos locais.
+- [x] Implementar centro de boas-vindas com transição explícita para o painel, sem envio externo de comunicados.
+- [x] Implementar cabeçalho institucional, contexto de usuário, ações locais de conta e barra lateral ordenada conforme a referência.
+- [x] Implementar a visão Início com agenda, prazos, anotações e indicadores demonstrativos, sem alterar os fluxos existentes de contratos e documentos.
+- [x] Validar desktop, mobile, testes automatizados e build do primeiro incremento do shell.
+- [x] Validar em viewport mobile o fluxo final de login, boas-vindas, Início, submenus e acesso a Contratos/Documentos sem atalhos temporários.
+- [x] Salvar checkpoint e apresentar o primeiro incremento visual do shell.

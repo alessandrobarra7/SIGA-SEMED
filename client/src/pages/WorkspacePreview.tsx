@@ -1,20 +1,29 @@
 import { FormEvent, useMemo, useState } from "react";
 import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
   ChevronDown,
   ClipboardCheck,
+  Clock3,
   Download,
+  FileClock,
   FileText,
   KeyRound,
+  ListChecks,
   LogOut,
   Pencil,
+  Plus,
   Printer,
   RefreshCw,
   Search,
+  StickyNote,
   Trash2,
   WalletCards,
   X,
 } from "lucide-react";
 import { validateFirstAccess } from "./sigaFlow";
+import SemedOperationalShell, { ShellView, shellViewLabel } from "./SemedOperationalShell";
 import {
   parseBrazilianAmount,
   SemedDocument,
@@ -141,9 +150,96 @@ function exportSimulation(records: SemedRecord[], documents: SemedDocument[]) {
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "siga-semed-simulacao-local.csv"; anchor.click(); URL.revokeObjectURL(url);
 }
 
+const agendaDays = [
+  { day: "SEG", date: "25", tone: "navy", items: ["Acompanhamento de prazos"] },
+  { day: "TER", date: "26", tone: "green", items: ["Rotina de documentos"] },
+  { day: "QUA", date: "27", tone: "orange", items: ["Conferência administrativa"] },
+  { day: "QUI", date: "28", tone: "slate", items: ["Atualização de pendências"] },
+  { day: "SEX", date: "29", tone: "navy", items: ["Fechamento semanal"] },
+];
+
+function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
+  const firstName = user.displayName.split(" ")[0] || "Equipe";
+  return <section className="siga-welcome" aria-labelledby="welcome-title">
+    <div className="siga-welcome-hero">
+      <div>
+        <p className="siga-kicker">Painel institucional</p>
+        <h1 id="welcome-title">Olá, {firstName}.</h1>
+        <p className="siga-welcome-copy">Este é o centro de acompanhamento do SIGA SEMED. Consulte o resumo da operação, navegue pelos módulos e mantenha os fluxos de trabalho organizados em uma única área.</p>
+        <div className="siga-welcome-actions">
+          <button type="button" className="siga-welcome-primary" onClick={onStart}>Ir para o painel <ArrowRight size={17} aria-hidden="true" /></button>
+          <span><CheckCircle2 size={16} aria-hidden="true" />Ambiente demonstrativo local</span>
+        </div>
+      </div>
+      <aside className="siga-welcome-status">
+        <span>Visão de hoje</span>
+        <strong>Rotina institucional</strong>
+        <p>Os atalhos abaixo preservam a organização do sistema de referência, com dados próprios do preview.</p>
+        <div>
+          <CalendarDays size={19} aria-hidden="true" />
+          <small>Agenda semanal disponível no painel inicial</small>
+        </div>
+      </aside>
+    </div>
+    <div className="siga-welcome-briefing">
+      <article><span className="siga-briefing-icon navy"><ListChecks size={18} aria-hidden="true" /></span><div><strong>Gestão centralizada</strong><p>Alertas, tarefas, anexos e aprovações organizados por contexto.</p></div></article>
+      <article><span className="siga-briefing-icon green"><FileText size={18} aria-hidden="true" /></span><div><strong>Documentos e contratos</strong><p>Fluxos locais existentes permanecem disponíveis no menu lateral.</p></div></article>
+      <article><span className="siga-briefing-icon orange"><Clock3 size={18} aria-hidden="true" /></span><div><strong>Rotina acompanhada</strong><p>Prazos e pendências podem ser revisados diretamente pela visão Início.</p></div></article>
+    </div>
+  </section>;
+}
+
+function HomeDashboard({ records, documents, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; onViewChange: (view: ShellView) => void }) {
+  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<string[]>([]);
+  const dueRecords = records.filter((record) => recordAlert(record) !== "Em dia").length;
+  const dueDocuments = documents.filter((document) => documentAlert(document) !== "Em dia").length;
+
+  function saveNote(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = note.trim();
+    if (!value) return;
+    setNotes((current) => [value, ...current].slice(0, 3));
+    setNote("");
+  }
+
+  return <section className="siga-home" aria-labelledby="home-title">
+    <header className="siga-home-heading">
+      <div><p className="siga-kicker">Página inicial</p><h1 id="home-title">Acompanhamento da semana</h1><span>Visão local de agenda, prioridades e acesso rápido aos fluxos já disponíveis.</span></div>
+      <button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><ListChecks size={16} aria-hidden="true" />Ver minhas tarefas</button>
+    </header>
+
+    <div className="siga-home-overview">
+      <article className="siga-home-hero-card"><span>Resumo operacional</span><strong>Organize o acompanhamento sem sair do contexto.</strong><p>Consulte prazos, documentos e contratos locais a partir dos atalhos do painel.</p><div><button type="button" onClick={() => onViewChange("records")}>Abrir contratos</button><button type="button" onClick={() => onViewChange("documents")}>Abrir documentos</button></div></article>
+      <article className="siga-home-stat"><span className="siga-home-stat-icon orange"><FileClock size={17} aria-hidden="true" /></span><strong>{dueRecords}</strong><small>contrato(s) com alerta</small></article>
+      <article className="siga-home-stat"><span className="siga-home-stat-icon green"><ClipboardCheck size={17} aria-hidden="true" /></span><strong>{dueDocuments}</strong><small>documento(s) com alerta</small></article>
+      <article className="siga-home-stat"><span className="siga-home-stat-icon navy"><CalendarDays size={17} aria-hidden="true" /></span><strong>{agendaDays.length}</strong><small>rotinas na semana</small></article>
+    </div>
+
+    <div className="siga-home-grid">
+      <section className="siga-agenda-card" aria-labelledby="agenda-title">
+        <div className="siga-card-heading"><div><p>Agenda institucional</p><h2 id="agenda-title">Semana de acompanhamento</h2></div><span>Agosto</span></div>
+        <div className="siga-week-grid">{agendaDays.map((item) => <article key={item.day} className={`siga-week-day ${item.tone}`}><small>{item.day}</small><strong>{item.date}</strong>{item.items.map((agendaItem) => <span key={agendaItem}>{agendaItem}</span>)}</article>)}</div>
+        <footer><CalendarDays size={15} aria-hidden="true" />Calendário demonstrativo alinhado à rotina administrativa.</footer>
+      </section>
+
+      <section className="siga-notes-card" aria-labelledby="notes-title">
+        <div className="siga-card-heading"><div><p>Anotações rápidas</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
+        <form onSubmit={saveNote} className="siga-quick-note-form"><input aria-label="Nova anotação" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Registrar um lembrete local" /><button type="submit" aria-label="Adicionar anotação"><Plus size={16} aria-hidden="true" /></button></form>
+        <div className="siga-quick-notes">{notes.length ? notes.map((item, index) => <p key={`${item}-${index}`}>{item}</p>) : <p className="empty">Nenhuma anotação criada nesta sessão.</p>}</div>
+      </section>
+    </div>
+  </section>;
+}
+
+function ModulePlaceholder({ view, onHome }: { view: ShellView; onHome: () => void }) {
+  const label = shellViewLabel(view);
+  return <section className="siga-module-placeholder"><div className="siga-placeholder-mark"><ClipboardCheck size={22} aria-hidden="true" /></div><p className="siga-kicker">Módulo mapeado</p><h1>{label}</h1><p>O shell, a navegação e a posição deste módulo já foram reproduzidos. A composição interna será incorporada no próximo grupo, preservando filtros, abas e fluxos observados na referência.</p><button type="button" onClick={onHome}>Voltar ao Início</button></section>;
+}
+
 export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: { user: User; onLogout: () => void; onPasswordChanged?: () => void }) {
   const repository = useSigaLocalRepository();
-  const [module, setModule] = useState<Module>("records"); const [formOpen, setFormOpen] = useState(false); const [expanded, setExpanded] = useState(""); const [query, setQuery] = useState(""); const [kind, setKind] = useState("Todos"); const [status, setStatus] = useState("Todos"); const [department, setDepartment] = useState("Todos"); const [notice, setNotice] = useState(""); const [securityOpen, setSecurityOpen] = useState(false); const [paymentRecordId, setPaymentRecordId] = useState(""); const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null); const [editing, setEditing] = useState<Editing>(null);
+  const [module, setModule] = useState<Module>("records"); const [activeView, setActiveView] = useState<ShellView>("welcome"); const [formOpen, setFormOpen] = useState(false); const [expanded, setExpanded] = useState(""); const [query, setQuery] = useState(""); const [kind, setKind] = useState("Todos"); const [status, setStatus] = useState("Todos"); const [department, setDepartment] = useState("Todos"); const [notice, setNotice] = useState(""); const [securityOpen, setSecurityOpen] = useState(false); const [paymentRecordId, setPaymentRecordId] = useState(""); const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null); const [editing, setEditing] = useState<Editing>(null);
   const departments = useMemo(() => Array.from(new Set(repository.records.map((record) => record.department))).sort(), [repository.records]);
   const filteredRecords = useMemo(() => repository.records.filter((record) => `${record.number} ${record.object} ${record.department} ${record.party}`.toLowerCase().includes(query.toLowerCase()) && (kind === "Todos" || record.kind === kind) && (status === "Todos" || record.status === status || recordAlert(record) === status) && (department === "Todos" || record.department === department)), [department, kind, query, repository.records, status]);
   const filteredDocuments = useMemo(() => repository.documents.filter((document) => `${document.number} ${document.subject} ${document.destination} ${document.relatedRecord}`.toLowerCase().includes(query.toLowerCase()) && (kind === "Todos" || document.kind === kind) && (status === "Todos" || document.status === status || documentAlert(document) === status)), [kind, query, repository.documents, status]);
@@ -153,25 +249,34 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
   const openDocuments = repository.documents.filter((document) => !/CONCLU[IÍ]DO|CANCELADO/i.test(document.status));
   const recordForm = editing?.kind === "record" ? editing.data : undefined; const documentForm = editing?.kind === "document" ? editing.data : undefined;
 
-  function switchModule(next: Module) { setModule(next); setFormOpen(false); setExpanded(""); setQuery(""); setKind("Todos"); setStatus("Todos"); setDepartment("Todos"); setPaymentRecordId(""); setEditing(null); }
+  function switchModule(next: Module) { setModule(next); setActiveView(next === "records" ? "records" : "documents"); setFormOpen(false); setExpanded(""); setQuery(""); setKind("Todos"); setStatus("Todos"); setDepartment("Todos"); setPaymentRecordId(""); setEditing(null); }
+  function changeView(next: ShellView) { if (next === "records") return switchModule("records"); if (next === "documents") return switchModule("documents"); setActiveView(next); setFormOpen(false); setExpanded(""); setPaymentRecordId(""); setEditing(null); }
   function closeForm() { setFormOpen(false); setEditing(null); }
   function saveRecord(input: SemedRecordInput) { const isEdit = Boolean(recordForm); const result = recordForm ? repository.updateRecord(recordForm.id, input) : repository.createRecord(input); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Registro atualizado" : "Registro cadastrado"} na simulação local.`); } }
   function saveDocument(input: SemedDocumentInput) { const isEdit = Boolean(documentForm); const result = documentForm ? repository.updateDocument(documentForm.id, input) : repository.createDocument(input); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Documento atualizado" : "Documento cadastrado"} na simulação local.`); } }
   function confirmDelete(confirmation: string) { const target = deleteTarget; if (!target) return; const deleted = target.kind === "registro" ? repository.deleteRecord(target.id, confirmation) : repository.deleteDocument(target.id, confirmation); if (!deleted) return setNotice("Exclusão não confirmada na simulação local."); setDeleteTarget(null); setExpanded(""); setNotice(`${target.kind === "registro" ? "Registro" : "Documento"} excluído somente da simulação local.`); }
 
   const isRecords = module === "records";
-  return <main className="siga-workspace">
-    {securityOpen ? <SecurityPanel user={user} onClose={() => setSecurityOpen(false)} onSaved={() => { if (user.id) repository.changePassword(user.id); onPasswordChanged?.(); setSecurityOpen(false); setNotice("Senha atualizada na simulação local."); }} /> : null}
-    {deleteTarget ? <DeleteConfirmation target={deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={confirmDelete} /> : null}
-    <header className="siga-top-panel"><div className="siga-top-brand"><img src={logo} alt="Prefeitura de Paço do Lumiar — SEMED" /><div><p>Sistema Integrado de Gestão e Acompanhamento</p><h1>SIGA SEMED</h1><span>Contratos, processos, ofícios, memorandos, despachos, prazos e documentos de acompanhamento da equipe técnica.</span></div></div><div className="siga-top-actions"><div className="siga-user-chip"><strong>{user.displayName}</strong><small>{user.role}</small></div><button title="Minha senha" type="button" onClick={() => setSecurityOpen(true)}><KeyRound size={17} /></button><button title="Atualizar simulação" type="button" onClick={() => setNotice("Dados locais atualizados na tela.")}><RefreshCw size={17} /></button><button title="Imprimir relatório" type="button" onClick={() => window.print()}><Printer size={17} /></button><button className="primary" title="Exportar CSV local" type="button" onClick={() => { exportSimulation(repository.records, repository.documents); setNotice("CSV gerado a partir da simulação local."); }}><Download size={17} /></button><button title="Sair" type="button" onClick={onLogout}><LogOut size={17} /></button></div></header>
+  const localContent = <section className="siga-module-surface">
     <section className="siga-summary-grid"><Metric label="Registros" value={repository.records.length} tone="neutral" /><Metric label="Ativos" value={repository.records.filter((record) => record.status === "Vigente").length} tone="good" /><Metric label="A vencer" value={repository.records.filter((record) => recordAlert(record) === "A vencer").length} tone="warning" /><Metric label="Vencidos" value={repository.records.filter((record) => recordAlert(record) === "Vencido").length} tone="danger" /><Metric label="Saldo a pagar" value={money.format(totalBalance)} tone="money" /></section>
     <nav className="siga-module-tabs"><button className={isRecords ? "active" : ""} type="button" onClick={() => switchModule("records")}><WalletCards size={17} />Contratos e Processos <em>{repository.records.length}</em></button><button className={!isRecords ? "active" : ""} type="button" onClick={() => switchModule("documents")}><ClipboardCheck size={17} />Documentos <em>{repository.documents.length}</em></button></nav>
-    {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
     <section className="siga-workspace-grid">
       <section className="siga-form-panel"><button type="button" className="siga-panel-trigger" onClick={() => { setEditing(null); setFormOpen((current) => !current); }}><span><small>{isRecords ? "Cadastro" : "Documentos"}</small><strong>{editing ? (isRecords ? "Editar registro" : "Editar documento") : isRecords ? "Novo registro" : "Novo documento"}</strong></span><ChevronDown className={formOpen ? "open" : ""} size={19} /></button>{formOpen ? isRecords ? <RecordForm initial={recordForm} onSave={saveRecord} onCancel={closeForm} /> : <DocumentForm initial={documentForm} onSave={saveDocument} onCancel={closeForm} /> : <p className="siga-form-hint">{isRecords ? "Abra o cadastro para incluir ou editar contratos e processos, mantendo campos financeiros e de prazo." : "Abra o cadastro para criar ou editar ofícios, memorandos e despachos com modelos, vínculos e prazos."}</p>}</section>
       {isRecords ? <section className="siga-list-panel"><div className="siga-list-heading"><div><p>Acompanhamento</p><h2>Relatório e alertas</h2></div><span>{filteredRecords.length} de {repository.records.length} registros</span></div><AlertStrip items={recordAlerts} emptyTitle="Prazos em dia" emptyDescription="Nenhum vencimento dentro da janela configurada." /><div className="siga-filters records"><span><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Número, objeto, fornecedor, setor..." /></span><select aria-label="Filtrar por tipo" value={kind} onChange={(event) => setKind(event.target.value)}><option>Todos</option><option>Contrato</option><option>Processo</option></select><select aria-label="Filtrar por situação" value={status} onChange={(event) => setStatus(event.target.value)}><option>Todos</option><option>Em dia</option><option>A vencer</option><option>Vencido</option><option>Vigente</option><option>Em andamento</option></select><select aria-label="Filtrar por setor" value={department} onChange={(event) => setDepartment(event.target.value)}><option>Todos</option>{departments.map((item) => <option key={item}>{item}</option>)}</select></div><div className="siga-record-list">{filteredRecords.map((record) => <RecordAccordion key={record.id} record={record} expanded={expanded === record.id} paymentOpen={paymentRecordId === record.id} onToggle={() => setExpanded(expanded === record.id ? "" : record.id)} onTogglePayment={() => setPaymentRecordId(paymentRecordId === record.id ? "" : record.id)} onEdit={() => { setEditing({ kind: "record", data: record }); setFormOpen(true); }} onDelete={() => setDeleteTarget({ kind: "registro", id: record.id, label: `${record.kind} ${record.number}` })} onPayment={(paymentDate, amount, notes, nextPaymentDueDate) => { const result = repository.createPayment({ recordId: record.id, paymentDate, amount, notes, nextPaymentDueDate }); if (!result.error) { setPaymentRecordId(""); setNotice("Baixa registrada na simulação local."); } return result.error; }} onRemovePayment={(paymentId) => { repository.deletePayment(paymentId); setNotice("Baixa removida da simulação local."); }} />)}</div></section> : <section className="siga-list-panel"><div className="siga-list-heading"><div><p>Controle documental</p><h2>Ofícios, memorandos e despachos</h2></div><span>{filteredDocuments.length} de {repository.documents.length} documentos</span></div><section className="siga-document-kpis"><Metric label="Documentos" value={repository.documents.length} tone="neutral" /><Metric label="Em aberto" value={openDocuments.length} tone="good" /><Metric label="A vencer" value={repository.documents.filter((document) => documentAlert(document) === "A vencer").length} tone="warning" /><Metric label="Vencidos" value={repository.documents.filter((document) => documentAlert(document) === "Vencido").length} tone="danger" /><Metric label="Modelos" value={6} tone="money" /></section><AlertStrip items={documentAlerts} emptyTitle="Documentos em dia" emptyDescription="Nenhuma resposta vencendo dentro da janela padrão." /><div className="siga-filters"><span><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Número, assunto, setor, vínculo..." /></span><select aria-label="Filtrar por tipo" value={kind} onChange={(event) => setKind(event.target.value)}><option>Todos</option><option>Ofício</option><option>Memorando</option><option>Despacho</option></select><select aria-label="Filtrar por situação" value={status} onChange={(event) => setStatus(event.target.value)}><option>Todos</option><option>Em dia</option><option>A vencer</option><option>Vencido</option><option>Em elaboração</option><option>Aguardando resposta</option></select></div><div className="siga-record-list">{filteredDocuments.map((document) => <DocumentAccordion key={document.id} document={document} expanded={expanded === document.id} onToggle={() => setExpanded(expanded === document.id ? "" : document.id)} onEdit={() => { setEditing({ kind: "document", data: document }); setFormOpen(true); }} onDelete={() => setDeleteTarget({ kind: "documento", id: document.id, label: `${document.kind} ${document.number}` })} />)}</div></section>}
     </section>
-  </main>;
+  </section>;
+
+  return <>
+    {securityOpen ? <SecurityPanel user={user} onClose={() => setSecurityOpen(false)} onSaved={() => { if (user.id) repository.changePassword(user.id); onPasswordChanged?.(); setSecurityOpen(false); setNotice("Senha atualizada na simulação local."); }} /> : null}
+    {deleteTarget ? <DeleteConfirmation target={deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={confirmDelete} /> : null}
+    <SemedOperationalShell user={user} activeView={activeView} onViewChange={changeView} onPassword={() => setSecurityOpen(true)} onLogout={onLogout} logo={logo}>
+      {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
+      {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
+      {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} onViewChange={changeView} /> : null}
+      {activeView === "records" || activeView === "documents" ? localContent : null}
+      {!["welcome", "home", "records", "documents"].includes(activeView) ? <ModulePlaceholder view={activeView} onHome={() => changeView("home")} /> : null}
+    </SemedOperationalShell>
+  </>;
 }
 
 function RecordAccordion({ record, expanded, paymentOpen, onToggle, onTogglePayment, onEdit, onDelete, onPayment, onRemovePayment }: { record: SemedRecord; expanded: boolean; paymentOpen: boolean; onToggle: () => void; onTogglePayment: () => void; onEdit: () => void; onDelete: () => void; onPayment: (date: string, amount: number, notes: string, dueDate: string) => string | null; onRemovePayment: (id: string) => void }) {
