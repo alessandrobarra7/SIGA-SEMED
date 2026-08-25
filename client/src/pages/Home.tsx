@@ -12,6 +12,8 @@ import {
   Copy,
   FileText,
   Filter,
+  Eye,
+  EyeOff,
   KeyRound,
   Landmark,
   LogOut,
@@ -359,34 +361,70 @@ function LoginPage({ onEnter }: { onEnter: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [notice, setNotice] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [remember, setRemember] = useState(true);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!username || !password) {
-      setNotice("Informe usuário e senha para acessar a demonstração.");
+      setNotice("Informe seu usuário institucional e sua senha para continuar.");
       return;
     }
-    onEnter();
+    setIsSubmitting(true);
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      onEnter();
+    }, 520);
   }
 
   return (
-    <main className="siga-login-shell">
-      <div className="login-ambient" style={{ backgroundImage: `url(${ASSETS.documents})` }} />
-      <form className="siga-login-card" onSubmit={submit}>
-        <div className="login-brand-row">
-          <img src={ASSETS.officialLogo} alt="Prefeitura de Paço do Lumiar — SEMED" className="login-official-logo" />
-          <img src={ASSETS.mark} alt="Marca operacional SIGA SEMED" className="login-mark" />
-        </div>
-        <div className="login-copy">
-          <p className="siga-kicker">Sistema Integrado de Gestão e Acompanhamento</p>
-          <h1>SIGA <em>SEMED</em></h1>
-          <p>Acesso reservado à equipe técnica. Entre para acompanhar contratos, processos e documentos.</p>
-        </div>
-        <label>Usuário<input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Ex.: tecnico1" /></label>
-        <label>Senha<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" /></label>
-        {notice ? <p className="inline-notice" role="status">{notice}</p> : null}
-        <button className="primary-action full" type="submit"><ShieldCheck size={18} /> Entrar no sistema</button>
-      </form>
+    <main className="access-shell">
+      <div className="access-canvas" style={{ backgroundImage: `linear-gradient(115deg, rgba(13,47,80,.98) 0%, rgba(18,58,99,.91) 55%, rgba(18,58,99,.82) 100%), url(${ASSETS.header})` }} />
+      <section className="access-stage">
+        <aside className="access-story" aria-label="Apresentação do sistema">
+          <div className="access-institution">
+            <img src={ASSETS.officialLogo} alt="Prefeitura de Paço do Lumiar — SEMED" />
+            <span>Prefeitura de Paço do Lumiar<br />Secretaria Municipal de Educação</span>
+          </div>
+          <div className="access-story-copy">
+            <p className="access-eyebrow">Ambiente institucional</p>
+            <h1>SIGA <em>SEMED</em></h1>
+            <p>Organize contratos, processos, documentos e prazos com uma visão técnica única para a equipe de acompanhamento.</p>
+          </div>
+          <div className="access-guides" aria-label="Recursos disponíveis">
+            <article><FileText size={19} /><span><strong>Controle documental</strong><small>Ofícios, memorandos e despachos.</small></span></article>
+            <article><Clock3 size={19} /><span><strong>Monitoramento de prazos</strong><small>Alertas para decisões no tempo certo.</small></span></article>
+            <article><ShieldCheck size={19} /><span><strong>Acesso protegido</strong><small>Uso restrito a usuários autorizados.</small></span></article>
+          </div>
+          <p className="access-footer">SIGA SEMED · Gestão e acompanhamento técnico</p>
+        </aside>
+
+        <form className="access-card" onSubmit={submit}>
+          <div className="access-card-header">
+            <div className="access-operational-mark" aria-label="Documento validado em acompanhamento"><span><FileText size={22} /></span><BadgeCheck size={14} /><ArrowUpRight size={13} /></div>
+            <span>Registro de acesso · SIGA/02</span>
+          </div>
+          <div className="access-card-copy">
+            <p className="access-eyebrow dark">Acesso ao monitoramento técnico</p>
+            <h2>Autorize o<br /><em>acompanhamento.</em></h2>
+            <p className="access-card-intro">Informe as credenciais atribuídas à equipe que acompanha contratos, processos, documentos e prazos.</p>
+          </div>
+          <label className="access-label">Usuário ou e-mail institucional
+            <div className="access-input-wrap"><KeyRound size={17} /><input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Ex.: tecnico1" aria-describedby="access-help" /></div>
+          </label>
+          <label className="access-label">Senha
+            <div className="access-input-wrap"><ShieldCheck size={17} /><input type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" /><button className="password-visibility" type="button" aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div>
+          </label>
+          <div className="access-options">
+            <label className="remember-option"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /><span>Manter acesso neste dispositivo</span></label>
+            <button type="button" onClick={() => setNotice("Para recuperar o acesso, entre em contato com a administração do sistema.")}>Esqueci minha senha</button>
+          </div>
+          {notice ? <p className="access-notice" role="status">{notice}</p> : null}
+          <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? <RefreshCw className="spin" size={18} /> : <ArrowUpRight size={18} />}{isSubmitting ? "Verificando acesso..." : "Entrar com segurança"}</button>
+          <p id="access-help" className="access-help">Uso exclusivo de usuários autorizados. O acesso é destinado ao acompanhamento técnico da SEMED.</p>
+        </form>
+      </section>
     </main>
   );
 }
@@ -444,7 +482,7 @@ function DocumentRow({ document, open, onToggle, onEdit, onDelete, onCopy }: { d
 }
 
 export default function Home() {
-  const [authenticated, setAuthenticated] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
   const [activeModule, setActiveModule] = useState<ModuleKey>("records");
   const [records, setRecords] = useState<RecordItem[]>(initialRecords);
   const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);

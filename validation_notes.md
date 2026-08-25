@@ -21,3 +21,7 @@ As alterações são exclusivamente de frontend e usam dados demonstrativos mant
 Capturas em 1440 px e em 375 px confirmaram que a sequência funcional se mantém. No desktop, cadastro ocupa a coluna de apoio à esquerda e acompanhamento permanece na coluna principal à direita; no celular, a mesma ordem fica empilhada: cabeçalho, aviso, KPIs, abas, cadastro, acompanhamento, análises, alertas, filtros e registros.
 
 `pnpm check` e `pnpm build` foram concluídos sem erros. O bundle alerta apenas para um chunk JavaScript acima de 500 kB, decorrente da inclusão da biblioteca de gráficos; é uma oportunidade futura de code-splitting, sem impedir a execução atual do preview.
+
+## Página de login institucional
+
+A página inicial passou a abrir na tela de acesso. Foram validados no previewer os campos de usuário e senha, o estado de processamento `Verificando acesso...` e a liberação posterior do dashboard React ao enviar credenciais demonstrativas. A autenticação permanece propositalmente local ao frontend nesta fase; não foram inseridas credenciais reais nem alterados endpoints, APIs ou regras do backend.
