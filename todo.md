@@ -391,5 +391,5 @@
 
 - [x] Revisar o estado Git, os arquivos de migração v7, testes e a autorização de escrita antes do envio.
 - [x] Criar commit descritivo com Configurações institucionais, migração v7, testes e documentação.
-- [ ] Enviar a atualização para a branch principal do repositório autorizado.
-- [ ] Confirmar o hash remoto e orientar sobre segurança de credenciais.
+- [x] Enviar a atualização para a branch principal do repositório autorizado.
+- [x] Confirmar o hash remoto e orientar sobre segurança de credenciais.
