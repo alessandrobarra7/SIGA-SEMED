@@ -358,3 +358,9 @@
 - [x] Reformular barra lateral, cabeçalho e painel inicial sem alterar comportamentos.
 - [x] Harmonizar os módulos internos e validar desktop, mobile, testes, TypeScript e build.
 - [x] Documentar, salvar checkpoint e apresentar o novo ambiente interno.
+
+## Ajuste visual solicitado — remoção de imagem fotográfica
+
+- [x] Remover a imagem municipal fotográfica do ambiente autenticado, incluindo barra lateral, boas-vindas e painel inicial.
+- [x] Preservar a tela de login congelada e todos os fluxos funcionais durante o ajuste.
+- [x] Validar o ambiente interno limpo, documentar e salvar checkpoint.

@@ -259,18 +259,14 @@
   position: absolute;
   inset: auto 0 0;
   display: block;
-  min-height: 180px;
+  min-height: 78px;
   padding: 0 24px 23px;
   border: 0;
   background: linear-gradient(0deg, rgba(239, 253, 244, .98), rgba(255,255,255,.08)) !important;
   color: #278d50;
 }
 .siga-shell .siga-shell-sidebar-art {
-  height: 110px;
-  margin: 0 -24px 9px;
-  opacity: .22;
-  background: url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat;
-  mix-blend-mode: multiply;
+  display: none;
 }
 .siga-shell .siga-shell-sidebar-footer > div:last-child { display: flex; align-items: center; gap: 9px; font-size: 10px; font-weight: 800; line-height: 1.3; }
 .siga-shell .siga-shell-sidebar-footer svg { flex: none; }
@@ -317,10 +313,10 @@
 .siga-shell-content { width: min(1280px, 100%); padding: 28px clamp(22px, 4vw, 60px) 42px; }
 
 .siga-home-editorial { gap: 18px; }
-.siga-home-editorial-intro { display: grid; grid-template-columns: minmax(220px, .86fr) minmax(310px, 1.14fr); align-items: end; min-height: 156px; padding: 7px 4px 0; }
+.siga-home-editorial-intro { display: grid; grid-template-columns: 1fr; align-items: end; min-height: 116px; padding: 7px 4px 0; }
 .siga-home-editorial-intro h1 { margin: 3px 0 5px; color: #0a3e63; font-family: Manrope, sans-serif; font-size: clamp(26px, 3vw, 37px); font-weight: 900; letter-spacing: -.075em; }
 .siga-home-editorial-intro > div > p:last-child { max-width: 380px; margin: 0; color: #52707c; font-size: 13px; line-height: 1.45; }
-.siga-home-editorial-illustration { align-self: stretch; min-height: 135px; background: linear-gradient(0deg, rgba(255,255,255,.1), rgba(255,255,255,.05)), url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat; opacity: .36; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 80%, transparent); mask-image: linear-gradient(90deg, transparent, #000 24%, #000 80%, transparent); }
+.siga-home-editorial-illustration { display: none; }
 .siga-home-editorial-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
 .siga-editorial-metric { display: flex; align-items: center; gap: 12px; min-height: 116px; padding: 16px; border: 1px solid #e7eeeb; border-radius: 14px; background: #fff; box-shadow: 0 9px 21px rgba(25, 78, 70, .045); }
 .siga-editorial-metric > span { flex: none; width: 43px; height: 43px; }
@@ -357,7 +353,7 @@
   box-shadow: 0 10px 25px rgba(25, 78, 70, .055) !important;
   color: #163f5e !important;
 }
-.siga-shell .siga-welcome-hero::after { background: url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat; border: 0; border-radius: 0; width: 46%; height: 100%; right: 0; bottom: 0; opacity: .18; mix-blend-mode: multiply; }
+.siga-shell .siga-welcome-hero::after { display: none; }
 .siga-shell .siga-welcome h1 { color: #0d4162 !important; font-size: clamp(27px, 3.5vw, 40px); }
 .siga-shell .siga-welcome-copy { color: #58727d !important; }
 .siga-shell .siga-welcome-status { border-color: #dcece2 !important; background: rgba(255,255,255,.82) !important; color: #184c55 !important; }
@@ -374,6 +370,6 @@
   .siga-shell { grid-template-columns: 1fr; }.siga-shell-sidebar { position: static; height: auto; padding: 13px; }.siga-shell-mark, .siga-shell-sidebar-footer { display: none; }
   .siga-shell-nav { display: flex; overflow: auto; gap: 5px; }.siga-shell-nav > * { flex: 0 0 auto; }.siga-nav-item { min-height: 36px; padding: 0 10px; }.siga-nav-item span { font-size: 10px; }
   .siga-shell-header { grid-template-columns: 1fr auto; min-height: 76px; padding: 12px 15px; }.siga-shell-header-title strong { font-size: 20px; }.siga-shell-user { display: none; }.siga-shell-content { padding: 18px 14px 36px; }
-  .siga-home-editorial-intro { grid-template-columns: 1fr; min-height: 0; }.siga-home-editorial-illustration { min-height: 90px; margin-top: 6px; }.siga-home-editorial-metrics { grid-template-columns: 1fr 1fr; gap: 9px; }.siga-editorial-metric { min-height: 104px; padding: 12px; gap: 9px; }.siga-editorial-metric > span { width: 36px; height: 36px; }.siga-editorial-metric strong { font-size: 21px; }
+  .siga-home-editorial-intro { grid-template-columns: 1fr; min-height: 0; }.siga-home-editorial-metrics { grid-template-columns: 1fr 1fr; gap: 9px; }.siga-editorial-metric { min-height: 104px; padding: 12px; gap: 9px; }.siga-editorial-metric > span { width: 36px; height: 36px; }.siga-editorial-metric strong { font-size: 21px; }
   .siga-week-grid { grid-template-columns: repeat(2, 1fr); }.siga-home-pending > div:last-child { grid-template-columns: 1fr; }
 }
