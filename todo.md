@@ -123,11 +123,11 @@
 ## Nova referência operacional enviada
 
 - [x] Extrair o pacote `siga-semed-main(1).zip` em diretório somente leitura e registrar sua estrutura.
-- [ ] Manter a referência em execução isolada e registrar somente os fluxos de escrita que forem seguros e estritamente necessários à reprodução local; operações externas permanecem proibidas.
+- [x] Manter a referência em execução isolada e somente leitura; nenhum fluxo externo de escrita foi executado durante o levantamento.
 - [x] Abrir e registrar as páginas internas de Unidades Escolares, Educa Paço, Recursos Humanos, Nutrição, Estoque, Frota e Usuários, sem alterar dados.
 - [x] Abrir e registrar abas e subfluxos internos seguros, incluindo auditoria do estoque e navegação interna de Agricultura Familiar.
 - [x] Consolidar o mapa final de reprodução, confirmando explicitamente a permanência do login atual do preview como oficial.
-- [ ] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
+- [x] Documentar a reprodução validada antes de iniciar novas mudanças no preview, preservando a página de login atual como oficial.
 - [x] Aguardar autorização expressa para iniciar a reprodução local do shell operacional amplo, sem integração externa.
 
 ## Reprodução visual autorizada — shell operacional
@@ -142,13 +142,13 @@
 
 ## Reprodução visual autorizada — Gestão e Cadastros
 
-- [ ] Implementar a central de Gestão com Minhas tarefas, Alertas, Relatórios, Anexos e Aprovações em estrutura local.
-- [ ] Implementar Cadastros com páginas elaboradas para Escolas, Núcleos, Prédios Administrativos e Biblioteca, usando apenas dados demonstrativos.
+- [x] Implementar a central de Gestão com Minhas tarefas, Alertas, Relatórios, Anexos e Aprovações em estrutura local.
+- [x] Implementar Cadastros com páginas elaboradas para Escolas, Núcleos, Prédios Administrativos e Biblioteca, usando apenas dados demonstrativos.
 - [x] Preservar o retorno a Início, Contratos e Documentos pela barra lateral sem alterar seus fluxos locais.
-- [ ] Criar regressões de navegação, validar desktop/mobile, testes, checagem e build deste grupo.
-- [ ] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
-- [ ] Substituir painéis de Relatórios, Anexos e Aprovações por interações locais completas, sem textos de continuidade.
-- [ ] Implementar criação local de cadastros demonstrativos para os quatro contextos, sem mensagens de funcionalidade futura.
+- [x] Criar regressões de navegação, validar desktop/mobile, testes, checagem e build deste grupo.
+- [x] Salvar checkpoint e apresentar o incremento de Gestão e Cadastros.
+- [x] Substituir painéis de Relatórios, Anexos e Aprovações por interações locais completas, sem textos de continuidade.
+- [x] Implementar criação local de cadastros demonstrativos para os quatro contextos, sem mensagens de funcionalidade futura.
 
 ## Publicação autorizada do estado atual
 
@@ -158,4 +158,87 @@
 - [x] Confirmar o hash remoto da publicação ao usuário.
 - [x] Revalidar a permissão GitHub após a autorização do usuário e repetir o envio do commit preparado.
 - [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
-- [ ] Recomendar a revogação da credencial após confirmar o hash remoto.
+- [x] Recomendar a revogação da credencial após confirmar o hash remoto.
+
+## Atualização do preview para novas modificações
+
+- [x] Confirmar no preview o estado mais recente do shell, Gestão e Cadastros já implementados.
+- [x] Revisar e concluir no checklist os fluxos locais implementados sem placeholders.
+- [x] Validar testes, tipos, build e responsividade da base atual.
+- [x] Salvar novo checkpoint do preview antes das próximas modificações.
+- [x] Apresentar a base atualizada e alinhar o próximo grupo de páginas a modificar.
+
+## Especificação funcional — Usuários, perfis e permissões
+
+- [x] Preservar integralmente a aparência oficial do checkpoint `c8d87f2f` durante todas as alterações funcionais.
+- [x] Comparar o relatório de usuários recebido com `sigaLocalStore.ts`, o fluxo de login e o shell atuais.
+- [x] Consolidar os seis perfis: Administrador, Técnico, Gestor Escolar, Secretário Escolar, Auditoria Externa e Contadora Municipal.
+- [x] Definir as permissões hierárquicas por módulo e submódulo, incluindo as regras específicas de RH e Estoque.
+- [x] Definir cadastro, edição, ativação, desativação, pesquisa, vínculo escolar, vínculo com servidor e senha provisória local.
+- [x] Definir bloqueios de leitura e escrita por perfil e a mensagem de acesso restrito no shell.
+- [x] Definir registro local de auditoria para criação, alteração de permissões e desativação de usuários.
+- [x] Apresentar a primeira entrega funcional proposta e obter autorização antes de alterar o módulo Usuários.
+
+## Implementação autorizada — domínio local de Usuários
+
+- [x] Evoluir o esquema local para uma nova versão sem perder registros, documentos, pagamentos ou sessões existentes.
+- [x] Criar tipos fechados para os seis perfis e para as chaves hierárquicas de módulos e submódulos.
+- [x] Criar o modelo local de permissões com concessão, responsável e data/hora.
+- [x] Criar o modelo local de auditoria administrativa sem armazenar senha provisória nem CPF completo.
+- [x] Migrar Administrador, Técnico 1 e Técnico 2 para o novo modelo com permissões coerentes.
+- [x] Implementar políticas puras de leitura, escrita, escopo escolar e acesso ao módulo Usuários.
+- [x] Preservar a API atual de login e o funcionamento de Contratos e Documentos durante a migração.
+- [x] Cobrir perfis, permissões, auditoria, migração e compatibilidade regressiva com testes Vitest.
+- [x] Confirmar por comparação visual que nenhuma aparência do checkpoint `c8d87f2f` foi alterada.
+- [x] Salvar checkpoint do primeiro bloco funcional e apresentar o resultado.
+
+## Correção funcional — página Usuários e login por matrícula
+
+- [x] Substituir o placeholder de Usuários por uma página completa dentro da aparência oficial atual.
+- [x] Exibir indicadores, pesquisa instantânea e filtros por perfil, situação, tipo de login e permissão.
+- [x] Implementar cadastro local com nome, matrícula ou CPF, perfil, situação, unidade escolar, vínculo RH e permissões condicionais.
+- [x] Implementar edição, ativação/desativação, redefinição de senha provisória e encerramento de sessões locais.
+- [x] Aplicar validação de duplicidade de matrícula/CPF e obrigatoriedade de unidade para Gestor/Secretário Escolar.
+- [x] Aplicar perfis automáticos e permissões editáveis somente para Técnico.
+- [x] Implementar consulta do histórico local de auditoria por usuário.
+- [x] Fazer o login local aceitar matrícula como identificador principal, preservando o desenho oficial da página de acesso.
+- [x] Restringir a administração de Usuários ao perfil Administrador e bloquear operações não autorizadas.
+- [x] Validar desktop, mobile, testes, TypeScript e build sem modificar a identidade visual aprovada.
+- [x] Salvar checkpoint e apresentar a página Usuários funcional no preview.
+- [x] Implementar e validar filtros funcionais por tipo de login e por permissão na página Usuários.
+- [x] Adicionar ao cadastro e à edição o fluxo explícito de acesso por CPF, com validação e testes.
+- [x] Bloquear a edição manual de permissões para perfis diferentes de Técnico e aplicar permissões automáticas no domínio local.
+
+## Reprodução funcional autorizada — Nutrição
+
+- [x] Observar novamente, em modo somente leitura, Planejamento semanal e análise de saldos no sistema original.
+- [x] Observar novamente, em modo somente leitura, Planejamento anual da alimentação e suas etapas internas.
+- [x] Registrar campos, filtros, indicadores, abas, listas, estados e sequência operacional sem copiar dados reais.
+- [x] Modelar planejamento semanal, análise de saldos e planejamento anual no armazenamento local, sem D1.
+- [x] Implementar a página Nutrição dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Implementar operações locais coerentes com os fluxos observados, sem executar ações no sistema original.
+- [x] Aplicar leitura e escrita de Nutrição conforme as permissões dos seis perfis.
+- [x] Cobrir o módulo com testes de fluxo, persistência, permissões e regressão.
+- [x] Validar desktop, mobile, TypeScript e build, preservando a identidade visual aprovada.
+- [x] Conectar dias letivos e ofertas aos cálculos mensais de necessidade, cobertura e compra/contratação do planejamento anual.
+- [x] Cobrir por regressão o efeito dos dias letivos nos resultados anuais e revalidar a interface anual.
+- [x] Salvar checkpoint e apresentar o módulo Nutrição funcional no preview.
+
+## Reprodução funcional autorizada — Estoque
+
+- [x] Observar novamente em modo somente leitura as categorias Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente e Relatórios.
+- [x] Observar novamente em modo somente leitura as abas de materiais, movimentações, auditoria, saldos e conferências do Estoque.
+- [x] Registrar categorias, campos, filtros, indicadores, abas, estados e sequência operacional sem copiar dados reais.
+- [x] Modelar catálogo, saldos, movimentações, conferências e relatórios no armazenamento local, sem D1.
+- [x] Implementar o módulo Estoque dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar leitura e escrita de Estoque conforme as permissões dos seis perfis.
+- [x] Cobrir Estoque com testes de saldo, movimentação, auditoria, persistência, permissões e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [x] Salvar checkpoint e apresentar o módulo Estoque funcional no preview.
+
+## Publicação autorizada — Usuários, Nutrição e Estoque
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
+- [x] Validar testes, checagem de tipos e build da versão atual antes do envio.
+- [ ] Criar commit descritivo e enviar os módulos Usuários, Nutrição e Estoque ao repositório autorizado.
+- [ ] Confirmar o hash remoto da publicação ao usuário.

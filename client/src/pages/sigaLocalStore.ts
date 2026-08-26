@@ -4,20 +4,120 @@ export type SemedRecordKind = "Contrato" | "Processo";
 export type SemedFinancialCategory = "Sem controle" | "Contrato geral" | "Aluguel";
 export type SemedDocumentKind = "Ofício" | "Memorando" | "Despacho";
 
+export const SEMED_USER_PROFILES = [
+  "Administrador",
+  "Técnico",
+  "Gestor Escolar",
+  "Secretário Escolar",
+  "Auditoria Externa",
+  "Contadora Municipal",
+] as const;
+export type SemedUserProfile = (typeof SEMED_USER_PROFILES)[number];
+export type SemedLoginType = "matricula" | "cpf";
+
+export const SEMED_MODULE_KEYS = [
+  "inicio",
+  "gestao",
+  "cadastros_gerais",
+  "contratos",
+  "documentos",
+  "financeiro",
+  "unidades_escolares",
+  "unidades.mapa",
+  "unidades.uex",
+  "unidades.turmas",
+  "educa_paco",
+  "rh",
+  "rh.cadastro_servidores",
+  "rh.ficha_financeira",
+  "rh.holerite",
+  "rh.frequencia",
+  "rh.relatorios",
+  "nutricao",
+  "nutricao.planejamento_semanal",
+  "nutricao.planejamento_anual",
+  "estoque",
+  "estoque.industrializado",
+  "estoque.agricultura_familiar",
+  "estoque.kit_aluno",
+  "estoque.categorias",
+  "estoque.relatorios",
+  "frota",
+  "frota.veiculos",
+  "frota.abastecimento",
+  "frota.manutencao",
+  "frota.ocorrencias",
+  "frota.relatorios",
+  "usuarios",
+] as const;
+export type SemedModuleKey = (typeof SEMED_MODULE_KEYS)[number];
+
+export type SemedUserAuditAction =
+  | "usuario.criado"
+  | "usuario.editado"
+  | "usuario.ativado"
+  | "usuario.desativado"
+  | "usuario.permissoes"
+  | "usuario.senha_provisoria";
+
 /** Estrutura local compatível com semed_users; nunca contém senhas ou hashes da referência. */
 export type SemedLocalUser = {
   id: string;
   username: string;
+  registration: string;
   displayName: string;
-  role: string;
+  role: SemedUserProfile;
+  profile: SemedUserProfile;
+  loginType: SemedLoginType;
+  cpf: string;
+  schoolUnitId: string;
+  serverRegistrationId: string;
   passwordHash: string;
   passwordSalt: string;
   passwordIterations: number;
   mustChangePassword: boolean;
+  provisionalPasswordIssuedAt: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
+  lastActivityAt: string;
+};
+
+export type SemedLocalUserPermission = {
+  id: string;
+  userId: string;
+  moduleKey: SemedModuleKey;
+  granted: boolean;
+  grantedBy: string;
+  grantedAt: string;
+};
+
+export type SemedLocalUserAudit = {
+  id: string;
+  userId: string;
+  action: SemedUserAuditAction;
+  changedFields: string[];
+  summary: string;
+  actorUserId: string;
+  createdAt: string;
+};
+
+export type SemedLocalUserInput = {
+  displayName: string;
+  registration: string;
+  cpf: string;
+  profile: SemedUserProfile;
+  active: boolean;
+  schoolUnitId: string;
+  serverRegistrationId: string;
+  moduleKeys: SemedModuleKey[];
+};
+
+export type SemedLocalUserOperation = {
+  error: string | null;
+  user: SemedLocalUser | null;
+  provisionalPassword?: string;
 };
 
 /** Estrutura local compatível com semed_sessions; tokenHash é apenas um identificador simulado. */
@@ -84,13 +184,89 @@ export type SemedDocument = {
 
 export type SemedDocumentInput = Omit<SemedDocument, "id" | "createdAt" | "updatedAt">;
 
+export const SEMED_NUTRITION_MODALITIES = ["Creche", "Pré-Escola", "Ensino Fundamental", "EJA"] as const;
+export type SemedNutritionModality = (typeof SEMED_NUTRITION_MODALITIES)[number];
+export const SEMED_NUTRITION_WEEKLY_STATUSES = ["Em análise", "Ajustado", "Aprovado para guia", "Arquivado"] as const;
+export type SemedNutritionWeeklyStatus = (typeof SEMED_NUTRITION_WEEKLY_STATUSES)[number];
+export const SEMED_NUTRITION_ANNUAL_STATUSES = ["Em elaboração", "Em análise", "Aprovado", "Arquivado"] as const;
+export type SemedNutritionAnnualStatus = (typeof SEMED_NUTRITION_ANNUAL_STATUSES)[number];
+export type SemedNutritionSource = "Industrializado" | "Agricultura Familiar";
+export type SemedNutritionBasis = "Por oferta" | "Mensal consolidado";
+export type SemedNutritionConsumptionUnit = "g" | "ml" | "un";
+export type SemedNutritionSupplyUnit = "KG" | "L" | "UN";
+
+export type SemedNutritionSchool = { id: string; name: string; inep: string };
+export type SemedNutritionContractProduct = { id: string; name: string; unit: SemedNutritionSupplyUnit; contractedQuantity: number; committedQuantity: number };
+export type SemedNutritionContract = { id: string; number: string; entityName: string; status: "Ativo" | "Encerrado"; schoolIds: string[]; products: SemedNutritionContractProduct[] };
+export type SemedNutritionWeeklyItem = { productId: string; weeklyQuantities: number[] };
+export type SemedNutritionWeeklyPlan = {
+  id: string; contractId: string; schoolId: string; referenceMonth: string; educationModality: SemedNutritionModality;
+  status: SemedNutritionWeeklyStatus; weekDates: string[]; items: SemedNutritionWeeklyItem[]; notes: string; createdAt: string; updatedAt: string;
+};
+export type SemedNutritionWeeklyInput = Omit<SemedNutritionWeeklyPlan, "id" | "weekDates" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedNutritionStage = { name: string; modality: string; totalStudents: number };
+export type SemedNutritionCatalogItem = { key: string; name: string; source: SemedNutritionSource; category: string; supplyUnit: SemedNutritionSupplyUnit; availableQuantity: number };
+export type SemedNutritionAnnualItem = {
+  id: string; name: string; source: SemedNutritionSource; category: string; catalogKey: string; basis: SemedNutritionBasis;
+  consumptionUnit: SemedNutritionConsumptionUnit; supplyUnit: SemedNutritionSupplyUnit; perCapita: number; monthlyOffers: number[];
+};
+export type SemedNutritionAnnualPlan = {
+  id: string; name: string; referenceYear: number; modality: string; educationStage: string; periodStart: number; periodEnd: number;
+  monthDays: number[]; items: SemedNutritionAnnualItem[]; status: SemedNutritionAnnualStatus; notes: string;
+  enrollmentSnapshot: { totalStudents: number; capturedAt: string }; createdAt: string; updatedAt: string;
+};
+export type SemedNutritionAnnualInput = Omit<SemedNutritionAnnualPlan, "id" | "enrollmentSnapshot" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedNutritionAnnualResult = SemedNutritionAnnualItem & { monthlyNeeds: number[]; monthlyEffectiveOffers: number[]; totalNeed: number; coverage: number; toAcquire: number };
+
+export const SEMED_STOCK_SCOPES = ["Industrializado", "Kit do Aluno", "Alimentação Escolar", "Material de Limpeza", "Material de Expediente"] as const;
+export type SemedStockScope = (typeof SEMED_STOCK_SCOPES)[number];
+export type SemedStockMovementType = "Entrada" | "Saída" | "Ajuste";
+export type SemedStockSituation = "Disponível" | "Estoque baixo" | "Sem saldo" | "Inativo";
+export type SemedStockAuditStatus = "Em andamento" | "Concluída";
+export type SemedSchoolStockCountStatus = "Pendente" | "Conferida" | "Com divergência";
+export type SemedKitOrderStatus = "Em andamento" | "Recebido" | "Distribuído" | "Arquivado";
+
+export type SemedStockItem = {
+  id: string; scope: SemedStockScope; code: string; name: string; category: string; unit: "KG" | "L" | "UN";
+  minimumQuantity: number; balance: number; location: string; barcode: string; active: boolean; unitCost: number; createdAt: string; updatedAt: string;
+};
+export type SemedStockItemInput = Omit<SemedStockItem, "id" | "balance" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedStockMovement = {
+  id: string; scope: SemedStockScope; itemId: string; type: SemedStockMovementType; quantity: number; origin: string; destination: string; reference: string; notes: string; movementDate: string; actorUserId: string; createdAt: string;
+};
+export type SemedStockMovementInput = Omit<SemedStockMovement, "id" | "createdAt" | "actorUserId">;
+export type SemedStockAuditEntry = { itemId: string; registeredBalance: number; countedQuantity: number; difference: number };
+export type SemedStockAudit = { id: string; scope: SemedStockScope; status: SemedStockAuditStatus; notes: string; entries: SemedStockAuditEntry[]; openedAt: string; closedAt: string; actorUserId: string };
+export type SemedSchoolStock = { id: string; scope: Exclude<SemedStockScope, "Industrializado" | "Kit do Aluno">; schoolId: string; itemId: string; balance: number; guideReference: string; updatedAt: string };
+export type SemedSchoolStockCount = { id: string; schoolStockId: string; countedQuantity: number; status: SemedSchoolStockCountStatus; notes: string; countedAt: string; actorUserId: string };
+export type SemedSchoolStockMovement = { id: string; schoolStockId: string; type: "Recebimento" | "Consumo" | "Ajuste"; quantity: number; reference: string; notes: string; movementDate: string; actorUserId: string };
+export type SemedKitOrderItem = { itemId: string; requestedQuantity: number; receivedQuantity: number; distributedQuantity: number };
+export type SemedKitOrder = { id: string; schoolId: string; className: string; referenceYear: number; status: SemedKitOrderStatus; items: SemedKitOrderItem[]; notes: string; createdAt: string; updatedAt: string };
+export type SemedKitOrderInput = Omit<SemedKitOrder, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
 export type SemedLocalDatabase = {
-  schemaVersion: 1;
+  schemaVersion: 3;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
+  semedUserPermissions: SemedLocalUserPermission[];
+  semedUserAuditLog: SemedLocalUserAudit[];
   semedRecords: Omit<SemedRecord, "payments" | "paidAmount" | "balanceAmount">[];
   semedRecordPayments: SemedRecordPayment[];
   semedDocuments: SemedDocument[];
+  semedNutritionSchools: SemedNutritionSchool[];
+  semedNutritionContracts: SemedNutritionContract[];
+  semedNutritionWeeklyPlans: SemedNutritionWeeklyPlan[];
+  semedNutritionStages: SemedNutritionStage[];
+  semedNutritionCatalog: SemedNutritionCatalogItem[];
+  semedNutritionAnnualPlans: SemedNutritionAnnualPlan[];
+  semedStockItems: SemedStockItem[];
+  semedStockMovements: SemedStockMovement[];
+  semedStockAudits: SemedStockAudit[];
+  semedSchoolStocks: SemedSchoolStock[];
+  semedSchoolStockCounts: SemedSchoolStockCount[];
+  semedSchoolStockMovements: SemedSchoolStockMovement[];
+  semedKitOrders: SemedKitOrder[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -98,6 +274,234 @@ const STORAGE_KEY = "siga-semed-local-schema-v1";
 function now() { return new Date().toISOString(); }
 function localId(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
 function upper(value: string) { return value.trim().toLocaleUpperCase("pt-BR"); }
+function normalizeCpf(value: string) { return value.replace(/\D/g, ""); }
+function normalizeRegistration(value: string) { return value.trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, ""); }
+function provisionalPassword() { return `Siga-${crypto.randomUUID().replace(/-/g, "").slice(0, 10)}!`; }
+function localPasswordDigest(value: string) {
+  let hash = 2166136261;
+  for (const character of value) { hash ^= character.charCodeAt(0); hash = Math.imul(hash, 16777619); }
+  return `LOCAL:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+const DEFAULT_REGISTRATION_BY_USER_ID: Record<string, string> = {
+  "u-admin": "00000000-0",
+  "u-tecnico1": "00000001-9",
+  "u-tecnico2": "00000002-7",
+};
+
+const SCHOOL_READ_KEYS: SemedModuleKey[] = ["inicio", "unidades_escolares", "unidades.mapa", "unidades.uex", "unidades.turmas"];
+const LEGACY_TECHNICIAN_KEYS: SemedModuleKey[] = ["inicio", "contratos", "documentos"];
+
+export function isSemedUserProfile(value: unknown): value is SemedUserProfile {
+  return typeof value === "string" && (SEMED_USER_PROFILES as readonly string[]).includes(value);
+}
+
+export function isSemedModuleKey(value: unknown): value is SemedModuleKey {
+  return typeof value === "string" && (SEMED_MODULE_KEYS as readonly string[]).includes(value);
+}
+
+export function profileLoginType(profile: SemedUserProfile): SemedLoginType {
+  return profile === "Auditoria Externa" || profile === "Contadora Municipal" ? "cpf" : "matricula";
+}
+
+export function defaultModuleKeysForProfile(profile: SemedUserProfile, technicianKeys: SemedModuleKey[] = []): SemedModuleKey[] {
+  if (profile === "Administrador") return [...SEMED_MODULE_KEYS];
+  if (profile === "Técnico") return Array.from(new Set(technicianKeys.filter(isSemedModuleKey)));
+  if (profile === "Gestor Escolar" || profile === "Secretário Escolar") return [...SCHOOL_READ_KEYS];
+  return SEMED_MODULE_KEYS.filter((key) => key !== "usuarios");
+}
+
+export function buildLocalUserPermissions(userId: string, profile: SemedUserProfile, grantedBy: string, grantedAt: string, technicianKeys: SemedModuleKey[] = []): SemedLocalUserPermission[] {
+  return defaultModuleKeysForProfile(profile, technicianKeys).map((moduleKey) => ({
+    id: `permission-${userId}-${moduleKey.replace(/\./g, "-")}`,
+    userId,
+    moduleKey,
+    granted: true,
+    grantedBy,
+    grantedAt,
+  }));
+}
+
+function hasGrantedPermission(database: SemedLocalDatabase, userId: string, moduleKey: SemedModuleKey) {
+  const direct = database.semedUserPermissions.some((permission) => permission.userId === userId && permission.moduleKey === moduleKey && permission.granted);
+  if (direct) return true;
+  if (!moduleKey.includes(".")) {
+    return database.semedUserPermissions.some((permission) => permission.userId === userId && permission.granted && permission.moduleKey.startsWith(`${moduleKey}.`));
+  }
+  return false;
+}
+
+export function canReadLocalModule(database: SemedLocalDatabase, user: Pick<SemedLocalUser, "id" | "profile" | "active">, moduleKey: SemedModuleKey) {
+  if (!user.active) return false;
+  if (user.profile === "Administrador") return true;
+  if (user.profile === "Auditoria Externa" || user.profile === "Contadora Municipal") return moduleKey !== "usuarios";
+  return hasGrantedPermission(database, user.id, moduleKey);
+}
+
+export function canWriteLocalModule(database: SemedLocalDatabase, user: Pick<SemedLocalUser, "id" | "profile" | "active">, moduleKey: SemedModuleKey) {
+  if (!canReadLocalModule(database, user, moduleKey)) return false;
+  if (user.profile === "Administrador") return true;
+  if (user.profile === "Auditoria Externa" || user.profile === "Gestor Escolar" || user.profile === "Secretário Escolar") return false;
+  if (user.profile === "Contadora Municipal") return moduleKey === "financeiro" || moduleKey.startsWith("financeiro.");
+  return hasGrantedPermission(database, user.id, moduleKey);
+}
+
+export function canManageLocalUsers(user: Pick<SemedLocalUser, "profile" | "active">) {
+  return user.active && user.profile === "Administrador";
+}
+
+export function canAccessLocalSchoolUnit(user: Pick<SemedLocalUser, "profile" | "schoolUnitId" | "active">, schoolUnitId: string) {
+  if (!user.active) return false;
+  if (user.profile === "Gestor Escolar" || user.profile === "Secretário Escolar") return Boolean(user.schoolUnitId) && user.schoolUnitId === schoolUnitId;
+  return true;
+}
+
+export function recordLocalUserAudit(database: SemedLocalDatabase, input: Omit<SemedLocalUserAudit, "id" | "createdAt">, timestamp = now()) {
+  const entry: SemedLocalUserAudit = {
+    ...input,
+    id: localId("user-audit"),
+    changedFields: Array.from(new Set(input.changedFields)).filter((field) => !/password|senha|cpf/i.test(field)),
+    summary: input.summary.replace(/\b\d{11}\b/g, "CPF PROTEGIDO"),
+    createdAt: timestamp,
+  };
+  database.semedUserAuditLog.unshift(entry);
+  return entry;
+}
+
+function validateLocalUserInput(database: SemedLocalDatabase, input: SemedLocalUserInput, currentUserId = "") {
+  const displayName = input.displayName.trim();
+  const registration = normalizeRegistration(input.registration);
+  const cpf = normalizeCpf(input.cpf);
+  const loginType = profileLoginType(input.profile);
+  if (!displayName) return "Informe o nome completo.";
+  if (loginType === "matricula" && !registration) return "Informe a matrícula do usuário.";
+  if (loginType === "cpf" && cpf.length !== 11) return "Informe um CPF com 11 dígitos para o perfil externo.";
+  if ((input.profile === "Gestor Escolar" || input.profile === "Secretário Escolar") && !input.schoolUnitId.trim()) return "Selecione a unidade escolar vinculada.";
+  if (registration && database.semedUsers.some((user) => user.id !== currentUserId && normalizeRegistration(user.registration || user.username) === registration)) return "Já existe um usuário com esta matrícula.";
+  if (cpf && database.semedUsers.some((user) => user.id !== currentUserId && normalizeCpf(user.cpf) === cpf)) return "Já existe um usuário com este CPF.";
+  return "";
+}
+
+function normalizedLocalUserInput(input: SemedLocalUserInput) {
+  const loginType = profileLoginType(input.profile);
+  const registration = loginType === "matricula" ? normalizeRegistration(input.registration) : "";
+  const cpf = normalizeCpf(input.cpf);
+  return {
+    displayName: input.displayName.trim(),
+    registration,
+    cpf,
+    profile: input.profile,
+    role: input.profile,
+    loginType,
+    schoolUnitId: input.profile === "Gestor Escolar" || input.profile === "Secretário Escolar" ? input.schoolUnitId.trim() : "",
+    serverRegistrationId: input.serverRegistrationId.trim(),
+  };
+}
+
+export function createLocalUser(database: SemedLocalDatabase, input: SemedLocalUserInput, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const error = validateLocalUserInput(database, input);
+  if (error) return { error, user: null };
+  const normalized = normalizedLocalUserInput(input);
+  const password = provisionalPassword();
+  const user: SemedLocalUser = {
+    id: localId("user"),
+    username: normalized.loginType === "cpf" ? normalized.cpf : normalized.registration,
+    registration: normalized.registration,
+    displayName: normalized.displayName,
+    role: normalized.role,
+    profile: normalized.profile,
+    loginType: normalized.loginType,
+    cpf: normalized.cpf,
+    schoolUnitId: normalized.schoolUnitId,
+    serverRegistrationId: normalized.serverRegistrationId,
+    passwordHash: localPasswordDigest(password),
+    passwordSalt: "",
+    passwordIterations: 100000,
+    mustChangePassword: true,
+    provisionalPasswordIssuedAt: timestamp,
+    active: input.active,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    lastLoginAt: "",
+    lastActivityAt: "",
+  };
+  database.semedUsers.push(user);
+  database.semedUserPermissions.push(...buildLocalUserPermissions(user.id, user.profile, actorUserId, timestamp, input.moduleKeys));
+  recordLocalUserAudit(database, { userId: user.id, action: "usuario.criado", changedFields: ["displayName", "registration", "profile", "active", "schoolUnitId", "serverRegistrationId", "permissions"], summary: `Usuário local criado com perfil ${user.profile}.`, actorUserId }, timestamp);
+  return { error: null, user, provisionalPassword: password };
+}
+
+export function updateLocalUser(database: SemedLocalDatabase, userId: string, input: SemedLocalUserInput, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return { error: "Usuário não encontrado.", user: null };
+  const error = validateLocalUserInput(database, input, userId);
+  if (error) return { error, user: null };
+  const normalized = normalizedLocalUserInput(input);
+  const wasActive = user.active;
+  Object.assign(user, normalized, { username: normalized.loginType === "cpf" ? normalized.cpf : normalized.registration, active: input.active, updatedAt: timestamp });
+  if (!user.active) database.semedSessions = database.semedSessions.filter((session) => session.userId !== user.id);
+  replaceLocalUserPermissions(database, user.id, user.profile, actorUserId, input.moduleKeys, timestamp);
+  recordLocalUserAudit(database, {
+    userId: user.id,
+    action: wasActive === user.active ? "usuario.editado" : user.active ? "usuario.ativado" : "usuario.desativado",
+    changedFields: ["displayName", "registration", "profile", "active", "schoolUnitId", "serverRegistrationId"],
+    summary: `Cadastro local atualizado com perfil ${user.profile}.`,
+    actorUserId,
+  }, timestamp);
+  return { error: null, user };
+}
+
+export function setLocalUserActive(database: SemedLocalDatabase, userId: string, active: boolean, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor) || (actorUserId === userId && !active)) return false;
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return false;
+  user.active = active;
+  user.updatedAt = timestamp;
+  if (!active) database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  recordLocalUserAudit(database, { userId, action: active ? "usuario.ativado" : "usuario.desativado", changedFields: ["active"], summary: `Usuário local ${active ? "ativado" : "desativado"}.`, actorUserId }, timestamp);
+  return true;
+}
+
+export function issueLocalProvisionalPassword(database: SemedLocalDatabase, userId: string, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return { error: "Usuário não encontrado.", user: null };
+  const password = provisionalPassword();
+  user.mustChangePassword = true;
+  user.passwordHash = localPasswordDigest(password);
+  user.passwordSalt = "";
+  user.provisionalPasswordIssuedAt = timestamp;
+  user.updatedAt = timestamp;
+  database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  recordLocalUserAudit(database, { userId, action: "usuario.senha_provisoria", changedFields: ["mustChangePassword", "provisionalPasswordIssuedAt"], summary: "Nova senha provisória local emitida; o valor não foi registrado na auditoria.", actorUserId }, timestamp);
+  return { error: null, user, provisionalPassword: password };
+}
+
+export function terminateLocalUserSessions(database: SemedLocalDatabase, userId: string, actorUserId: string) {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return 0;
+  const initial = database.semedSessions.length;
+  database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  return initial - database.semedSessions.length;
+}
+
+export function listLocalUserAudit(database: SemedLocalDatabase, userId: string) {
+  return database.semedUserAuditLog.filter((entry) => entry.userId === userId).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
+export function replaceLocalUserPermissions(database: SemedLocalDatabase, userId: string, profile: SemedUserProfile, grantedBy: string, moduleKeys: SemedModuleKey[], timestamp = now()) {
+  database.semedUserPermissions = database.semedUserPermissions.filter((permission) => permission.userId !== userId);
+  const permissions = buildLocalUserPermissions(userId, profile, grantedBy, timestamp, moduleKeys);
+  database.semedUserPermissions.push(...permissions);
+  recordLocalUserAudit(database, { userId, action: "usuario.permissoes", changedFields: ["permissions"], summary: `${permissions.length} permissão(ões) local(is) definida(s).`, actorUserId: grantedBy }, timestamp);
+  return permissions;
+}
 function normalizeCategory(input: Pick<SemedRecordInput, "kind" | "financialCategory" | "department" | "object">): SemedFinancialCategory {
   if (input.kind !== "Contrato") return "Sem controle";
   if (/ALUGUEL|ARRENDAMENTO/.test(`${input.department} ${input.object}`.toLocaleUpperCase("pt-BR"))) return "Aluguel";
@@ -122,17 +526,19 @@ function normalizeDocument(input: SemedDocumentInput) {
 }
 
 const localUsers: SemedLocalUser[] = [
-  { id: "u-admin", username: "admin", displayName: "Administrador", role: "Administrador", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
-  { id: "u-tecnico1", username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
-  { id: "u-tecnico2", username: "tecnico2", displayName: "Técnico SEMED 2", role: "Técnico", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "" },
+  { id: "u-admin", username: "admin", registration: "00000000-0", displayName: "Administrador", role: "Administrador", profile: "Administrador", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico1", username: "tecnico1", registration: "00000001-9", displayName: "Técnico SEMED 1", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico2", username: "tecnico2", registration: "00000002-7", displayName: "Técnico SEMED 2", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
 ];
 
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = "2026-01-10T12:00:00.000Z";
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
+    semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
+    semedUserAuditLog: [],
     semedRecords: [
       { id: "r12", kind: "Contrato", number: "012/2026", object: "FORNECIMENTO DE MERENDA ESCOLAR", party: "COOPERATIVA VALE VERDE", department: "ALIMENTAÇÃO ESCOLAR", responsible: "EQUIPE TÉCNICA SEMED", amount: 348500, financialCategory: "Contrato geral", paymentDueDate: "2026-03-15", startDate: "2025-11-08", endDate: "2026-04-08", status: "Vigente", notes: "PREPARAR ANÁLISE PARA POSSÍVEL PRORROGAÇÃO.", alertDays: 30, createdAt, updatedAt: createdAt },
       { id: "r189", kind: "Processo", number: "189/2026", object: "AQUISIÇÃO DE KITS ESCOLARES", party: "SETOR DE COMPRAS", department: "ADMINISTRATIVO", responsible: "TÉCNICO RESPONSÁVEL", amount: 0, financialCategory: "Sem controle", paymentDueDate: "", startDate: "2026-02-11", endDate: "2026-05-12", status: "Em andamento", notes: "AGUARDANDO CONSOLIDAÇÃO DAS DEMANDAS DAS ESCOLAS.", alertDays: 45, createdAt, updatedAt: createdAt },
@@ -149,26 +555,94 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "d238", kind: "Memorando", number: "238/2026", templateKey: "Abertura de processo administrativo", subject: "SOLICITAÇÃO DE ABERTURA DE PROCESSO ADMINISTRATIVO PARA FINS DE PAGAMENTO", destination: "SECRETÁRIO MUNICIPAL DE EDUCAÇÃO | SEMED", recipient: "GABINETE", relatedRecord: "CONTRATO 012/2026", responsible: "COORDENAÇÃO ADMINISTRATIVA", documentDate: "2026-08-20", dueDate: "2026-08-21", status: "Aguardando resposta", summary: "SOLICITA-SE ABERTURA DE PROCESSO ADMINISTRATIVO PARA PAGAMENTO.", notes: "VERIFICAR DOCUMENTAÇÃO FISCAL.", createdAt, updatedAt: createdAt },
       { id: "d041", kind: "Despacho", number: "041/2026", templateKey: "Pagamento de nota fiscal", subject: "SOLICITAÇÃO DE PAGAMENTO REFERENTE À NOTA FISCAL", destination: "GABSAAF/SEMED", recipient: "SETOR FINANCEIRO", relatedRecord: "CONTRATO 027/2026", responsible: "FISCAL DO CONTRATO", documentDate: "2026-08-22", dueDate: "2026-08-29", status: "Em elaboração", summary: "ENCAMINHA-SE PARA ANÁLISE E PAGAMENTO DA NOTA FISCAL.", notes: "ANEXAR ATESTO DE RECEBIMENTO.", createdAt, updatedAt: createdAt },
     ],
+    semedNutritionSchools: [
+      { id: "nutrition-school-1", name: "Unidade Escolar Demonstrativa Norte", inep: "DEMO0001" },
+      { id: "nutrition-school-2", name: "Unidade Escolar Demonstrativa Sul", inep: "DEMO0002" },
+      { id: "nutrition-school-3", name: "Centro Educacional Demonstrativo", inep: "DEMO0003" },
+    ],
+    semedNutritionContracts: [
+      { id: "nutrition-contract-af", number: "DEMO-AF-01/2026", entityName: "Fornecedor familiar demonstrativo", status: "Ativo", schoolIds: ["nutrition-school-1", "nutrition-school-2"], products: [
+        { id: "nutrition-product-arroz", name: "Arroz demonstrativo", unit: "KG", contractedQuantity: 1200, committedQuantity: 280 },
+        { id: "nutrition-product-feijao", name: "Feijão demonstrativo", unit: "KG", contractedQuantity: 720, committedQuantity: 190 },
+      ] },
+      { id: "nutrition-contract-industrial", number: "DEMO-IND-02/2026", entityName: "Fornecedor industrial demonstrativo", status: "Ativo", schoolIds: ["nutrition-school-2", "nutrition-school-3"], products: [
+        { id: "nutrition-product-leite", name: "Bebida láctea demonstrativa", unit: "L", contractedQuantity: 980, committedQuantity: 240 },
+        { id: "nutrition-product-biscoito", name: "Biscoito demonstrativo", unit: "KG", contractedQuantity: 540, committedQuantity: 120 },
+      ] },
+    ],
+    semedNutritionWeeklyPlans: [
+      { id: "nutrition-weekly-1", contractId: "nutrition-contract-af", schoolId: "nutrition-school-1", referenceMonth: "2026-08", educationModality: "Ensino Fundamental", status: "Em análise", weekDates: ["2026-08-03", "2026-08-10", "2026-08-17", "2026-08-24", "2026-08-31"], items: [
+        { productId: "nutrition-product-arroz", weeklyQuantities: [24, 24, 24, 24, 24] },
+        { productId: "nutrition-product-feijao", weeklyQuantities: [12, 12, 12, 12, 12] },
+      ], notes: "Projeção demonstrativa local para validação do fluxo.", createdAt, updatedAt: createdAt },
+    ],
+    semedNutritionStages: [
+      { name: "Creche", modality: "Educação Infantil", totalStudents: 120 },
+      { name: "Pré-Escola", modality: "Educação Infantil", totalStudents: 180 },
+      { name: "Ensino Fundamental - Anos Iniciais", modality: "Ensino Fundamental", totalStudents: 320 },
+      { name: "Ensino Fundamental - Anos Finais", modality: "Ensino Fundamental", totalStudents: 260 },
+      { name: "EJA - Anos Iniciais", modality: "EJA", totalStudents: 70 },
+      { name: "EJA - Anos Finais", modality: "EJA", totalStudents: 55 },
+      { name: "Atendimento Educacional Especial", modality: "Educação Especial", totalStudents: 40 },
+    ],
+    semedNutritionCatalog: [
+      { key: "catalog-arroz", name: "Arroz demonstrativo", source: "Agricultura Familiar", category: "Gêneros", supplyUnit: "KG", availableQuantity: 920 },
+      { key: "catalog-feijao", name: "Feijão demonstrativo", source: "Agricultura Familiar", category: "Gêneros", supplyUnit: "KG", availableQuantity: 530 },
+      { key: "catalog-leite", name: "Bebida láctea demonstrativa", source: "Industrializado", category: "Lácteos", supplyUnit: "L", availableQuantity: 740 },
+      { key: "catalog-biscoito", name: "Biscoito demonstrativo", source: "Industrializado", category: "Gêneros", supplyUnit: "KG", availableQuantity: 420 },
+    ],
+    semedNutritionAnnualPlans: [
+      { id: "nutrition-annual-1", name: "Cardápio anual demonstrativo", referenceYear: 2026, modality: "Ensino Fundamental", educationStage: "Ensino Fundamental - Anos Iniciais", periodStart: 2, periodEnd: 12, monthDays: [0, 20, 22, 20, 21, 20, 10, 22, 21, 20, 20, 10], items: [
+        { id: "nutrition-annual-item-1", name: "Arroz demonstrativo", source: "Agricultura Familiar", category: "Gêneros", catalogKey: "catalog-arroz", basis: "Por oferta", consumptionUnit: "g", supplyUnit: "KG", perCapita: 45, monthlyOffers: [0, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 4] },
+        { id: "nutrition-annual-item-2", name: "Bebida láctea demonstrativa", source: "Industrializado", category: "Lácteos", catalogKey: "catalog-leite", basis: "Mensal consolidado", consumptionUnit: "ml", supplyUnit: "L", perCapita: 180, monthlyOffers: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+      ], status: "Em elaboração", notes: "Planejamento demonstrativo sem vínculo com o ambiente original.", enrollmentSnapshot: { totalStudents: 320, capturedAt: createdAt }, createdAt, updatedAt: createdAt },
+    ],
+    semedStockItems: [
+      { id: "stock-rice", scope: "Industrializado", code: "EST-DEMO-001", name: "Arroz demonstrativo", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 180, balance: 520, location: "Almoxarifado central", barcode: "", active: true, unitCost: 6.8, createdAt, updatedAt: createdAt },
+      { id: "stock-milk", scope: "Industrializado", code: "EST-DEMO-002", name: "Bebida láctea demonstrativa", category: "Alimentação Escolar", unit: "L", minimumQuantity: 110, balance: 90, location: "Almoxarifado central", barcode: "", active: true, unitCost: 4.4, createdAt, updatedAt: createdAt },
+      { id: "stock-biscuit", scope: "Industrializado", code: "EST-DEMO-003", name: "Biscoito demonstrativo", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 80, balance: 0, location: "Almoxarifado central", barcode: "", active: true, unitCost: 12.5, createdAt, updatedAt: createdAt },
+      { id: "stock-backpack", scope: "Kit do Aluno", code: "KIT-DEMO-001", name: "Mochila demonstrativa", category: "Fardamento e kit", unit: "UN", minimumQuantity: 50, balance: 180, location: "Almoxarifado de kits", barcode: "", active: true, unitCost: 42, createdAt, updatedAt: createdAt },
+      { id: "stock-notebook", scope: "Kit do Aluno", code: "KIT-DEMO-002", name: "Caderno demonstrativo", category: "Material escolar", unit: "UN", minimumQuantity: 120, balance: 360, location: "Almoxarifado de kits", barcode: "", active: true, unitCost: 7.2, createdAt, updatedAt: createdAt },
+      { id: "stock-banana", scope: "Alimentação Escolar", code: "ALI-DEMO-001", name: "Fruta demonstrativa", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 30, balance: 135, location: "Unidade escolar", barcode: "", active: true, unitCost: 5.5, createdAt, updatedAt: createdAt },
+      { id: "stock-detergent", scope: "Material de Limpeza", code: "LIM-DEMO-001", name: "Detergente demonstrativo", category: "Limpeza", unit: "UN", minimumQuantity: 18, balance: 48, location: "Unidade escolar", barcode: "", active: true, unitCost: 3.2, createdAt, updatedAt: createdAt },
+      { id: "stock-paper", scope: "Material de Expediente", code: "EXP-DEMO-001", name: "Papel A4 demonstrativo", category: "Expediente", unit: "UN", minimumQuantity: 10, balance: 32, location: "Unidade escolar", barcode: "", active: true, unitCost: 28, createdAt, updatedAt: createdAt },
+    ],
+    semedStockMovements: [
+      { id: "stock-movement-1", scope: "Industrializado", itemId: "stock-rice", type: "Entrada", quantity: 520, origin: "Fornecedor demonstrativo", destination: "Almoxarifado central", reference: "REC-DEMO-001", notes: "Recebimento demonstrativo local.", movementDate: "2026-08-03", actorUserId: "u-admin", createdAt },
+      { id: "stock-movement-2", scope: "Industrializado", itemId: "stock-milk", type: "Entrada", quantity: 90, origin: "Fornecedor demonstrativo", destination: "Almoxarifado central", reference: "REC-DEMO-002", notes: "Recebimento demonstrativo local.", movementDate: "2026-08-08", actorUserId: "u-admin", createdAt },
+    ],
+    semedStockAudits: [],
+    semedSchoolStocks: [
+      { id: "school-stock-food-1", scope: "Alimentação Escolar", schoolId: "nutrition-school-1", itemId: "stock-banana", balance: 135, guideReference: "GUIA-DEMO-001", updatedAt: createdAt },
+      { id: "school-stock-cleaning-1", scope: "Material de Limpeza", schoolId: "nutrition-school-2", itemId: "stock-detergent", balance: 48, guideReference: "GUIA-DEMO-002", updatedAt: createdAt },
+      { id: "school-stock-office-1", scope: "Material de Expediente", schoolId: "nutrition-school-3", itemId: "stock-paper", balance: 32, guideReference: "GUIA-DEMO-003", updatedAt: createdAt },
+    ],
+    semedSchoolStockCounts: [],
+    semedSchoolStockMovements: [],
+    semedKitOrders: [],
   };
 }
 
 export function getLocalUserIdentity(username: string) {
   const cleanUsername = username.trim().toLowerCase() || "tecnico1";
-  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername);
+  const cleanCpf = normalizeCpf(username);
+  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf));
   return user
     ? { username: user.username, displayName: user.displayName, role: user.role }
     : { username: cleanUsername, displayName: cleanUsername, role: "Técnico" };
 }
 
-export type SemedLocalAccessUser = Pick<SemedLocalUser, "id" | "username" | "displayName" | "role" | "mustChangePassword">;
+export type SemedLocalAccessUser = Pick<SemedLocalUser, "id" | "username" | "registration" | "displayName" | "role" | "profile" | "loginType" | "mustChangePassword" | "active">;
 export type SemedLocalLogin = { user: SemedLocalAccessUser; session: SemedLocalSession };
 
 export function requiresDeleteConfirmation(value: string) { return value.trim().toLocaleUpperCase("pt-BR") === "EXCLUIR"; }
 
-export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now()): SemedLocalLogin | null {
+export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now(), password = ""): SemedLocalLogin | null {
   const cleanUsername = username.trim().toLowerCase();
-  const user = database.semedUsers.find((candidate) => candidate.username === cleanUsername && candidate.active);
+  const cleanCpf = normalizeCpf(username);
+  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf)));
   if (!user) return null;
+  if (user.passwordHash.startsWith("LOCAL:") && localPasswordDigest(password) !== user.passwordHash) return null;
   const session: SemedLocalSession = {
     tokenHash: `local-session-${user.id}-${Date.parse(timestamp)}`,
     userId: user.id,
@@ -178,19 +652,20 @@ export function loginLocalUser(database: SemedLocalDatabase, username: string, t
   database.semedSessions = database.semedSessions.filter((item) => item.userId !== user.id);
   database.semedSessions.push(session);
   user.lastLoginAt = timestamp;
+  user.lastActivityAt = timestamp;
   user.updatedAt = timestamp;
-  return { user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role, mustChangePassword: user.mustChangePassword }, session };
+  return { user: { id: user.id, username: user.username, registration: user.registration, displayName: user.displayName, role: user.role, profile: user.profile, loginType: user.loginType, mustChangePassword: user.mustChangePassword, active: user.active }, session };
 }
 
-export function completeLocalFirstAccess(database: SemedLocalDatabase, userId: string, timestamp = now()) {
+export function completeLocalFirstAccess(database: SemedLocalDatabase, userId: string, timestamp = now(), newPassword = "") {
   const user = database.semedUsers.find((candidate) => candidate.id === userId && candidate.active);
   if (!user) return null;
   user.mustChangePassword = false;
-  user.passwordHash = "LOCAL_SIMULATION_UPDATED";
+  user.passwordHash = newPassword ? localPasswordDigest(newPassword) : "LOCAL_SIMULATION_UPDATED";
   user.passwordSalt = "";
   user.passwordIterations = 100000;
   user.updatedAt = timestamp;
-  return { id: user.id, username: user.username, displayName: user.displayName, role: user.role, mustChangePassword: user.mustChangePassword } satisfies SemedLocalAccessUser;
+  return { id: user.id, username: user.username, registration: user.registration, displayName: user.displayName, role: user.role, profile: user.profile, loginType: user.loginType, mustChangePassword: user.mustChangePassword, active: user.active } satisfies SemedLocalAccessUser;
 }
 
 export function logoutLocalSession(database: SemedLocalDatabase, tokenHash: string) {
@@ -295,9 +770,362 @@ export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: s
   return requiresDeleteConfirmation(confirmation) ? deleteLocalDocument(database, id) : false;
 }
 
+function roundNutrition(value: number) { return Math.round(value * 1000) / 1000; }
+function nonNegative(value: unknown) { const numeric = Number(value); return Number.isFinite(numeric) ? Math.max(0, numeric) : 0; }
+export function nutritionMondays(referenceMonth: string) {
+  if (!/^\d{4}-\d{2}$/.test(referenceMonth)) return [];
+  const [year, month] = referenceMonth.split("-").map(Number);
+  const dates: string[] = [];
+  const current = new Date(Date.UTC(year, month - 1, 1, 12));
+  while (current.getUTCMonth() === month - 1) {
+    if (current.getUTCDay() === 1) dates.push(current.toISOString().slice(0, 10));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+export function weeklyNutritionItemTotal(item: SemedNutritionWeeklyItem) {
+  return roundNutrition(item.weeklyQuantities.reduce((total, value) => total + nonNegative(value), 0));
+}
+
+export function otherWeeklyNutritionPlanned(database: SemedLocalDatabase, contractId: string, productId: string, excludedPlanId = "") {
+  return roundNutrition(database.semedNutritionWeeklyPlans
+    .filter((plan) => plan.id !== excludedPlanId && plan.contractId === contractId && plan.status !== "Arquivado")
+    .reduce((total, plan) => total + weeklyNutritionItemTotal(plan.items.find((item) => item.productId === productId) ?? { productId, weeklyQuantities: [] }), 0));
+}
+
+export function weeklyNutritionProductAnalysis(database: SemedLocalDatabase, plan: Pick<SemedNutritionWeeklyPlan, "id" | "contractId" | "items">) {
+  const contract = database.semedNutritionContracts.find((candidate) => candidate.id === plan.contractId);
+  return (contract?.products ?? []).map((product) => {
+    const item = plan.items.find((candidate) => candidate.productId === product.id) ?? { productId: product.id, weeklyQuantities: [] };
+    const otherPlanned = otherWeeklyNutritionPlanned(database, plan.contractId, product.id, plan.id);
+    const available = roundNutrition(product.contractedQuantity - product.committedQuantity - otherPlanned);
+    const projected = weeklyNutritionItemTotal(item);
+    const remaining = roundNutrition(available - projected);
+    const level = remaining < 0 ? "critical" : available > 0 && remaining / available <= 0.1 ? "warning" : "good";
+    return { product, item, otherPlanned, available, projected, remaining, level } as const;
+  });
+}
+
+export function saveLocalNutritionWeeklyPlan(database: SemedLocalDatabase, input: SemedNutritionWeeklyInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_semanal")) return { error: "Usuário sem permissão para alterar o planejamento semanal.", plan: null };
+  const contract = database.semedNutritionContracts.find((candidate) => candidate.id === input.contractId && candidate.status === "Ativo");
+  if (!contract) return { error: "Selecione um contrato ativo.", plan: null };
+  if (!contract.schoolIds.includes(input.schoolId)) return { error: "Selecione uma escola atendida pelo contrato.", plan: null };
+  const weekDates = nutritionMondays(input.referenceMonth);
+  if (!weekDates.length) return { error: "Informe um mês de referência válido.", plan: null };
+  const items = contract.products.map((product) => {
+    const current = input.items.find((item) => item.productId === product.id);
+    return { productId: product.id, weeklyQuantities: weekDates.map((_, index) => roundNutrition(nonNegative(current?.weeklyQuantities[index]))) };
+  });
+  const current = input.id ? database.semedNutritionWeeklyPlans.find((plan) => plan.id === input.id) : null;
+  const plan: SemedNutritionWeeklyPlan = {
+    id: current?.id ?? localId("nutrition-weekly"), contractId: contract.id, schoolId: input.schoolId, referenceMonth: input.referenceMonth,
+    educationModality: input.educationModality, status: input.status, weekDates, items, notes: input.notes.trim(),
+    createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedNutritionWeeklyPlans[database.semedNutritionWeeklyPlans.indexOf(current)] = plan;
+  else database.semedNutritionWeeklyPlans.push(plan);
+  return { error: null, plan };
+}
+
+export function archiveLocalNutritionWeeklyPlan(database: SemedLocalDatabase, planId: string, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_semanal")) return false;
+  const plan = database.semedNutritionWeeklyPlans.find((candidate) => candidate.id === planId);
+  if (!plan) return false;
+  plan.status = "Arquivado";
+  plan.updatedAt = timestamp;
+  return true;
+}
+
+export function annualNutritionPlanResults(database: SemedLocalDatabase, plan: Pick<SemedNutritionAnnualPlan, "items" | "enrollmentSnapshot" | "monthDays">): SemedNutritionAnnualResult[] {
+  const students = nonNegative(plan.enrollmentSnapshot.totalStudents);
+  return plan.items.map((item) => {
+    const divisor = item.consumptionUnit === "g" || item.consumptionUnit === "ml" ? 1000 : 1;
+    const monthlyEffectiveOffers = Array.from({ length: 12 }, (_, index) => {
+      const days = nonNegative(plan.monthDays[index]);
+      if (!days) return 0;
+      return item.basis === "Mensal consolidado" ? 1 : Math.min(days, nonNegative(item.monthlyOffers[index]));
+    });
+    const monthlyNeeds = monthlyEffectiveOffers.map((offers) => roundNutrition(students * nonNegative(item.perCapita) * offers / divisor));
+    const totalNeed = roundNutrition(monthlyNeeds.reduce((total, value) => total + value, 0));
+    const catalog = database.semedNutritionCatalog.find((candidate) => candidate.key === item.catalogKey && candidate.source === item.source);
+    const coverage = roundNutrition(nonNegative(catalog?.availableQuantity));
+    return { ...item, monthlyNeeds, monthlyEffectiveOffers, totalNeed, coverage, toAcquire: roundNutrition(Math.max(0, totalNeed - coverage)) };
+  });
+}
+
+export function saveLocalNutritionAnnualPlan(database: SemedLocalDatabase, input: SemedNutritionAnnualInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_anual")) return { error: "Usuário sem permissão para alterar o planejamento anual.", plan: null };
+  const stage = database.semedNutritionStages.find((candidate) => candidate.name === input.educationStage);
+  if (!input.name.trim()) return { error: "Informe o nome do planejamento.", plan: null };
+  if (!stage) return { error: "Selecione uma etapa de ensino válida.", plan: null };
+  if (!Number.isInteger(input.referenceYear) || input.referenceYear < 2000 || input.referenceYear > 2100) return { error: "Informe um ano de referência válido.", plan: null };
+  if (input.periodStart < 1 || input.periodEnd > 12 || input.periodStart > input.periodEnd) return { error: "Informe um período de atendimento válido.", plan: null };
+  if (input.items.some((item) => !item.name.trim() || nonNegative(item.perCapita) <= 0)) return { error: "Informe produtos com nome e per capita maior que zero.", plan: null };
+  const monthDays = Array.from({ length: 12 }, (_, index) => index + 1 >= input.periodStart && index + 1 <= input.periodEnd ? Math.round(nonNegative(input.monthDays[index])) : 0);
+  const items = input.items.map((item) => {
+    const matched = database.semedNutritionCatalog.find((candidate) => candidate.source === item.source && upper(candidate.name) === upper(item.name));
+    const supplyUnit: SemedNutritionSupplyUnit = item.consumptionUnit === "g" ? "KG" : item.consumptionUnit === "ml" ? "L" : "UN";
+    return {
+      ...item, id: item.id || localId("nutrition-annual-item"), name: item.name.trim(), category: item.category.trim(), catalogKey: item.catalogKey || matched?.key || "",
+      supplyUnit, perCapita: roundNutrition(nonNegative(item.perCapita)),
+      monthlyOffers: Array.from({ length: 12 }, (_, index) => monthDays[index] ? item.basis === "Mensal consolidado" ? 1 : nonNegative(item.monthlyOffers[index]) : 0),
+    };
+  });
+  const current = input.id ? database.semedNutritionAnnualPlans.find((plan) => plan.id === input.id) : null;
+  const plan: SemedNutritionAnnualPlan = {
+    id: current?.id ?? localId("nutrition-annual"), name: input.name.trim(), referenceYear: input.referenceYear, modality: stage.modality,
+    educationStage: stage.name, periodStart: input.periodStart, periodEnd: input.periodEnd, monthDays, items, status: input.status, notes: input.notes.trim(),
+    enrollmentSnapshot: { totalStudents: stage.totalStudents, capturedAt: timestamp }, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedNutritionAnnualPlans[database.semedNutritionAnnualPlans.indexOf(current)] = plan;
+  else database.semedNutritionAnnualPlans.push(plan);
+  return { error: null, plan };
+}
+
+export function archiveLocalNutritionAnnualPlan(database: SemedLocalDatabase, planId: string, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_anual")) return false;
+  const plan = database.semedNutritionAnnualPlans.find((candidate) => candidate.id === planId);
+  if (!plan) return false;
+  plan.status = "Arquivado";
+  plan.updatedAt = timestamp;
+  return true;
+}
+
+function stockModuleKey(scope: SemedStockScope): SemedModuleKey {
+  if (scope === "Industrializado") return "estoque.industrializado";
+  if (scope === "Kit do Aluno") return "estoque.kit_aluno";
+  return "estoque.categorias";
+}
+
+function stockValue(value: unknown) { return Math.round(nonNegative(value) * 1000) / 1000; }
+
+export function stockSituation(item: Pick<SemedStockItem, "active" | "balance" | "minimumQuantity">): SemedStockSituation {
+  if (!item.active) return "Inativo";
+  if (stockValue(item.balance) <= 0) return "Sem saldo";
+  if (stockValue(item.balance) <= stockValue(item.minimumQuantity)) return "Estoque baixo";
+  return "Disponível";
+}
+
+export function saveLocalStockItem(database: SemedLocalDatabase, input: SemedStockItemInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(input.scope))) return { error: "Usuário sem permissão para alterar o catálogo de estoque.", item: null };
+  const code = upper(input.code);
+  const name = input.name.trim();
+  if (!code || !name || !input.category.trim()) return { error: "Informe código, produto e categoria.", item: null };
+  const duplicate = database.semedStockItems.find((item) => item.id !== input.id && item.scope === input.scope && upper(item.code) === code);
+  if (duplicate) return { error: "Já existe um produto com este código nesta categoria de estoque.", item: null };
+  const current = input.id ? database.semedStockItems.find((item) => item.id === input.id) : null;
+  const item: SemedStockItem = {
+    id: current?.id ?? localId("stock-item"), scope: input.scope, code, name, category: input.category.trim(), unit: input.unit,
+    minimumQuantity: stockValue(input.minimumQuantity), balance: current?.balance ?? 0, location: input.location.trim(), barcode: input.barcode.trim(),
+    active: input.active, unitCost: stockValue(input.unitCost), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedStockItems[database.semedStockItems.indexOf(current)] = item;
+  else database.semedStockItems.push(item);
+  return { error: null, item };
+}
+
+export function registerLocalStockMovement(database: SemedLocalDatabase, input: SemedStockMovementInput, actorUserId: string, timestamp = now()) {
+  const item = database.semedStockItems.find((candidate) => candidate.id === input.itemId && candidate.scope === input.scope);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(input.scope))) return { error: "Usuário sem permissão para movimentar este estoque.", movement: null };
+  if (!item || !item.active) return { error: "Produto de estoque não encontrado ou inativo.", movement: null };
+  const quantity = stockValue(input.quantity);
+  if (!quantity) return { error: "Informe uma quantidade maior que zero.", movement: null };
+  const nextBalance = input.type === "Entrada" ? item.balance + quantity : input.type === "Saída" ? item.balance - quantity : quantity;
+  if (nextBalance < 0) return { error: "A saída não pode superar o saldo demonstrativo disponível.", movement: null };
+  item.balance = stockValue(nextBalance);
+  item.updatedAt = timestamp;
+  const movement: SemedStockMovement = {
+    id: localId("stock-movement"), scope: input.scope, itemId: item.id, type: input.type, quantity, origin: input.origin.trim(), destination: input.destination.trim(),
+    reference: input.reference.trim(), notes: input.notes.trim(), movementDate: input.movementDate || timestamp.slice(0, 10), actorUserId, createdAt: timestamp,
+  };
+  database.semedStockMovements.unshift(movement);
+  return { error: null, movement };
+}
+
+export function startLocalStockAudit(database: SemedLocalDatabase, scope: SemedStockScope, actorUserId: string, notes = "", timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(scope))) return { error: "Usuário sem permissão para iniciar auditoria de estoque.", audit: null };
+  const audit: SemedStockAudit = {
+    id: localId("stock-audit"), scope, status: "Em andamento", notes: notes.trim(),
+    entries: database.semedStockItems.filter((item) => item.scope === scope && item.active).map((item) => ({ itemId: item.id, registeredBalance: item.balance, countedQuantity: item.balance, difference: 0 })),
+    openedAt: timestamp, closedAt: "", actorUserId,
+  };
+  database.semedStockAudits.unshift(audit);
+  return { error: null, audit };
+}
+
+export function finishLocalStockAudit(database: SemedLocalDatabase, auditId: string, entries: SemedStockAuditEntry[], actorUserId: string, timestamp = now()) {
+  const audit = database.semedStockAudits.find((candidate) => candidate.id === auditId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!audit || !actor || !canWriteLocalModule(database, actor, stockModuleKey(audit.scope))) return false;
+  audit.entries = audit.entries.map((entry) => {
+    const supplied = entries.find((candidate) => candidate.itemId === entry.itemId);
+    const countedQuantity = stockValue(supplied?.countedQuantity ?? entry.countedQuantity);
+    const item = database.semedStockItems.find((candidate) => candidate.id === entry.itemId);
+    if (item) { item.balance = countedQuantity; item.updatedAt = timestamp; }
+    return { itemId: entry.itemId, registeredBalance: entry.registeredBalance, countedQuantity, difference: stockValue(countedQuantity - entry.registeredBalance) };
+  });
+  audit.status = "Concluída";
+  audit.closedAt = timestamp;
+  return true;
+}
+
+export function saveLocalSchoolStockCount(database: SemedLocalDatabase, schoolStockId: string, countedQuantity: number, notes: string, actorUserId: string, timestamp = now()) {
+  const schoolStock = database.semedSchoolStocks.find((candidate) => candidate.id === schoolStockId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!schoolStock || !actor || !canWriteLocalModule(database, actor, "estoque.categorias") || !canAccessLocalSchoolUnit(actor, schoolStock.schoolId)) return { error: "Usuário sem permissão para conferir este saldo escolar.", count: null };
+  const quantity = stockValue(countedQuantity);
+  const status: SemedSchoolStockCountStatus = quantity === schoolStock.balance ? "Conferida" : "Com divergência";
+  const count: SemedSchoolStockCount = { id: localId("school-stock-count"), schoolStockId, countedQuantity: quantity, status, notes: notes.trim(), countedAt: timestamp, actorUserId };
+  database.semedSchoolStockCounts.unshift(count);
+  schoolStock.balance = quantity;
+  schoolStock.updatedAt = timestamp;
+  return { error: null, count };
+}
+
+export function registerLocalSchoolStockMovement(database: SemedLocalDatabase, schoolStockId: string, type: SemedSchoolStockMovement["type"], quantity: number, reference: string, notes: string, actorUserId: string, timestamp = now()) {
+  const schoolStock = database.semedSchoolStocks.find((candidate) => candidate.id === schoolStockId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!schoolStock || !actor || !canWriteLocalModule(database, actor, "estoque.categorias") || !canAccessLocalSchoolUnit(actor, schoolStock.schoolId)) return { error: "Usuário sem permissão para movimentar este saldo escolar.", movement: null };
+  const amount = stockValue(quantity);
+  const nextBalance = type === "Recebimento" ? schoolStock.balance + amount : type === "Consumo" ? schoolStock.balance - amount : amount;
+  if (!amount || nextBalance < 0) return { error: "Quantidade inválida para o saldo escolar disponível.", movement: null };
+  schoolStock.balance = stockValue(nextBalance);
+  schoolStock.updatedAt = timestamp;
+  const movement: SemedSchoolStockMovement = { id: localId("school-stock-movement"), schoolStockId, type, quantity: amount, reference: reference.trim(), notes: notes.trim(), movementDate: timestamp.slice(0, 10), actorUserId };
+  database.semedSchoolStockMovements.unshift(movement);
+  return { error: null, movement };
+}
+
+export function saveLocalKitOrder(database: SemedLocalDatabase, input: SemedKitOrderInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "estoque.kit_aluno") || !canAccessLocalSchoolUnit(actor, input.schoolId)) return { error: "Usuário sem permissão para registrar pedidos de kit.", order: null };
+  if (!input.className.trim() || !input.items.length) return { error: "Informe turma e ao menos um item para o pedido.", order: null };
+  const current = input.id ? database.semedKitOrders.find((order) => order.id === input.id) : null;
+  const order: SemedKitOrder = { id: current?.id ?? localId("kit-order"), schoolId: input.schoolId, className: input.className.trim(), referenceYear: Math.round(nonNegative(input.referenceYear)), status: input.status, items: input.items.map((item) => ({ itemId: item.itemId, requestedQuantity: stockValue(item.requestedQuantity), receivedQuantity: stockValue(item.receivedQuantity), distributedQuantity: stockValue(item.distributedQuantity) })), notes: input.notes.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedKitOrders[database.semedKitOrders.indexOf(current)] = order;
+  else database.semedKitOrders.push(order);
+  return { error: null, order };
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
+type SemedLocalDatabaseV2 = Omit<SemedLocalDatabase, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
+type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
+type LegacySemedLocalDatabase = Omit<SemedLocalDatabaseV2, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
+
+function normalizeLegacyProfile(role: string): SemedUserProfile {
+  if (role === "Administrador") return "Administrador";
+  return "Técnico";
+}
+
+export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedLocalDatabase {
+  const migratedUsers = database.semedUsers.map((user) => {
+    const profile = normalizeLegacyProfile(user.role);
+    return {
+      ...user,
+      registration: DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
+      role: profile,
+      profile,
+      loginType: profileLoginType(profile),
+      cpf: "",
+      schoolUnitId: "",
+      serverRegistrationId: "",
+      provisionalPasswordIssuedAt: user.mustChangePassword ? user.createdAt : "",
+      lastActivityAt: user.lastLoginAt,
+    } satisfies SemedLocalUser;
+  });
+  const migratedAt = now();
+  const nutritionDefaults = createLocalSemedDatabase();
+  return {
+    ...database,
+    schemaVersion: 3,
+    semedUsers: migratedUsers,
+    semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
+    semedUserAuditLog: [],
+    semedStockItems: nutritionDefaults.semedStockItems,
+    semedStockMovements: nutritionDefaults.semedStockMovements,
+    semedStockAudits: nutritionDefaults.semedStockAudits,
+    semedSchoolStocks: nutritionDefaults.semedSchoolStocks,
+    semedSchoolStockCounts: nutritionDefaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: nutritionDefaults.semedSchoolStockMovements,
+    semedKitOrders: nutritionDefaults.semedKitOrders,
+    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+    semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
+    semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
+    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
+  };
+}
+
+function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
+  const nutritionDefaults = createLocalSemedDatabase();
+  return {
+    ...database,
+    schemaVersion: 3,
+    semedUsers: database.semedUsers.map((user) => ({
+      ...user,
+      registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
+      profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
+      role: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
+      loginType: user.loginType === "cpf" ? "cpf" : "matricula",
+      cpf: normalizeCpf(user.cpf ?? ""),
+      schoolUnitId: user.schoolUnitId ?? "",
+      serverRegistrationId: user.serverRegistrationId ?? "",
+      provisionalPasswordIssuedAt: user.provisionalPasswordIssuedAt ?? "",
+      lastActivityAt: user.lastActivityAt ?? user.lastLoginAt ?? "",
+    })),
+    semedUserPermissions: Array.isArray(database.semedUserPermissions) ? database.semedUserPermissions.filter((permission) => isSemedModuleKey(permission.moduleKey)) : [],
+    semedUserAuditLog: Array.isArray(database.semedUserAuditLog) ? database.semedUserAuditLog : [],
+    semedStockItems: Array.isArray(database.semedStockItems) ? database.semedStockItems : nutritionDefaults.semedStockItems,
+    semedStockMovements: Array.isArray(database.semedStockMovements) ? database.semedStockMovements : nutritionDefaults.semedStockMovements,
+    semedStockAudits: Array.isArray(database.semedStockAudits) ? database.semedStockAudits : nutritionDefaults.semedStockAudits,
+    semedSchoolStocks: Array.isArray(database.semedSchoolStocks) ? database.semedSchoolStocks : nutritionDefaults.semedSchoolStocks,
+    semedSchoolStockCounts: Array.isArray(database.semedSchoolStockCounts) ? database.semedSchoolStockCounts : nutritionDefaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: Array.isArray(database.semedSchoolStockMovements) ? database.semedSchoolStockMovements : nutritionDefaults.semedSchoolStockMovements,
+    semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders : nutritionDefaults.semedKitOrders,
+    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+    semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
+    semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
+    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
+  };
+}
+
+function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({
+    ...database,
+    schemaVersion: 3,
+    semedStockItems: defaults.semedStockItems,
+    semedStockMovements: defaults.semedStockMovements,
+    semedStockAudits: defaults.semedStockAudits,
+    semedSchoolStocks: defaults.semedSchoolStocks,
+    semedSchoolStockCounts: defaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: defaults.semedSchoolStockMovements,
+    semedKitOrders: defaults.semedKitOrders,
+  });
+}
+
 export function hydrateLocalDatabase(serialized: string) {
-  try { const parsed = JSON.parse(serialized) as SemedLocalDatabase; return parsed.schemaVersion === 1 ? parsed : null; } catch { return null; }
+  try {
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
+    if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
+    if (parsed.schemaVersion === 3) return normalizeCurrentDatabase(parsed);
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function cloneDatabase(database: SemedLocalDatabase) { return structuredClone(database); }
@@ -306,7 +1134,11 @@ function browserStorage(): SemedLocalStorage | null { return typeof window === "
 export function loadLocalDatabase(storage: SemedLocalStorage | null = browserStorage()) {
   const stored = storage?.getItem(STORAGE_KEY);
   if (!stored) return createLocalSemedDatabase();
-  return hydrateLocalDatabase(stored) ?? createLocalSemedDatabase();
+  const hydrated = hydrateLocalDatabase(stored);
+  if (!hydrated) return createLocalSemedDatabase();
+  const normalized = serializeLocalDatabase(hydrated);
+  if (normalized !== stored) storage?.setItem(STORAGE_KEY, normalized);
+  return hydrated;
 }
 export function saveLocalDatabase(database: SemedLocalDatabase, storage: SemedLocalStorage | null = browserStorage()) { storage?.setItem(STORAGE_KEY, serializeLocalDatabase(database)); }
 
@@ -323,20 +1155,54 @@ export function useSigaLocalRepository() {
   };
   const records = useMemo(() => listLocalRecords(database), [database]);
   const documents = useMemo(() => [...database.semedDocuments].sort((left, right) => (left.dueDate || "9999-12-31").localeCompare(right.dueDate || "9999-12-31") || right.updatedAt.localeCompare(left.updatedAt)), [database]);
+  const actorCanRead = (userId: string, moduleKey: SemedModuleKey) => {
+    const user = databaseRef.current.semedUsers.find((candidate) => candidate.id === userId);
+    return user ? canReadLocalModule(databaseRef.current, user, moduleKey) : false;
+  };
+  const actorCanWrite = (userId: string, moduleKey: SemedModuleKey) => {
+    const user = databaseRef.current.semedUsers.find((candidate) => candidate.id === userId);
+    return user ? canWriteLocalModule(databaseRef.current, user, moduleKey) : false;
+  };
   return {
-    records, documents,
-    login(username: string) { return mutate((draft) => loginLocalUser(draft, username)); },
-    completeFirstAccess(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },
-    changePassword(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },
+    records, documents, users: database.semedUsers, userPermissions: database.semedUserPermissions, userAuditLog: database.semedUserAuditLog,
+    nutritionSchools: database.semedNutritionSchools, nutritionContracts: database.semedNutritionContracts,
+    nutritionWeeklyPlans: database.semedNutritionWeeklyPlans, nutritionStages: database.semedNutritionStages,
+    nutritionCatalog: database.semedNutritionCatalog, nutritionAnnualPlans: database.semedNutritionAnnualPlans,
+    stockItems: database.semedStockItems, stockMovements: database.semedStockMovements, stockAudits: database.semedStockAudits,
+    schoolStocks: database.semedSchoolStocks, schoolStockCounts: database.semedSchoolStockCounts,
+    schoolStockMovements: database.semedSchoolStockMovements, kitOrders: database.semedKitOrders,
+    canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
+    canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
+    login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
+    completeFirstAccess(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
+    changePassword(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
     logout(tokenHash: string) { return mutate((draft) => logoutLocalSession(draft, tokenHash)); },
-    createRecord(input: SemedRecordInput) { return mutate((draft) => createLocalRecord(draft, input)); },
-    updateRecord(id: string, input: SemedRecordInput) { return mutate((draft) => updateLocalRecord(draft, id, input)); },
-    deleteRecord(id: string, confirmation = "EXCLUIR") { return mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation)); },
-    createPayment(input: SemedRecordPaymentInput) { return mutate((draft) => createLocalPayment(draft, input)); },
-    deletePayment(id: string) { return mutate((draft) => deleteLocalPayment(draft, id)); },
-    createDocument(input: SemedDocumentInput) { return mutate((draft) => createLocalDocument(draft, input)); },
-    updateDocument(id: string, input: SemedDocumentInput) { return mutate((draft) => updateLocalDocument(draft, id, input)); },
-    deleteDocument(id: string, confirmation = "EXCLUIR") { return mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)); },
+    createUser(input: SemedLocalUserInput, actorUserId: string) { return mutate((draft) => createLocalUser(draft, input, actorUserId)); },
+    updateUser(userId: string, input: SemedLocalUserInput, actorUserId: string) { return mutate((draft) => updateLocalUser(draft, userId, input, actorUserId)); },
+    setUserActive(userId: string, active: boolean, actorUserId: string) { return mutate((draft) => setLocalUserActive(draft, userId, active, actorUserId)); },
+    issueProvisionalPassword(userId: string, actorUserId: string) { return mutate((draft) => issueLocalProvisionalPassword(draft, userId, actorUserId)); },
+    terminateUserSessions(userId: string, actorUserId: string) { return mutate((draft) => terminateLocalUserSessions(draft, userId, actorUserId)); },
+    createRecord(input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalRecord(draft, input)) : null; },
+    updateRecord(id: string, input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => updateLocalRecord(draft, id, input)) : null; },
+    deleteRecord(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation)) : false; },
+    createPayment(input: SemedRecordPaymentInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalPayment(draft, input)) : { error: "Usuário sem permissão para alterar contratos." }; },
+    deletePayment(id: string, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => deleteLocalPayment(draft, id)) : false; },
+    createDocument(input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => createLocalDocument(draft, input)) : null; },
+    updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => updateLocalDocument(draft, id, input)) : null; },
+    deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)) : false; },
+    saveNutritionWeeklyPlan(input: SemedNutritionWeeklyInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionWeeklyPlan(draft, input, actorUserId)); },
+    archiveNutritionWeeklyPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionWeeklyPlan(draft, planId, actorUserId)); },
+    saveNutritionAnnualPlan(input: SemedNutritionAnnualInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionAnnualPlan(draft, input, actorUserId)); },
+    archiveNutritionAnnualPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionAnnualPlan(draft, planId, actorUserId)); },
+    weeklyNutritionAnalysis(plan: Pick<SemedNutritionWeeklyPlan, "id" | "contractId" | "items">) { return weeklyNutritionProductAnalysis(databaseRef.current, plan); },
+    annualNutritionResults(plan: Pick<SemedNutritionAnnualPlan, "items" | "enrollmentSnapshot" | "monthDays">) { return annualNutritionPlanResults(databaseRef.current, plan); },
+    saveStockItem(input: SemedStockItemInput, actorUserId: string) { return mutate((draft) => saveLocalStockItem(draft, input, actorUserId)); },
+    registerStockMovement(input: SemedStockMovementInput, actorUserId: string) { return mutate((draft) => registerLocalStockMovement(draft, input, actorUserId)); },
+    startStockAudit(scope: SemedStockScope, actorUserId: string, notes = "") { return mutate((draft) => startLocalStockAudit(draft, scope, actorUserId, notes)); },
+    finishStockAudit(auditId: string, entries: SemedStockAuditEntry[], actorUserId: string) { return mutate((draft) => finishLocalStockAudit(draft, auditId, entries, actorUserId)); },
+    saveSchoolStockCount(schoolStockId: string, countedQuantity: number, notes: string, actorUserId: string) { return mutate((draft) => saveLocalSchoolStockCount(draft, schoolStockId, countedQuantity, notes, actorUserId)); },
+    registerSchoolStockMovement(schoolStockId: string, type: SemedSchoolStockMovement["type"], quantity: number, reference: string, notes: string, actorUserId: string) { return mutate((draft) => registerLocalSchoolStockMovement(draft, schoolStockId, type, quantity, reference, notes, actorUserId)); },
+    saveKitOrder(input: SemedKitOrderInput, actorUserId: string) { return mutate((draft) => saveLocalKitOrder(draft, input, actorUserId)); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

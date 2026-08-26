@@ -32,7 +32,16 @@ export type ShellView =
   | "educa"
   | "people"
   | "nutrition"
+  | "nutrition-weekly"
+  | "nutrition-annual"
   | "stock"
+  | "stock-family"
+  | "stock-industrial"
+  | "stock-kit"
+  | "stock-food"
+  | "stock-cleaning"
+  | "stock-office"
+  | "stock-reports"
   | "fleet"
   | "users";
 
@@ -87,8 +96,8 @@ const navigation: NavigationItem[] = [
     label: "Nutrição",
     icon: Wheat,
     children: [
-      { label: "Planejamento semanal", target: "nutrition" },
-      { label: "Planejamento anual", target: "nutrition" },
+      { label: "Planejamento semanal", target: "nutrition-weekly" },
+      { label: "Planejamento anual", target: "nutrition-annual" },
     ],
   },
   {
@@ -96,13 +105,13 @@ const navigation: NavigationItem[] = [
     label: "Estoque",
     icon: Package,
     children: [
-      { label: "Agricultura Familiar", target: "stock" },
-      { label: "Industrializado", target: "stock" },
-      { label: "Kit do Aluno", target: "stock" },
-      { label: "Estoque Alimentação Escolar", target: "stock" },
-      { label: "Estoque Material de Limpeza", target: "stock" },
-      { label: "Estoque Material de Expediente", target: "stock" },
-      { label: "Relatórios", target: "stock" },
+      { label: "Agricultura Familiar", target: "stock-family" },
+      { label: "Industrializado", target: "stock-industrial" },
+      { label: "Kit do Aluno", target: "stock-kit" },
+      { label: "Estoque Alimentação Escolar", target: "stock-food" },
+      { label: "Estoque Material de Limpeza", target: "stock-cleaning" },
+      { label: "Estoque Material de Expediente", target: "stock-office" },
+      { label: "Relatórios", target: "stock-reports" },
     ],
   },
   {
@@ -126,6 +135,8 @@ function isSectionActive(item: NavigationItem, activeView: ShellView) {
 
 export function shellViewLabel(view: ShellView) {
   if (view === "welcome") return "Boas-vindas";
+  if (view === "nutrition-weekly" || view === "nutrition-annual") return "Nutrição";
+  if (view.startsWith("stock-")) return "Estoque";
   return navigation.find((item) => item.id === view)?.label ?? "SIGA SEMED";
 }
 
@@ -135,6 +146,7 @@ export default function SemedOperationalShell({
   onViewChange,
   onPassword,
   onLogout,
+  isViewAllowed,
   logo,
   children,
 }: {
@@ -143,6 +155,7 @@ export default function SemedOperationalShell({
   onViewChange: (view: ShellView) => void;
   onPassword: () => void;
   onLogout: () => void;
+  isViewAllowed?: (view: ShellView) => boolean;
   logo: string;
   children: React.ReactNode;
 }) {
@@ -168,12 +181,15 @@ export default function SemedOperationalShell({
             const Icon = item.icon;
             const selected = isSectionActive(item, activeView);
             const expanded = openGroup === item.id;
+            const allowed = isViewAllowed?.(item.id) ?? true;
             if (!item.children) {
               return (
                 <button
                   className={`siga-nav-item ${selected ? "active" : ""}`}
                   key={item.id}
                   type="button"
+                  data-restricted={!allowed || undefined}
+                  title={allowed ? item.label : `${item.label} · acesso restrito`}
                   onClick={() => chooseView(item.id)}
                 >
                   <Icon size={18} aria-hidden="true" />
@@ -186,6 +202,8 @@ export default function SemedOperationalShell({
                 <button
                   className={`siga-nav-item ${selected ? "active" : ""}`}
                   type="button"
+                  data-restricted={!allowed || undefined}
+                  title={allowed ? item.label : `${item.label} · acesso restrito`}
                   aria-expanded={expanded}
                   onClick={() => setOpenGroup((current) => (current === item.id ? null : item.id))}
                 >

@@ -56,7 +56,7 @@ function CheckingAccess() {
   );
 }
 
-function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }) {
+function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string, password: string) => boolean }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -71,7 +71,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }
     }
     setIsSubmitting(true);
     window.setTimeout(() => {
-      if (!onLoggedIn(username)) setMessage("Usuário não encontrado na simulação local.");
+      if (!onLoggedIn(username, password)) setMessage("Identificador ou senha inválidos na simulação local.");
       setIsSubmitting(false);
     }, 480);
   }
@@ -86,7 +86,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }
         </div>
 
         <label className="siga-field">
-          <span>Usuário</span>
+          <span>Matrícula ou CPF</span>
           <span className="siga-input-wrap">
             <UserRound aria-hidden="true" size={18} />
             <input
@@ -94,7 +94,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }
               required
               value={username}
               onChange={(event) => setUsername(event.target.value)}
-              placeholder="Ex.: tecnico1"
+              placeholder="Ex.: 00000000-0"
             />
           </span>
         </label>
@@ -125,7 +125,7 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string) => boolean }
   );
 }
 
-function FirstAccessPage({ user, onCancel, onChanged }: { user: PreviewUser; onCancel: () => void; onChanged: () => void }) {
+function FirstAccessPage({ user, onCancel, onChanged }: { user: PreviewUser; onCancel: () => void; onChanged: (newPassword: string) => void }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -142,7 +142,7 @@ function FirstAccessPage({ user, onCancel, onChanged }: { user: PreviewUser; onC
     }
     setIsSubmitting(true);
     window.setTimeout(() => {
-      onChanged();
+      onChanged(newPassword);
       setIsSubmitting(false);
     }, 480);
   }
@@ -201,16 +201,16 @@ export default function Home() {
   }, []);
 
   if (screen === "checking") return <CheckingAccess />;
-  if (screen === "login") return <LoginPage onLoggedIn={(username) => {
-    const access = repository.login(username);
+  if (screen === "login") return <LoginPage onLoggedIn={(username, password) => {
+    const access = repository.login(username, password);
     if (!access) return false;
     const nextUser = { ...access.user, sessionToken: access.session.tokenHash };
     setUser(nextUser);
     setScreen(access.user.mustChangePassword ? "firstAccess" : "workspace");
     return true;
   }} />;
-  if (screen === "firstAccess" && user) return <FirstAccessPage user={user} onCancel={() => { repository.logout(user.sessionToken); setUser(null); setScreen("login"); }} onChanged={() => {
-    const updated = repository.completeFirstAccess(user.id);
+  if (screen === "firstAccess" && user) return <FirstAccessPage user={user} onCancel={() => { repository.logout(user.sessionToken); setUser(null); setScreen("login"); }} onChanged={(newPassword) => {
+    const updated = repository.completeFirstAccess(user.id, newPassword);
     if (updated) setUser({ ...updated, sessionToken: user.sessionToken });
     setScreen("workspace");
   }} />;
