@@ -595,4 +595,4 @@
 
 - [x] Revisar estado Git, integração GitHub, arquivos alterados e destino remoto, excluindo credenciais e referências somente leitura.
 - [x] Preparar commit descritivo com a atualização tipográfica, testes e documentação atuais.
-- [ ] Enviar a versão para a branch principal do repositório autorizado e confirmar o hash remoto.
+- [x] Enviar a versão para a branch principal do repositório autorizado e confirmar o hash remoto.
