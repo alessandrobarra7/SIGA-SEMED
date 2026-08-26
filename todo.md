@@ -234,4 +234,4 @@
 - [x] Aplicar leitura e escrita de Estoque conforme as permissões dos seis perfis.
 - [x] Cobrir Estoque com testes de saldo, movimentação, auditoria, persistência, permissões e regressão.
 - [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
-- [ ] Salvar checkpoint e apresentar o módulo Estoque funcional no preview.
+- [x] Salvar checkpoint e apresentar o módulo Estoque funcional no preview.
