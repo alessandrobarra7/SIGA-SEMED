@@ -1,5 +1,5 @@
 /* DESIGN REMINDER: Caderno de Gestão Pública — superfícies editoriais institucionais, Azul Gabinete #123A63, dados densos e posições funcionais preservadas. */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -133,7 +133,7 @@ h1, h2, h3, p { margin-top: 0; }
   display: block;
   margin: 0 0 .46rem;
   color: #2d6d5a !important;
-  font-family: "Fira Sans", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   font-size: .74rem !important;
   font-style: normal;
   font-weight: 600 !important;

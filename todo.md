@@ -582,3 +582,11 @@
 - [x] Restringir kickers a contexto institucional e cabeçalhos de seção, sem alterar layout, ações, dados ou login.
 - [x] Cobrir a regressão e validar cartões, agenda, navegação, desktop, mobile, TypeScript e build.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a correção.
+
+## Direção autorizada — Montserrat e Inter no ambiente interno
+
+- [x] Mapear títulos, métricas, menus, botões, legendas, descrições e tabelas que receberão Montserrat ExtraBold ou Inter.
+- [x] Carregar Montserrat e Inter e definir tokens tipográficos exclusivos do ambiente autenticado, preservando o login.
+- [x] Aplicar Montserrat aos títulos, chamadas e números de destaque; aplicar Inter a menus, botões, legendas, descrições e tabelas.
+- [x] Validar a nova direção em Início, cartões, agenda, navegação, desktop e mobile, com testes, TypeScript e build.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a nova alternativa tipográfica.

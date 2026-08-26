@@ -27,7 +27,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
 | Testes mais recentes | 95 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Manrope para leitura, Source Serif 4 para títulos e dados e Fira Sans para legendas discretas. Marcadores decorativos e caixa alta compulsória foram removidos de cartões, agenda e ações rápidas; caixa alta permanece apenas em estados e cabeçalhos de tabela. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Montserrat ExtraBold para títulos, chamadas e números de destaque; Inter organiza menus, botões, legendas, descrições e tabelas. Marcadores decorativos e caixa alta compulsória foram removidos de cartões, agenda e ações rápidas; caixa alta permanece apenas em estados e cabeçalhos de tabela. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 

@@ -8,11 +8,14 @@ const indexStyles = readFileSync(resolve(projectRoot, "client/src/index.css"), "
 const shellStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-identity-refresh.css"), "utf8");
 
 describe("tipografia institucional do shell", () => {
-  it("mantém Manrope e Source Serif 4 como tipografia institucional do ambiente", () => {
+  it("mantém Montserrat e Inter como tipografia institucional do ambiente autenticado", () => {
     expect(indexStyles).toContain("family=Manrope");
     expect(indexStyles).toContain("family=Source+Serif+4");
-    expect(indexStyles).toContain("family=Fira+Sans");
+    expect(indexStyles).toContain("family=Montserrat");
+    expect(indexStyles).toContain("family=Inter");
     expect(indexHtml).not.toContain("IBM+Plex");
+    expect(shellStyles).toContain('--siga-font-body: "Inter", sans-serif;');
+    expect(shellStyles).toContain('--siga-font-display: "Montserrat", sans-serif;');
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
     expect(shellStyles).toContain('font-family: var(--siga-font-display) !important;');
@@ -43,6 +46,6 @@ describe("tipografia institucional do shell", () => {
     expect(indexStyles).toContain(".siga-shell .kicker--card");
     expect(indexStyles).toContain('content: none !important;');
     expect(indexStyles).not.toContain(".siga-shell .siga-kicker:not(.kicker)");
-    expect(shellStyles).toContain('--siga-font-caption: "Manrope", sans-serif;');
+    expect(shellStyles).toContain('--siga-font-caption: "Inter", sans-serif;');
   });
 });

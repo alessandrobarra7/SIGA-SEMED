@@ -391,9 +391,9 @@
 
 /* Tipografia institucional do ambiente autenticado — o login permanece intocado. */
 .siga-shell {
-  --siga-font-body: "Manrope", sans-serif;
-  --siga-font-display: "Source Serif 4", serif;
-  --siga-font-caption: "Manrope", sans-serif;
+  --siga-font-body: "Inter", sans-serif;
+  --siga-font-display: "Montserrat", sans-serif;
+  --siga-font-caption: "Inter", sans-serif;
   font-family: var(--siga-font-body);
 }
 .siga-shell :is(button, input, select, textarea) { font-family: inherit; }
@@ -411,8 +411,8 @@
   .siga-week-day strong
 ) {
   font-family: var(--siga-font-display) !important;
-  font-weight: 600 !important;
-  letter-spacing: -.025em;
+  font-weight: 800 !important;
+  letter-spacing: -.035em;
 }
 .siga-shell :is(
   .siga-shell-mark small,
@@ -477,9 +477,9 @@
   color: #123f5d;
   font-family: var(--siga-font-display) !important;
   font-size: var(--siga-text-section) !important;
-  font-weight: 600 !important;
+  font-weight: 800 !important;
   line-height: 1.16;
-  letter-spacing: -.018em;
+  letter-spacing: -.028em;
 }
 .siga-shell :is(
   .siga-task-row strong,
@@ -694,7 +694,7 @@
   .siga-hr-action-bar p
 ) {
   color: #287254;
-  font-family: "Fira Sans", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   font-size: .74rem !important;
   font-weight: 600 !important;
   letter-spacing: .012em;
