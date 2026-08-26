@@ -443,3 +443,195 @@
 .siga-shell .siga-shell-header-title span,
 .siga-shell .siga-shell-header-title small { font-size: 9px; }
 .siga-shell :is(.siga-editorial-metric strong, .siga-metric-card strong, .siga-week-day strong) { font-variant-numeric: tabular-nums; }
+
+/* Sistema editorial: todos os módulos internos compartilham os mesmos níveis de leitura. */
+.siga-shell {
+  --siga-text-page: clamp(2rem, 2.65vw, 2.72rem);
+  --siga-text-section: clamp(1.38rem, 1.75vw, 1.82rem);
+  --siga-text-card: 1rem;
+  --siga-text-body: .84rem;
+  --siga-text-label: .72rem;
+  --siga-text-meta: .68rem;
+  --siga-text-micro: .61rem;
+  --siga-leading-copy: 1.58;
+  --siga-track-context: .065em;
+}
+.siga-shell :is(
+  .siga-page-heading h1,
+  .siga-home-editorial-intro h1,
+  .siga-home-heading h1,
+  .siga-welcome h1,
+  .siga-module-surface :is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1),
+  :is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1)
+) {
+  font-size: var(--siga-text-page) !important;
+  line-height: 1.08;
+}
+.siga-shell :is(
+  .siga-list-heading h2,
+  .siga-form-heading h2,
+  .siga-card-heading h2,
+  .siga-nutrition-heading h2,
+  .siga-nutrition-section-heading h3,
+  .siga-finance-panel h2,
+  .siga-fleet-section h2,
+  .siga-hr-header h2,
+  .schools-educa-card h2
+) {
+  color: #123f5d;
+  font-family: var(--siga-font-display) !important;
+  font-size: var(--siga-text-section) !important;
+  font-weight: 600 !important;
+  line-height: 1.16;
+  letter-spacing: -.018em;
+}
+.siga-shell :is(
+  .siga-task-row strong,
+  .siga-hr-server-main strong,
+  .siga-hr-payslip-list strong,
+  .siga-nutrition-list .summary strong,
+  .siga-stock-table-panel td strong,
+  .schools-educa-card h3,
+  .siga-user-summary strong,
+  .siga-fleet-list strong,
+  .record-identity strong
+) {
+  color: #193f57;
+  font-family: var(--siga-font-body) !important;
+  font-size: var(--siga-text-card);
+  font-weight: 700 !important;
+  line-height: 1.3;
+  letter-spacing: -.012em;
+}
+.siga-shell :is(
+  .siga-kicker,
+  .siga-page-heading > span,
+  .siga-list-heading > span,
+  .siga-finance-hero small,
+  .siga-stock-hero small,
+  .siga-hr-action-bar p,
+  .siga-shell-mark small,
+  .siga-shell-header-title span
+) {
+  color: #277a57;
+  font-size: var(--siga-text-micro);
+  font-weight: 700;
+  letter-spacing: var(--siga-track-context);
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+.siga-shell :is(
+  .siga-page-heading > p,
+  .siga-list-heading > p,
+  .siga-card-heading > p,
+  .siga-welcome-copy,
+  .siga-hr-caption,
+  .siga-finance-note,
+  .siga-workspace-notice,
+  .siga-inline-note,
+  .siga-nutrition-hero p,
+  .siga-fleet-hero p,
+  .schools-educa-heading p,
+  .siga-management-page p
+) {
+  color: #617782;
+  font-size: var(--siga-text-body);
+  font-weight: 400;
+  line-height: var(--siga-leading-copy);
+}
+.siga-shell :is(
+  .siga-form label,
+  .siga-data-form label,
+  .siga-management-form label,
+  .siga-fleet-form label,
+  .siga-nutrition-form-grid label,
+  .schools-educa-form label,
+  .siga-user-main label,
+  .payment-editor label,
+  .siga-module-surface label
+) {
+  color: #415a68;
+  font-size: var(--siga-text-label) !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em;
+  line-height: 1.35;
+  text-transform: none;
+}
+.siga-shell :is(
+  .siga-nav-item,
+  .siga-nav-submenu button,
+  .siga-module-tabs button,
+  .siga-master-tabs button,
+  .siga-finance-tabs button,
+  .siga-nutrition-tabs button,
+  .siga-stock-contexts button,
+  .siga-hr-tabs button
+) {
+  font-size: .77rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+}
+.siga-shell :is(
+  .siga-task-row small,
+  .siga-hr-audit-list small,
+  .siga-hr-server-main small,
+  .siga-nutrition-list small,
+  .siga-stock-table-panel td,
+  .schools-educa-card small,
+  .siga-user-detail-grid small,
+  .siga-fleet-list small,
+  .record-identity small,
+  .record-object,
+  .detail-item strong
+) {
+  color: #74858d;
+  font-size: var(--siga-text-meta);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.42;
+  text-transform: none;
+}
+.siga-shell :is(
+  .siga-status-pill,
+  .siga-stock-status,
+  .siga-finance-status,
+  .siga-fleet-status,
+  .siga-hr-status,
+  .siga-alert-tag,
+  [class*="badge"]
+) {
+  font-size: var(--siga-text-micro) !important;
+  font-weight: 700 !important;
+  letter-spacing: .035em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.siga-shell :is(table th, [class*="table-wrap"] th, .siga-fleet-table th) {
+  color: #446b60;
+  font-size: var(--siga-text-micro) !important;
+  font-weight: 700 !important;
+  letter-spacing: .055em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.siga-shell :is(table td, [class*="table-wrap"] td, .siga-fleet-table td) {
+  font-size: .75rem;
+  line-height: 1.42;
+}
+.siga-shell :is(
+  .primary-action,
+  .quiet-action,
+  .danger-action,
+  .siga-primary-button,
+  .siga-secondary-button,
+  .siga-danger-button,
+  .siga-editorial-metric button,
+  .siga-home-quick-actions button
+) {
+  font-size: var(--siga-text-label) !important;
+  font-weight: 700 !important;
+  letter-spacing: .005em;
+  text-transform: none;
+}

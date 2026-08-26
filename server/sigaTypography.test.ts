@@ -22,4 +22,14 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain("text-transform: none;");
     expect(shellStyles).toContain("/* Tipografia institucional do ambiente autenticado — o login permanece intocado. */");
   });
+
+  it("declara uma escala editorial reutilizável para títulos, contexto, rótulos, metadados, estados e tabelas", () => {
+    expect(shellStyles).toContain("--siga-text-page:");
+    expect(shellStyles).toContain("--siga-text-section:");
+    expect(shellStyles).toContain("--siga-text-label:");
+    expect(shellStyles).toContain("--siga-text-meta:");
+    expect(shellStyles).toContain("Sistema editorial: todos os módulos internos compartilham os mesmos níveis de leitura.");
+    expect(shellStyles).toContain(".siga-finance-status");
+    expect(shellStyles).toContain(".siga-fleet-status");
+  });
 });

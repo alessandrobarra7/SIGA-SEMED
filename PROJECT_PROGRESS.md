@@ -21,13 +21,13 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 
 | Elemento | Situação atual |
 |---|---|
-| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e tipografia institucional para leitura operacional. |
+| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e sistema editorial transversal para títulos, contexto, descrições, rótulos, metadados, estados e ações. |
 | Persistência local | Concluída: armazenamento v11 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 93 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa IBM Plex Sans para leitura e IBM Plex Serif para títulos e dados; caixa alta ficou restrita a microcontextos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase na navegação, abas e formulários. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Testes mais recentes | 94 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa IBM Plex Sans para leitura e IBM Plex Serif para títulos e dados, com escala editorial compartilhada entre painéis, formulários, listas, tabelas e navegação. Caixa alta ficou restrita a microcontextos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase nos demais contextos. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 

@@ -551,3 +551,11 @@
 - [x] Reduzir a caixa alta a rótulos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase nos demais contextos.
 - [x] Validar no preview, em desktop e mobile, os testes, TypeScript e build sem alterar a tela de login congelada.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a nova alternativa visual.
+
+## Refinamento autorizado — hierarquia de legendas em todo o ambiente interno
+
+- [x] Mapear títulos, subtítulos, descrições, rótulos, abas, tabelas, estados, textos auxiliares e navegação dos módulos autenticados.
+- [x] Definir tokens globais de escala, cor, peso, linha e espaçamento para cada nível editorial, sem alterar o login.
+- [x] Aplicar a hierarquia de texto a painéis, formulários, listas, tabelas, estados e navegação sem modificar textos, fluxos ou permissões.
+- [x] Cobrir os tokens tipográficos com regressão e validar contraste, desktop, mobile, TypeScript e build.
+- [x] Atualizar documentação, salvar checkpoint e apresentar o refinamento sistêmico publicado.
