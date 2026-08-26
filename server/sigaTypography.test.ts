@@ -71,4 +71,13 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain("font-family: var(--siga-font-display) !important;");
     expect(shellStyles).toContain("sem atingir o login congelado");
   });
+
+  it("eleva a hierarquia da Gestão para títulos, filtros, tarefas e agenda", () => {
+    const managementStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-management-complement.css"), "utf8");
+
+    expect(managementStyles).toContain("Gestão: escala própria");
+    expect(managementStyles).toContain(".siga-management-page .siga-task-row > div > strong");
+    expect(managementStyles).toContain("font-size: 1.08rem !important;");
+    expect(managementStyles).toContain(".siga-management-page .siga-context-tabs button");
+  });
 });

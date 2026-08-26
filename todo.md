@@ -604,3 +604,10 @@
 - [x] Substituir fontes fixas nos módulos por tokens funcionais, mantendo o login congelado e sem alterar textos, ids, testids, fluxos ou permissões.
 - [x] Ampliar a regressão para todos os estilos de módulo e validar os módulos internos em desktop e mobile, TypeScript e build.
 - [x] Documentar que o login permanece fora do escopo visual, salvar checkpoint e apresentar a atualização.
+
+## Correção autorizada — hierarquia visual específica de Gestão
+
+- [x] Mapear a escala de títulos, abas, filtros, tarefas, metadados e agenda da Gestão atualmente visíveis no preview.
+- [x] Aplicar Montserrat e Inter com tamanhos, pesos, contraste e espaçamento específicos à Gestão, sem alterar textos, dados ou ações.
+- [x] Validar tarefas, filtros e agenda em desktop e mobile, com regressão tipográfica, TypeScript e build.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a correção específica.
