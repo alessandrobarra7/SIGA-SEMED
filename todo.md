@@ -410,6 +410,12 @@
 - [x] Enviar a atualização para a branch principal do repositório autorizado.
 - [x] Confirmar o hash remoto e orientar sobre segurança de credenciais.
 
+## Análise somente leitura — SIGASEMEDverificado.zip
+
+- [x] Inventariar a estrutura, as tecnologias, manifestos e arquivos principais do pacote sem executar código.
+- [x] Mapear módulos, modelos de dados, autenticação, permissões e fluxos somente pela leitura dos arquivos.
+- [x] Comparar o pacote com o preview atual e apresentar recomendações sem copiar dados, credenciais ou documentos reais.
+
 ## Análise autorizada — perfis, setores e governança de dados
 
 - [x] Mapear os perfis, as permissões e os setores funcionais implementados no código atual.
