@@ -75,10 +75,11 @@ describe("operações locais de Estoque", () => {
     delete legacy.semedSchoolStockMovements;
     delete legacy.semedKitOrders;
     const migrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(migrated.schemaVersion).toBe(3);
+    expect(migrated.schemaVersion).toBe(4);
     expect(migrated.semedRecords).toHaveLength(current.semedRecords.length);
     expect(migrated.semedNutritionAnnualPlans).toHaveLength(current.semedNutritionAnnualPlans.length);
     expect(migrated.semedStockItems.length).toBeGreaterThan(0);
     expect(migrated.semedSchoolStocks.length).toBeGreaterThan(0);
+    expect(migrated.semedHrServers.length).toBeGreaterThan(0);
   });
 });

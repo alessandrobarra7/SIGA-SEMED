@@ -244,3 +244,29 @@
 - [x] Confirmar o hash remoto da publicação ao usuário.
 - [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
 - [x] Recomendar a revogação da credencial após confirmar o hash remoto.
+
+## Documentação de andamento do projeto
+
+- [x] Consolidar em um documento único as decisões de produto, segurança e arquitetura já tomadas.
+- [x] Registrar os módulos reproduzidos, seus fluxos locais, validações e checkpoints correspondentes.
+- [x] Registrar os módulos ainda pendentes de reprodução funcional, em ordem recomendada.
+- [x] Incluir o protocolo obrigatório de observação somente leitura da referência e de uso de dados demonstrativos locais.
+- [x] Revisar o documento, atualizar o checklist e salvar checkpoint da documentação.
+
+## Reprodução funcional autorizada — Recursos Humanos
+
+- [x] Observar em modo somente leitura Cadastro de Servidores, Ficha Financeira, Holerite, Frequência e movimento e Relatórios na referência.
+- [x] Registrar campos, filtros, indicadores, abas, estados, permissões e ordem operacional sem copiar dados pessoais, valores ou documentos reais.
+- [x] Modelar servidores demonstrativos, competências, fichas financeiras, holerites, frequência e auditoria no armazenamento local, sem D1.
+- [x] Implementar Recursos Humanos dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar leitura e escrita conforme os seis perfis, mantendo dados pessoais demonstrativos e minimizados.
+- [x] Cobrir o módulo com testes de cadastro, competência, frequência, permissões, persistência e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [x] Salvar checkpoint e apresentar o módulo Recursos Humanos funcional no preview.
+
+## Publicação autorizada — Recursos Humanos
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
+- [x] Validar testes, checagem de tipos e build da versão atual antes do envio.
+- [ ] Criar commit descritivo e enviar Recursos Humanos, migração v4, testes e documentação ao repositório autorizado.
+- [ ] Confirmar o hash remoto da publicação ao usuário.

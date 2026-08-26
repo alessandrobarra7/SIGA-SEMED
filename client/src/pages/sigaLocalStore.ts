@@ -245,8 +245,33 @@ export type SemedKitOrderItem = { itemId: string; requestedQuantity: number; rec
 export type SemedKitOrder = { id: string; schoolId: string; className: string; referenceYear: number; status: SemedKitOrderStatus; items: SemedKitOrderItem[]; notes: string; createdAt: string; updatedAt: string };
 export type SemedKitOrderInput = Omit<SemedKitOrder, "id" | "createdAt" | "updatedAt"> & { id?: string };
 
+export const SEMED_HR_SERVER_STATUSES = ["Ativo", "Aguardando revisão", "Inativo"] as const;
+export type SemedHrServerStatus = (typeof SEMED_HR_SERVER_STATUSES)[number];
+export const SEMED_HR_ATTENDANCE_STATUSES = ["Em preparação", "Aguardando gestora", "Enviada ao RH", "Devolvida para correção"] as const;
+export type SemedHrAttendanceStatus = (typeof SEMED_HR_ATTENDANCE_STATUSES)[number];
+export type SemedHrCalendarEventType = "Feriado" | "Ponto facultativo" | "Recesso escolar" | "Suspensão de atividades" | "Sábado letivo" | "Reposição" | "Outra ocorrência";
+export type SemedHrAuditAction = "servidor.criado" | "servidor.editado" | "competencia.criada" | "competencia.atualizada" | "competencia.enviada" | "competencia.devolvida";
+
+export type SemedHrServer = {
+  id: string; registration: string; displayName: string; cpf: string; jobTitle: string; schoolUnitId: string;
+  status: SemedHrServerStatus; admissionDate: string; hasPhone: boolean; hasEmail: boolean; hasIc: boolean;
+  baseSalary: number; createdAt: string; updatedAt: string;
+};
+export type SemedHrServerInput = Omit<SemedHrServer, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedHrFinancialItem = { description: string; kind: "Provento" | "Desconto"; amount: number };
+export type SemedHrFinancialRecord = { id: string; serverId: string; referenceMonth: string; items: SemedHrFinancialItem[]; notes: string; createdAt: string; updatedAt: string };
+export type SemedHrFinancialRecordInput = Omit<SemedHrFinancialRecord, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedHrCalendarEvent = { id: string; date: string; type: SemedHrCalendarEventType; description: string };
+export type SemedHrAttendanceEntry = { serverId: string; workedDays: number; absences: number; notes: string };
+export type SemedHrAttendancePeriod = {
+  id: string; code: string; referenceMonth: string; schoolUnitId: string; plannedDays: number; calendarEvents: SemedHrCalendarEvent[];
+  entries: SemedHrAttendanceEntry[]; status: SemedHrAttendanceStatus; returnReason: string; createdAt: string; updatedAt: string;
+};
+export type SemedHrAttendanceInput = Omit<SemedHrAttendancePeriod, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedHrAudit = { id: string; action: SemedHrAuditAction; targetId: string; summary: string; actorUserId: string; createdAt: string };
+
 export type SemedLocalDatabase = {
-  schemaVersion: 3;
+  schemaVersion: 4;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -267,6 +292,10 @@ export type SemedLocalDatabase = {
   semedSchoolStockCounts: SemedSchoolStockCount[];
   semedSchoolStockMovements: SemedSchoolStockMovement[];
   semedKitOrders: SemedKitOrder[];
+  semedHrServers: SemedHrServer[];
+  semedHrFinancialRecords: SemedHrFinancialRecord[];
+  semedHrAttendancePeriods: SemedHrAttendancePeriod[];
+  semedHrAuditLog: SemedHrAudit[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -534,7 +563,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = "2026-01-10T12:00:00.000Z";
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -620,6 +649,18 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
     semedSchoolStockCounts: [],
     semedSchoolStockMovements: [],
     semedKitOrders: [],
+    semedHrServers: [
+      { id: "hr-server-1", registration: "HR-DEMO-001", displayName: "Servidor demonstrativo 01", cpf: "", jobTitle: "Professor demonstrativo", schoolUnitId: "nutrition-school-1", status: "Ativo", admissionDate: "2024-02-01", hasPhone: true, hasEmail: true, hasIc: false, baseSalary: 3200, createdAt, updatedAt: createdAt },
+      { id: "hr-server-2", registration: "HR-DEMO-002", displayName: "Servidor demonstrativo 02", cpf: "", jobTitle: "Assistente administrativo demonstrativo", schoolUnitId: "nutrition-school-2", status: "Aguardando revisão", admissionDate: "2025-03-10", hasPhone: false, hasEmail: true, hasIc: false, baseSalary: 2100, createdAt, updatedAt: createdAt },
+      { id: "hr-server-3", registration: "HR-DEMO-003", displayName: "Servidor demonstrativo 03", cpf: "", jobTitle: "Merendeiro demonstrativo", schoolUnitId: "nutrition-school-3", status: "Ativo", admissionDate: "2023-08-15", hasPhone: true, hasEmail: false, hasIc: true, baseSalary: 1800, createdAt, updatedAt: createdAt },
+    ],
+    semedHrFinancialRecords: [
+      { id: "hr-financial-1", serverId: "hr-server-1", referenceMonth: "2026-07", items: [{ description: "Vencimento demonstrativo", kind: "Provento", amount: 3200 }, { description: "Desconto demonstrativo", kind: "Desconto", amount: 180 }], notes: "Registro demonstrativo local.", createdAt, updatedAt: createdAt },
+    ],
+    semedHrAttendancePeriods: [
+      { id: "hr-attendance-1", code: "SIGA-FREQ-DEMO-001", referenceMonth: "2026-07", schoolUnitId: "nutrition-school-1", plannedDays: 22, calendarEvents: [], entries: [{ serverId: "hr-server-1", workedDays: 22, absences: 0, notes: "Frequência demonstrativa." }], status: "Em preparação", returnReason: "", createdAt, updatedAt: createdAt },
+    ],
+    semedHrAuditLog: [],
   };
 }
 
@@ -1016,8 +1057,78 @@ export function saveLocalKitOrder(database: SemedLocalDatabase, input: SemedKitO
   return { error: null, order };
 }
 
+function hrValue(value: unknown) { return Math.round(nonNegative(value) * 100) / 100; }
+function hrAudit(database: SemedLocalDatabase, action: SemedHrAuditAction, targetId: string, summary: string, actorUserId: string, timestamp = now()) {
+  const entry: SemedHrAudit = { id: localId("hr-audit"), action, targetId, summary: summary.replace(/\b\d{11}\b/g, "CPF PROTEGIDO"), actorUserId, createdAt: timestamp };
+  database.semedHrAuditLog.unshift(entry);
+  return entry;
+}
+
+export function calculateHrFinancialTotals(record: Pick<SemedHrFinancialRecord, "items">) {
+  const earnings = hrValue(record.items.filter((item) => item.kind === "Provento").reduce((total, item) => total + hrValue(item.amount), 0));
+  const discounts = hrValue(record.items.filter((item) => item.kind === "Desconto").reduce((total, item) => total + hrValue(item.amount), 0));
+  return { earnings, discounts, net: hrValue(earnings - discounts) };
+}
+
+export function saveLocalHrServer(database: SemedLocalDatabase, input: SemedHrServerInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "rh.cadastro_servidores")) return { error: "Usuário sem permissão para alterar cadastros de servidores.", server: null };
+  const registration = upper(input.registration);
+  const displayName = input.displayName.trim();
+  const cpf = normalizeCpf(input.cpf);
+  if (!registration || !displayName || !input.jobTitle.trim() || !input.schoolUnitId) return { error: "Informe matrícula, nome, cargo e unidade para o servidor.", server: null };
+  if (cpf && cpf.length !== 11) return { error: "Informe CPF demonstrativo com 11 dígitos ou deixe o campo vazio.", server: null };
+  const duplicateRegistration = database.semedHrServers.find((server) => server.id !== input.id && upper(server.registration) === registration);
+  const duplicateCpf = cpf && database.semedHrServers.find((server) => server.id !== input.id && normalizeCpf(server.cpf) === cpf);
+  if (duplicateRegistration) return { error: "Já existe um servidor demonstrativo com esta matrícula.", server: null };
+  if (duplicateCpf) return { error: "Já existe um servidor demonstrativo com este CPF.", server: null };
+  const current = input.id ? database.semedHrServers.find((server) => server.id === input.id) : null;
+  const server: SemedHrServer = {
+    id: current?.id ?? localId("hr-server"), registration, displayName, cpf, jobTitle: input.jobTitle.trim(), schoolUnitId: input.schoolUnitId,
+    status: input.status, admissionDate: input.admissionDate, hasPhone: Boolean(input.hasPhone), hasEmail: Boolean(input.hasEmail), hasIc: Boolean(input.hasIc),
+    baseSalary: hrValue(input.baseSalary), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedHrServers[database.semedHrServers.indexOf(current)] = server;
+  else database.semedHrServers.push(server);
+  hrAudit(database, current ? "servidor.editado" : "servidor.criado", server.id, current ? "Cadastro demonstrativo de servidor atualizado." : "Servidor demonstrativo cadastrado.", actorUserId, timestamp);
+  return { error: null, server };
+}
+
+export function saveLocalHrFinancialRecord(database: SemedLocalDatabase, input: SemedHrFinancialRecordInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "rh.ficha_financeira")) return { error: "Usuário sem permissão para alterar fichas financeiras.", record: null };
+  if (!database.semedHrServers.some((server) => server.id === input.serverId)) return { error: "Servidor demonstrativo não encontrado.", record: null };
+  if (!/^\d{4}-\d{2}$/.test(input.referenceMonth)) return { error: "Informe uma competência mensal válida.", record: null };
+  const items = input.items.filter((item) => item.description.trim() && hrValue(item.amount) > 0).map((item) => ({ description: item.description.trim(), kind: item.kind, amount: hrValue(item.amount) }));
+  if (!items.length) return { error: "Informe ao menos um provento ou desconto demonstrativo.", record: null };
+  const current = input.id ? database.semedHrFinancialRecords.find((record) => record.id === input.id) : database.semedHrFinancialRecords.find((record) => record.serverId === input.serverId && record.referenceMonth === input.referenceMonth);
+  const record: SemedHrFinancialRecord = { id: current?.id ?? localId("hr-financial"), serverId: input.serverId, referenceMonth: input.referenceMonth, items, notes: input.notes.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedHrFinancialRecords[database.semedHrFinancialRecords.indexOf(current)] = record;
+  else database.semedHrFinancialRecords.push(record);
+  hrAudit(database, current ? "competencia.atualizada" : "competencia.criada", record.id, "Ficha financeira demonstrativa registrada.", actorUserId, timestamp);
+  return { error: null, record };
+}
+
+export function saveLocalHrAttendancePeriod(database: SemedLocalDatabase, input: SemedHrAttendanceInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "rh.frequencia")) return { error: "Usuário sem permissão para alterar frequência e movimento.", period: null };
+  if (!/^\d{4}-\d{2}$/.test(input.referenceMonth) || !input.schoolUnitId || !input.code.trim()) return { error: "Informe competência, unidade e código da frequência.", period: null };
+  const plannedDays = Math.round(nonNegative(input.plannedDays));
+  if (!plannedDays) return { error: "Informe os dias previstos da competência.", period: null };
+  const entries = input.entries.filter((entry) => database.semedHrServers.some((server) => server.id === entry.serverId)).map((entry) => ({ serverId: entry.serverId, workedDays: Math.min(plannedDays, Math.round(nonNegative(entry.workedDays))), absences: Math.min(plannedDays, Math.round(nonNegative(entry.absences))), notes: entry.notes.trim() }));
+  if (!entries.length) return { error: "Inclua ao menos um servidor demonstrativo na competência.", period: null };
+  const current = input.id ? database.semedHrAttendancePeriods.find((period) => period.id === input.id) : database.semedHrAttendancePeriods.find((period) => period.referenceMonth === input.referenceMonth && period.schoolUnitId === input.schoolUnitId);
+  const period: SemedHrAttendancePeriod = { id: current?.id ?? localId("hr-attendance"), code: upper(input.code), referenceMonth: input.referenceMonth, schoolUnitId: input.schoolUnitId, plannedDays, calendarEvents: input.calendarEvents.map((event) => ({ ...event, id: event.id || localId("hr-calendar"), description: event.description.trim() })), entries, status: input.status, returnReason: input.returnReason.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedHrAttendancePeriods[database.semedHrAttendancePeriods.indexOf(current)] = period;
+  else database.semedHrAttendancePeriods.push(period);
+  const action: SemedHrAuditAction = period.status === "Enviada ao RH" ? "competencia.enviada" : period.status === "Devolvida para correção" ? "competencia.devolvida" : current ? "competencia.atualizada" : "competencia.criada";
+  hrAudit(database, action, period.id, `Competência demonstrativa ${period.status.toLocaleLowerCase("pt-BR")}.`, actorUserId, timestamp);
+  return { error: null, period };
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type SemedLocalDatabaseV2 = Omit<SemedLocalDatabase, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
+type SemedLocalDatabaseV3 = Omit<SemedLocalDatabase, "schemaVersion" | "semedHrServers" | "semedHrFinancialRecords" | "semedHrAttendancePeriods" | "semedHrAuditLog"> & { schemaVersion: 3 };
+type SemedLocalDatabaseV2 = Omit<SemedLocalDatabaseV3, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
 type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
 type LegacySemedLocalDatabase = Omit<SemedLocalDatabaseV2, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
 
@@ -1043,11 +1154,11 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
     } satisfies SemedLocalUser;
   });
   const migratedAt = now();
-  const nutritionDefaults = createLocalSemedDatabase();
-  return {
-    ...database,
-    schemaVersion: 3,
-    semedUsers: migratedUsers,
+const nutritionDefaults = createLocalSemedDatabase();
+return {
+...database,
+    schemaVersion: 4,
+semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
     semedStockItems: nutritionDefaults.semedStockItems,
@@ -1056,8 +1167,12 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
     semedSchoolStocks: nutritionDefaults.semedSchoolStocks,
     semedSchoolStockCounts: nutritionDefaults.semedSchoolStockCounts,
     semedSchoolStockMovements: nutritionDefaults.semedSchoolStockMovements,
-    semedKitOrders: nutritionDefaults.semedKitOrders,
-    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+semedKitOrders: nutritionDefaults.semedKitOrders,
+    semedHrServers: nutritionDefaults.semedHrServers,
+    semedHrFinancialRecords: nutritionDefaults.semedHrFinancialRecords,
+    semedHrAttendancePeriods: nutritionDefaults.semedHrAttendancePeriods,
+    semedHrAuditLog: nutritionDefaults.semedHrAuditLog,
+semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
     semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
@@ -1067,11 +1182,11 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
 }
 
 function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
-  const nutritionDefaults = createLocalSemedDatabase();
-  return {
-    ...database,
-    schemaVersion: 3,
-    semedUsers: database.semedUsers.map((user) => ({
+const nutritionDefaults = createLocalSemedDatabase();
+return {
+...database,
+    schemaVersion: 4,
+semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
       profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
@@ -1091,8 +1206,12 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
     semedSchoolStocks: Array.isArray(database.semedSchoolStocks) ? database.semedSchoolStocks : nutritionDefaults.semedSchoolStocks,
     semedSchoolStockCounts: Array.isArray(database.semedSchoolStockCounts) ? database.semedSchoolStockCounts : nutritionDefaults.semedSchoolStockCounts,
     semedSchoolStockMovements: Array.isArray(database.semedSchoolStockMovements) ? database.semedSchoolStockMovements : nutritionDefaults.semedSchoolStockMovements,
-    semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders : nutritionDefaults.semedKitOrders,
-    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders : nutritionDefaults.semedKitOrders,
+    semedHrServers: Array.isArray(database.semedHrServers) ? database.semedHrServers : nutritionDefaults.semedHrServers,
+    semedHrFinancialRecords: Array.isArray(database.semedHrFinancialRecords) ? database.semedHrFinancialRecords : nutritionDefaults.semedHrFinancialRecords,
+    semedHrAttendancePeriods: Array.isArray(database.semedHrAttendancePeriods) ? database.semedHrAttendancePeriods : nutritionDefaults.semedHrAttendancePeriods,
+    semedHrAuditLog: Array.isArray(database.semedHrAuditLog) ? database.semedHrAuditLog : nutritionDefaults.semedHrAuditLog,
+semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
     semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
@@ -1102,26 +1221,43 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
 }
 
 function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
-  const defaults = createLocalSemedDatabase();
-  return normalizeCurrentDatabase({
-    ...database,
-    schemaVersion: 3,
-    semedStockItems: defaults.semedStockItems,
+const defaults = createLocalSemedDatabase();
+return normalizeCurrentDatabase({
+...database,
+    schemaVersion: 4,
+semedStockItems: defaults.semedStockItems,
     semedStockMovements: defaults.semedStockMovements,
     semedStockAudits: defaults.semedStockAudits,
     semedSchoolStocks: defaults.semedSchoolStocks,
-    semedSchoolStockCounts: defaults.semedSchoolStockCounts,
-    semedSchoolStockMovements: defaults.semedSchoolStockMovements,
-    semedKitOrders: defaults.semedKitOrders,
+semedSchoolStockCounts: defaults.semedSchoolStockCounts,
+semedSchoolStockMovements: defaults.semedSchoolStockMovements,
+semedKitOrders: defaults.semedKitOrders,
+    semedHrServers: defaults.semedHrServers,
+    semedHrFinancialRecords: defaults.semedHrFinancialRecords,
+    semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
+    semedHrAuditLog: defaults.semedHrAuditLog,
+});
+}
+
+function migrateHumanResourcesDatabase(database: SemedLocalDatabaseV3): SemedLocalDatabase {
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({
+    ...database,
+    schemaVersion: 4,
+    semedHrServers: defaults.semedHrServers,
+    semedHrFinancialRecords: defaults.semedHrFinancialRecords,
+    semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
+    semedHrAuditLog: defaults.semedHrAuditLog,
   });
 }
 
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
-    if (parsed.schemaVersion === 3) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
+    if (parsed.schemaVersion === 4) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1171,6 +1307,8 @@ export function useSigaLocalRepository() {
     stockItems: database.semedStockItems, stockMovements: database.semedStockMovements, stockAudits: database.semedStockAudits,
     schoolStocks: database.semedSchoolStocks, schoolStockCounts: database.semedSchoolStockCounts,
     schoolStockMovements: database.semedSchoolStockMovements, kitOrders: database.semedKitOrders,
+    hrServers: database.semedHrServers, hrFinancialRecords: database.semedHrFinancialRecords,
+    hrAttendancePeriods: database.semedHrAttendancePeriods, hrAuditLog: database.semedHrAuditLog,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
@@ -1203,6 +1341,9 @@ export function useSigaLocalRepository() {
     saveSchoolStockCount(schoolStockId: string, countedQuantity: number, notes: string, actorUserId: string) { return mutate((draft) => saveLocalSchoolStockCount(draft, schoolStockId, countedQuantity, notes, actorUserId)); },
     registerSchoolStockMovement(schoolStockId: string, type: SemedSchoolStockMovement["type"], quantity: number, reference: string, notes: string, actorUserId: string) { return mutate((draft) => registerLocalSchoolStockMovement(draft, schoolStockId, type, quantity, reference, notes, actorUserId)); },
     saveKitOrder(input: SemedKitOrderInput, actorUserId: string) { return mutate((draft) => saveLocalKitOrder(draft, input, actorUserId)); },
+    saveHrServer(input: SemedHrServerInput, actorUserId: string) { return mutate((draft) => saveLocalHrServer(draft, input, actorUserId)); },
+    saveHrFinancialRecord(input: SemedHrFinancialRecordInput, actorUserId: string) { return mutate((draft) => saveLocalHrFinancialRecord(draft, input, actorUserId)); },
+    saveHrAttendancePeriod(input: SemedHrAttendanceInput, actorUserId: string) { return mutate((draft) => saveLocalHrAttendancePeriod(draft, input, actorUserId)); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }
