@@ -32,6 +32,8 @@ export type ShellView =
   | "educa"
   | "people"
   | "nutrition"
+  | "nutrition-weekly"
+  | "nutrition-annual"
   | "stock"
   | "fleet"
   | "users";
@@ -87,8 +89,8 @@ const navigation: NavigationItem[] = [
     label: "Nutrição",
     icon: Wheat,
     children: [
-      { label: "Planejamento semanal", target: "nutrition" },
-      { label: "Planejamento anual", target: "nutrition" },
+      { label: "Planejamento semanal", target: "nutrition-weekly" },
+      { label: "Planejamento anual", target: "nutrition-annual" },
     ],
   },
   {
@@ -126,6 +128,7 @@ function isSectionActive(item: NavigationItem, activeView: ShellView) {
 
 export function shellViewLabel(view: ShellView) {
   if (view === "welcome") return "Boas-vindas";
+  if (view === "nutrition-weekly" || view === "nutrition-annual") return "Nutrição";
   return navigation.find((item) => item.id === view)?.label ?? "SIGA SEMED";
 }
 

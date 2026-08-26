@@ -25,6 +25,7 @@ import {
 import { validateFirstAccess } from "./sigaFlow";
 import SemedOperationalShell, { ShellView, shellViewLabel } from "./SemedOperationalShell";
 import { GovernancePage, MastersPage } from "./SemedManagementPages";
+import SemedNutritionPage from "./SemedNutritionPage";
 import SemedUsersPage from "./SemedUsersPage";
 import {
   parseBrazilianAmount,
@@ -50,7 +51,7 @@ const dateValue = (date: string) => date.slice(0, 10);
 
 const viewPermissionKey: Partial<Record<ShellView, SemedModuleKey>> = {
   home: "inicio", governance: "gestao", masters: "cadastros_gerais", finance: "financeiro", documents: "documentos", records: "contratos",
-  schools: "unidades_escolares", educa: "educa_paco", people: "rh", nutrition: "nutricao", stock: "estoque", fleet: "frota", users: "usuarios",
+  schools: "unidades_escolares", educa: "educa_paco", people: "rh", nutrition: "nutricao", "nutrition-weekly": "nutricao.planejamento_semanal", "nutrition-annual": "nutricao.planejamento_anual", stock: "estoque", fleet: "frota", users: "usuarios",
 };
 
 function recordAlert(record: SemedRecord): Alert {
@@ -261,7 +262,7 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
   const recordForm = editing?.kind === "record" ? editing.data : undefined; const documentForm = editing?.kind === "document" ? editing.data : undefined;
 
   function switchModule(next: Module) { setModule(next); setActiveView(next === "records" ? "records" : "documents"); setFormOpen(false); setExpanded(""); setQuery(""); setKind("Todos"); setStatus("Todos"); setDepartment("Todos"); setPaymentRecordId(""); setEditing(null); }
-  function changeView(next: ShellView) { const permissionKey = viewPermissionKey[next]; if (permissionKey && !repository.canRead(user.id, permissionKey)) { setNotice("Usuário sem permissão para acessar este módulo."); return; } if (next === "records") return switchModule("records"); if (next === "documents") return switchModule("documents"); setActiveView(next); setFormOpen(false); setExpanded(""); setPaymentRecordId(""); setEditing(null); }
+  function changeView(next: ShellView) { const resolved = next === "nutrition" ? "nutrition-weekly" : next; const permissionKey = viewPermissionKey[resolved]; if (permissionKey && !repository.canRead(user.id, permissionKey)) { setNotice("Usuário sem permissão para acessar este módulo."); return; } if (resolved === "records") return switchModule("records"); if (resolved === "documents") return switchModule("documents"); setActiveView(resolved); setFormOpen(false); setExpanded(""); setPaymentRecordId(""); setEditing(null); }
   function closeForm() { setFormOpen(false); setEditing(null); }
   function saveRecord(input: SemedRecordInput) { const isEdit = Boolean(recordForm); const result = recordForm ? repository.updateRecord(recordForm.id, input, user.id) : repository.createRecord(input, user.id); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Registro atualizado" : "Registro cadastrado"} na simulação local.`); } else setNotice("Usuário sem permissão para alterar contratos."); }
   function saveDocument(input: SemedDocumentInput) { const isEdit = Boolean(documentForm); const result = documentForm ? repository.updateDocument(documentForm.id, input, user.id) : repository.createDocument(input, user.id); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Documento atualizado" : "Documento cadastrado"} na simulação local.`); } else setNotice("Usuário sem permissão para alterar documentos."); }
@@ -289,8 +290,9 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
       {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} /> : null}
       {activeView === "masters" ? <MastersPage readOnly={!repository.canWrite(user.id, "cadastros_gerais")} /> : null}
       {activeView === "users" ? <SemedUsersPage currentUser={user} users={repository.users} permissions={repository.userPermissions} auditLog={repository.userAuditLog} onCreate={(input) => repository.createUser(input, user.id)} onUpdate={(userId, input) => repository.updateUser(userId, input, user.id)} onSetActive={(userId, active) => repository.setUserActive(userId, active, user.id)} onIssuePassword={(userId) => repository.issueProvisionalPassword(userId, user.id)} onTerminateSessions={(userId) => repository.terminateUserSessions(userId, user.id)} onNotify={setNotice} /> : null}
+      {activeView === "nutrition-weekly" || activeView === "nutrition-annual" ? <SemedNutritionPage initialView={activeView === "nutrition-annual" ? "annual" : "weekly"} schools={repository.nutritionSchools} contracts={repository.nutritionContracts} weeklyPlans={repository.nutritionWeeklyPlans} stages={repository.nutritionStages} catalog={repository.nutritionCatalog} annualPlans={repository.nutritionAnnualPlans} canWriteWeekly={repository.canWrite(user.id, "nutricao.planejamento_semanal")} canWriteAnnual={repository.canWrite(user.id, "nutricao.planejamento_anual")} getWeeklyAnalysis={repository.weeklyNutritionAnalysis} getAnnualResults={repository.annualNutritionResults} onSaveWeekly={(input) => repository.saveNutritionWeeklyPlan(input, user.id)} onArchiveWeekly={(planId) => repository.archiveNutritionWeeklyPlan(planId, user.id)} onSaveAnnual={(input) => repository.saveNutritionAnnualPlan(input, user.id)} onArchiveAnnual={(planId) => repository.archiveNutritionAnnualPlan(planId, user.id)} onNotify={setNotice} /> : null}
       {activeView === "records" || activeView === "documents" ? localContent : null}
-      {!["welcome", "home", "governance", "masters", "users", "records", "documents"].includes(activeView) ? <ModulePlaceholder view={activeView} onHome={() => changeView("home")} /> : null}
+      {!["welcome", "home", "governance", "masters", "users", "nutrition-weekly", "nutrition-annual", "records", "documents"].includes(activeView) ? <ModulePlaceholder view={activeView} onHome={() => changeView("home")} /> : null}
     </SemedOperationalShell>
   </>;
 }

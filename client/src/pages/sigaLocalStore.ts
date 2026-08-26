@@ -184,6 +184,41 @@ export type SemedDocument = {
 
 export type SemedDocumentInput = Omit<SemedDocument, "id" | "createdAt" | "updatedAt">;
 
+export const SEMED_NUTRITION_MODALITIES = ["Creche", "Pré-Escola", "Ensino Fundamental", "EJA"] as const;
+export type SemedNutritionModality = (typeof SEMED_NUTRITION_MODALITIES)[number];
+export const SEMED_NUTRITION_WEEKLY_STATUSES = ["Em análise", "Ajustado", "Aprovado para guia", "Arquivado"] as const;
+export type SemedNutritionWeeklyStatus = (typeof SEMED_NUTRITION_WEEKLY_STATUSES)[number];
+export const SEMED_NUTRITION_ANNUAL_STATUSES = ["Em elaboração", "Em análise", "Aprovado", "Arquivado"] as const;
+export type SemedNutritionAnnualStatus = (typeof SEMED_NUTRITION_ANNUAL_STATUSES)[number];
+export type SemedNutritionSource = "Industrializado" | "Agricultura Familiar";
+export type SemedNutritionBasis = "Por oferta" | "Mensal consolidado";
+export type SemedNutritionConsumptionUnit = "g" | "ml" | "un";
+export type SemedNutritionSupplyUnit = "KG" | "L" | "UN";
+
+export type SemedNutritionSchool = { id: string; name: string; inep: string };
+export type SemedNutritionContractProduct = { id: string; name: string; unit: SemedNutritionSupplyUnit; contractedQuantity: number; committedQuantity: number };
+export type SemedNutritionContract = { id: string; number: string; entityName: string; status: "Ativo" | "Encerrado"; schoolIds: string[]; products: SemedNutritionContractProduct[] };
+export type SemedNutritionWeeklyItem = { productId: string; weeklyQuantities: number[] };
+export type SemedNutritionWeeklyPlan = {
+  id: string; contractId: string; schoolId: string; referenceMonth: string; educationModality: SemedNutritionModality;
+  status: SemedNutritionWeeklyStatus; weekDates: string[]; items: SemedNutritionWeeklyItem[]; notes: string; createdAt: string; updatedAt: string;
+};
+export type SemedNutritionWeeklyInput = Omit<SemedNutritionWeeklyPlan, "id" | "weekDates" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedNutritionStage = { name: string; modality: string; totalStudents: number };
+export type SemedNutritionCatalogItem = { key: string; name: string; source: SemedNutritionSource; category: string; supplyUnit: SemedNutritionSupplyUnit; availableQuantity: number };
+export type SemedNutritionAnnualItem = {
+  id: string; name: string; source: SemedNutritionSource; category: string; catalogKey: string; basis: SemedNutritionBasis;
+  consumptionUnit: SemedNutritionConsumptionUnit; supplyUnit: SemedNutritionSupplyUnit; perCapita: number; monthlyOffers: number[];
+};
+export type SemedNutritionAnnualPlan = {
+  id: string; name: string; referenceYear: number; modality: string; educationStage: string; periodStart: number; periodEnd: number;
+  monthDays: number[]; items: SemedNutritionAnnualItem[]; status: SemedNutritionAnnualStatus; notes: string;
+  enrollmentSnapshot: { totalStudents: number; capturedAt: string }; createdAt: string; updatedAt: string;
+};
+export type SemedNutritionAnnualInput = Omit<SemedNutritionAnnualPlan, "id" | "enrollmentSnapshot" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedNutritionAnnualResult = SemedNutritionAnnualItem & { monthlyNeeds: number[]; monthlyEffectiveOffers: number[]; totalNeed: number; coverage: number; toAcquire: number };
+
 export type SemedLocalDatabase = {
   schemaVersion: 2;
   semedUsers: SemedLocalUser[];
@@ -193,6 +228,12 @@ export type SemedLocalDatabase = {
   semedRecords: Omit<SemedRecord, "payments" | "paidAmount" | "balanceAmount">[];
   semedRecordPayments: SemedRecordPayment[];
   semedDocuments: SemedDocument[];
+  semedNutritionSchools: SemedNutritionSchool[];
+  semedNutritionContracts: SemedNutritionContract[];
+  semedNutritionWeeklyPlans: SemedNutritionWeeklyPlan[];
+  semedNutritionStages: SemedNutritionStage[];
+  semedNutritionCatalog: SemedNutritionCatalogItem[];
+  semedNutritionAnnualPlans: SemedNutritionAnnualPlan[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -481,6 +522,48 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "d238", kind: "Memorando", number: "238/2026", templateKey: "Abertura de processo administrativo", subject: "SOLICITAÇÃO DE ABERTURA DE PROCESSO ADMINISTRATIVO PARA FINS DE PAGAMENTO", destination: "SECRETÁRIO MUNICIPAL DE EDUCAÇÃO | SEMED", recipient: "GABINETE", relatedRecord: "CONTRATO 012/2026", responsible: "COORDENAÇÃO ADMINISTRATIVA", documentDate: "2026-08-20", dueDate: "2026-08-21", status: "Aguardando resposta", summary: "SOLICITA-SE ABERTURA DE PROCESSO ADMINISTRATIVO PARA PAGAMENTO.", notes: "VERIFICAR DOCUMENTAÇÃO FISCAL.", createdAt, updatedAt: createdAt },
       { id: "d041", kind: "Despacho", number: "041/2026", templateKey: "Pagamento de nota fiscal", subject: "SOLICITAÇÃO DE PAGAMENTO REFERENTE À NOTA FISCAL", destination: "GABSAAF/SEMED", recipient: "SETOR FINANCEIRO", relatedRecord: "CONTRATO 027/2026", responsible: "FISCAL DO CONTRATO", documentDate: "2026-08-22", dueDate: "2026-08-29", status: "Em elaboração", summary: "ENCAMINHA-SE PARA ANÁLISE E PAGAMENTO DA NOTA FISCAL.", notes: "ANEXAR ATESTO DE RECEBIMENTO.", createdAt, updatedAt: createdAt },
     ],
+    semedNutritionSchools: [
+      { id: "nutrition-school-1", name: "Unidade Escolar Demonstrativa Norte", inep: "DEMO0001" },
+      { id: "nutrition-school-2", name: "Unidade Escolar Demonstrativa Sul", inep: "DEMO0002" },
+      { id: "nutrition-school-3", name: "Centro Educacional Demonstrativo", inep: "DEMO0003" },
+    ],
+    semedNutritionContracts: [
+      { id: "nutrition-contract-af", number: "DEMO-AF-01/2026", entityName: "Fornecedor familiar demonstrativo", status: "Ativo", schoolIds: ["nutrition-school-1", "nutrition-school-2"], products: [
+        { id: "nutrition-product-arroz", name: "Arroz demonstrativo", unit: "KG", contractedQuantity: 1200, committedQuantity: 280 },
+        { id: "nutrition-product-feijao", name: "Feijão demonstrativo", unit: "KG", contractedQuantity: 720, committedQuantity: 190 },
+      ] },
+      { id: "nutrition-contract-industrial", number: "DEMO-IND-02/2026", entityName: "Fornecedor industrial demonstrativo", status: "Ativo", schoolIds: ["nutrition-school-2", "nutrition-school-3"], products: [
+        { id: "nutrition-product-leite", name: "Bebida láctea demonstrativa", unit: "L", contractedQuantity: 980, committedQuantity: 240 },
+        { id: "nutrition-product-biscoito", name: "Biscoito demonstrativo", unit: "KG", contractedQuantity: 540, committedQuantity: 120 },
+      ] },
+    ],
+    semedNutritionWeeklyPlans: [
+      { id: "nutrition-weekly-1", contractId: "nutrition-contract-af", schoolId: "nutrition-school-1", referenceMonth: "2026-08", educationModality: "Ensino Fundamental", status: "Em análise", weekDates: ["2026-08-03", "2026-08-10", "2026-08-17", "2026-08-24", "2026-08-31"], items: [
+        { productId: "nutrition-product-arroz", weeklyQuantities: [24, 24, 24, 24, 24] },
+        { productId: "nutrition-product-feijao", weeklyQuantities: [12, 12, 12, 12, 12] },
+      ], notes: "Projeção demonstrativa local para validação do fluxo.", createdAt, updatedAt: createdAt },
+    ],
+    semedNutritionStages: [
+      { name: "Creche", modality: "Educação Infantil", totalStudents: 120 },
+      { name: "Pré-Escola", modality: "Educação Infantil", totalStudents: 180 },
+      { name: "Ensino Fundamental - Anos Iniciais", modality: "Ensino Fundamental", totalStudents: 320 },
+      { name: "Ensino Fundamental - Anos Finais", modality: "Ensino Fundamental", totalStudents: 260 },
+      { name: "EJA - Anos Iniciais", modality: "EJA", totalStudents: 70 },
+      { name: "EJA - Anos Finais", modality: "EJA", totalStudents: 55 },
+      { name: "Atendimento Educacional Especial", modality: "Educação Especial", totalStudents: 40 },
+    ],
+    semedNutritionCatalog: [
+      { key: "catalog-arroz", name: "Arroz demonstrativo", source: "Agricultura Familiar", category: "Gêneros", supplyUnit: "KG", availableQuantity: 920 },
+      { key: "catalog-feijao", name: "Feijão demonstrativo", source: "Agricultura Familiar", category: "Gêneros", supplyUnit: "KG", availableQuantity: 530 },
+      { key: "catalog-leite", name: "Bebida láctea demonstrativa", source: "Industrializado", category: "Lácteos", supplyUnit: "L", availableQuantity: 740 },
+      { key: "catalog-biscoito", name: "Biscoito demonstrativo", source: "Industrializado", category: "Gêneros", supplyUnit: "KG", availableQuantity: 420 },
+    ],
+    semedNutritionAnnualPlans: [
+      { id: "nutrition-annual-1", name: "Cardápio anual demonstrativo", referenceYear: 2026, modality: "Ensino Fundamental", educationStage: "Ensino Fundamental - Anos Iniciais", periodStart: 2, periodEnd: 12, monthDays: [0, 20, 22, 20, 21, 20, 10, 22, 21, 20, 20, 10], items: [
+        { id: "nutrition-annual-item-1", name: "Arroz demonstrativo", source: "Agricultura Familiar", category: "Gêneros", catalogKey: "catalog-arroz", basis: "Por oferta", consumptionUnit: "g", supplyUnit: "KG", perCapita: 45, monthlyOffers: [0, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 4] },
+        { id: "nutrition-annual-item-2", name: "Bebida láctea demonstrativa", source: "Industrializado", category: "Lácteos", catalogKey: "catalog-leite", basis: "Mensal consolidado", consumptionUnit: "ml", supplyUnit: "L", perCapita: 180, monthlyOffers: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+      ], status: "Em elaboração", notes: "Planejamento demonstrativo sem vínculo com o ambiente original.", enrollmentSnapshot: { totalStudents: 320, capturedAt: createdAt }, createdAt, updatedAt: createdAt },
+    ],
   };
 }
 
@@ -631,6 +714,133 @@ export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: s
   return requiresDeleteConfirmation(confirmation) ? deleteLocalDocument(database, id) : false;
 }
 
+function roundNutrition(value: number) { return Math.round(value * 1000) / 1000; }
+function nonNegative(value: unknown) { const numeric = Number(value); return Number.isFinite(numeric) ? Math.max(0, numeric) : 0; }
+export function nutritionMondays(referenceMonth: string) {
+  if (!/^\d{4}-\d{2}$/.test(referenceMonth)) return [];
+  const [year, month] = referenceMonth.split("-").map(Number);
+  const dates: string[] = [];
+  const current = new Date(Date.UTC(year, month - 1, 1, 12));
+  while (current.getUTCMonth() === month - 1) {
+    if (current.getUTCDay() === 1) dates.push(current.toISOString().slice(0, 10));
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+export function weeklyNutritionItemTotal(item: SemedNutritionWeeklyItem) {
+  return roundNutrition(item.weeklyQuantities.reduce((total, value) => total + nonNegative(value), 0));
+}
+
+export function otherWeeklyNutritionPlanned(database: SemedLocalDatabase, contractId: string, productId: string, excludedPlanId = "") {
+  return roundNutrition(database.semedNutritionWeeklyPlans
+    .filter((plan) => plan.id !== excludedPlanId && plan.contractId === contractId && plan.status !== "Arquivado")
+    .reduce((total, plan) => total + weeklyNutritionItemTotal(plan.items.find((item) => item.productId === productId) ?? { productId, weeklyQuantities: [] }), 0));
+}
+
+export function weeklyNutritionProductAnalysis(database: SemedLocalDatabase, plan: Pick<SemedNutritionWeeklyPlan, "id" | "contractId" | "items">) {
+  const contract = database.semedNutritionContracts.find((candidate) => candidate.id === plan.contractId);
+  return (contract?.products ?? []).map((product) => {
+    const item = plan.items.find((candidate) => candidate.productId === product.id) ?? { productId: product.id, weeklyQuantities: [] };
+    const otherPlanned = otherWeeklyNutritionPlanned(database, plan.contractId, product.id, plan.id);
+    const available = roundNutrition(product.contractedQuantity - product.committedQuantity - otherPlanned);
+    const projected = weeklyNutritionItemTotal(item);
+    const remaining = roundNutrition(available - projected);
+    const level = remaining < 0 ? "critical" : available > 0 && remaining / available <= 0.1 ? "warning" : "good";
+    return { product, item, otherPlanned, available, projected, remaining, level } as const;
+  });
+}
+
+export function saveLocalNutritionWeeklyPlan(database: SemedLocalDatabase, input: SemedNutritionWeeklyInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_semanal")) return { error: "Usuário sem permissão para alterar o planejamento semanal.", plan: null };
+  const contract = database.semedNutritionContracts.find((candidate) => candidate.id === input.contractId && candidate.status === "Ativo");
+  if (!contract) return { error: "Selecione um contrato ativo.", plan: null };
+  if (!contract.schoolIds.includes(input.schoolId)) return { error: "Selecione uma escola atendida pelo contrato.", plan: null };
+  const weekDates = nutritionMondays(input.referenceMonth);
+  if (!weekDates.length) return { error: "Informe um mês de referência válido.", plan: null };
+  const items = contract.products.map((product) => {
+    const current = input.items.find((item) => item.productId === product.id);
+    return { productId: product.id, weeklyQuantities: weekDates.map((_, index) => roundNutrition(nonNegative(current?.weeklyQuantities[index]))) };
+  });
+  const current = input.id ? database.semedNutritionWeeklyPlans.find((plan) => plan.id === input.id) : null;
+  const plan: SemedNutritionWeeklyPlan = {
+    id: current?.id ?? localId("nutrition-weekly"), contractId: contract.id, schoolId: input.schoolId, referenceMonth: input.referenceMonth,
+    educationModality: input.educationModality, status: input.status, weekDates, items, notes: input.notes.trim(),
+    createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedNutritionWeeklyPlans[database.semedNutritionWeeklyPlans.indexOf(current)] = plan;
+  else database.semedNutritionWeeklyPlans.push(plan);
+  return { error: null, plan };
+}
+
+export function archiveLocalNutritionWeeklyPlan(database: SemedLocalDatabase, planId: string, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_semanal")) return false;
+  const plan = database.semedNutritionWeeklyPlans.find((candidate) => candidate.id === planId);
+  if (!plan) return false;
+  plan.status = "Arquivado";
+  plan.updatedAt = timestamp;
+  return true;
+}
+
+export function annualNutritionPlanResults(database: SemedLocalDatabase, plan: Pick<SemedNutritionAnnualPlan, "items" | "enrollmentSnapshot" | "monthDays">): SemedNutritionAnnualResult[] {
+  const students = nonNegative(plan.enrollmentSnapshot.totalStudents);
+  return plan.items.map((item) => {
+    const divisor = item.consumptionUnit === "g" || item.consumptionUnit === "ml" ? 1000 : 1;
+    const monthlyEffectiveOffers = Array.from({ length: 12 }, (_, index) => {
+      const days = nonNegative(plan.monthDays[index]);
+      if (!days) return 0;
+      return item.basis === "Mensal consolidado" ? 1 : Math.min(days, nonNegative(item.monthlyOffers[index]));
+    });
+    const monthlyNeeds = monthlyEffectiveOffers.map((offers) => roundNutrition(students * nonNegative(item.perCapita) * offers / divisor));
+    const totalNeed = roundNutrition(monthlyNeeds.reduce((total, value) => total + value, 0));
+    const catalog = database.semedNutritionCatalog.find((candidate) => candidate.key === item.catalogKey && candidate.source === item.source);
+    const coverage = roundNutrition(nonNegative(catalog?.availableQuantity));
+    return { ...item, monthlyNeeds, monthlyEffectiveOffers, totalNeed, coverage, toAcquire: roundNutrition(Math.max(0, totalNeed - coverage)) };
+  });
+}
+
+export function saveLocalNutritionAnnualPlan(database: SemedLocalDatabase, input: SemedNutritionAnnualInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_anual")) return { error: "Usuário sem permissão para alterar o planejamento anual.", plan: null };
+  const stage = database.semedNutritionStages.find((candidate) => candidate.name === input.educationStage);
+  if (!input.name.trim()) return { error: "Informe o nome do planejamento.", plan: null };
+  if (!stage) return { error: "Selecione uma etapa de ensino válida.", plan: null };
+  if (!Number.isInteger(input.referenceYear) || input.referenceYear < 2000 || input.referenceYear > 2100) return { error: "Informe um ano de referência válido.", plan: null };
+  if (input.periodStart < 1 || input.periodEnd > 12 || input.periodStart > input.periodEnd) return { error: "Informe um período de atendimento válido.", plan: null };
+  if (input.items.some((item) => !item.name.trim() || nonNegative(item.perCapita) <= 0)) return { error: "Informe produtos com nome e per capita maior que zero.", plan: null };
+  const monthDays = Array.from({ length: 12 }, (_, index) => index + 1 >= input.periodStart && index + 1 <= input.periodEnd ? Math.round(nonNegative(input.monthDays[index])) : 0);
+  const items = input.items.map((item) => {
+    const matched = database.semedNutritionCatalog.find((candidate) => candidate.source === item.source && upper(candidate.name) === upper(item.name));
+    const supplyUnit: SemedNutritionSupplyUnit = item.consumptionUnit === "g" ? "KG" : item.consumptionUnit === "ml" ? "L" : "UN";
+    return {
+      ...item, id: item.id || localId("nutrition-annual-item"), name: item.name.trim(), category: item.category.trim(), catalogKey: item.catalogKey || matched?.key || "",
+      supplyUnit, perCapita: roundNutrition(nonNegative(item.perCapita)),
+      monthlyOffers: Array.from({ length: 12 }, (_, index) => monthDays[index] ? item.basis === "Mensal consolidado" ? 1 : nonNegative(item.monthlyOffers[index]) : 0),
+    };
+  });
+  const current = input.id ? database.semedNutritionAnnualPlans.find((plan) => plan.id === input.id) : null;
+  const plan: SemedNutritionAnnualPlan = {
+    id: current?.id ?? localId("nutrition-annual"), name: input.name.trim(), referenceYear: input.referenceYear, modality: stage.modality,
+    educationStage: stage.name, periodStart: input.periodStart, periodEnd: input.periodEnd, monthDays, items, status: input.status, notes: input.notes.trim(),
+    enrollmentSnapshot: { totalStudents: stage.totalStudents, capturedAt: timestamp }, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedNutritionAnnualPlans[database.semedNutritionAnnualPlans.indexOf(current)] = plan;
+  else database.semedNutritionAnnualPlans.push(plan);
+  return { error: null, plan };
+}
+
+export function archiveLocalNutritionAnnualPlan(database: SemedLocalDatabase, planId: string, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "nutricao.planejamento_anual")) return false;
+  const plan = database.semedNutritionAnnualPlans.find((candidate) => candidate.id === planId);
+  if (!plan) return false;
+  plan.status = "Arquivado";
+  plan.updatedAt = timestamp;
+  return true;
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
 type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
 type LegacySemedLocalDatabase = Omit<SemedLocalDatabase, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
@@ -657,16 +867,24 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
     } satisfies SemedLocalUser;
   });
   const migratedAt = now();
+  const nutritionDefaults = createLocalSemedDatabase();
   return {
     ...database,
     schemaVersion: 2,
     semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
+    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+    semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
+    semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
+    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
   };
 }
 
 function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
+  const nutritionDefaults = createLocalSemedDatabase();
   return {
     ...database,
     schemaVersion: 2,
@@ -684,6 +902,12 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
     })),
     semedUserPermissions: Array.isArray(database.semedUserPermissions) ? database.semedUserPermissions.filter((permission) => isSemedModuleKey(permission.moduleKey)) : [],
     semedUserAuditLog: Array.isArray(database.semedUserAuditLog) ? database.semedUserAuditLog : [],
+    semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
+    semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
+    semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
+    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
   };
 }
 
@@ -735,6 +959,9 @@ export function useSigaLocalRepository() {
   };
   return {
     records, documents, users: database.semedUsers, userPermissions: database.semedUserPermissions, userAuditLog: database.semedUserAuditLog,
+    nutritionSchools: database.semedNutritionSchools, nutritionContracts: database.semedNutritionContracts,
+    nutritionWeeklyPlans: database.semedNutritionWeeklyPlans, nutritionStages: database.semedNutritionStages,
+    nutritionCatalog: database.semedNutritionCatalog, nutritionAnnualPlans: database.semedNutritionAnnualPlans,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
@@ -754,6 +981,12 @@ export function useSigaLocalRepository() {
     createDocument(input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => createLocalDocument(draft, input)) : null; },
     updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => updateLocalDocument(draft, id, input)) : null; },
     deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)) : false; },
+    saveNutritionWeeklyPlan(input: SemedNutritionWeeklyInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionWeeklyPlan(draft, input, actorUserId)); },
+    archiveNutritionWeeklyPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionWeeklyPlan(draft, planId, actorUserId)); },
+    saveNutritionAnnualPlan(input: SemedNutritionAnnualInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionAnnualPlan(draft, input, actorUserId)); },
+    archiveNutritionAnnualPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionAnnualPlan(draft, planId, actorUserId)); },
+    weeklyNutritionAnalysis(plan: Pick<SemedNutritionWeeklyPlan, "id" | "contractId" | "items">) { return weeklyNutritionProductAnalysis(databaseRef.current, plan); },
+    annualNutritionResults(plan: Pick<SemedNutritionAnnualPlan, "items" | "enrollmentSnapshot" | "monthDays">) { return annualNutritionPlanResults(databaseRef.current, plan); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

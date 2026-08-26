@@ -208,3 +208,18 @@
 - [x] Implementar e validar filtros funcionais por tipo de login e por permissão na página Usuários.
 - [x] Adicionar ao cadastro e à edição o fluxo explícito de acesso por CPF, com validação e testes.
 - [x] Bloquear a edição manual de permissões para perfis diferentes de Técnico e aplicar permissões automáticas no domínio local.
+
+## Reprodução funcional autorizada — Nutrição
+
+- [x] Observar novamente, em modo somente leitura, Planejamento semanal e análise de saldos no sistema original.
+- [x] Observar novamente, em modo somente leitura, Planejamento anual da alimentação e suas etapas internas.
+- [x] Registrar campos, filtros, indicadores, abas, listas, estados e sequência operacional sem copiar dados reais.
+- [x] Modelar planejamento semanal, análise de saldos e planejamento anual no armazenamento local, sem D1.
+- [x] Implementar a página Nutrição dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Implementar operações locais coerentes com os fluxos observados, sem executar ações no sistema original.
+- [x] Aplicar leitura e escrita de Nutrição conforme as permissões dos seis perfis.
+- [x] Cobrir o módulo com testes de fluxo, persistência, permissões e regressão.
+- [x] Validar desktop, mobile, TypeScript e build, preservando a identidade visual aprovada.
+- [x] Conectar dias letivos e ofertas aos cálculos mensais de necessidade, cobertura e compra/contratação do planejamento anual.
+- [x] Cobrir por regressão o efeito dos dias letivos nos resultados anuais e revalidar a interface anual.
+- [ ] Salvar checkpoint e apresentar o módulo Nutrição funcional no preview.
