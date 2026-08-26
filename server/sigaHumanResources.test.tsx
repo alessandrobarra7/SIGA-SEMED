@@ -104,4 +104,21 @@ describe("recursos humanos local compatível com a referência observada", () =>
     fireEvent.click(screen.getByRole("button", { name: "Frequência e movimento" }));
     expect(screen.getByRole("heading", { name: "Frequência e movimento" })).toBeTruthy();
   });
+
+  it("abre diretamente cada área ao receber o destino do submenu", () => {
+    const database = createLocalSemedDatabase();
+    const props = {
+      currentUser: { ...database.semedUsers[0], mustChangePassword: false }, schools: database.semedNutritionSchools,
+      servers: database.semedHrServers, financialRecords: database.semedHrFinancialRecords, attendancePeriods: database.semedHrAttendancePeriods, auditLog: database.semedHrAuditLog,
+      canWriteServers: true, canWriteFinancial: true, canWriteAttendance: true, onSaveServer: vi.fn(() => ({ error: null, server: database.semedHrServers[0] })), onSaveFinancial: vi.fn(() => ({ error: null, record: database.semedHrFinancialRecords[0] })), onSaveAttendance: vi.fn(() => ({ error: null, period: database.semedHrAttendancePeriods[0] })), onNotify: vi.fn(),
+    };
+    const { rerender } = render(<SemedHumanResourcesPage {...props} initialSection="financial" />);
+    expect(screen.getByRole("heading", { name: "Ficha Financeira" })).toBeTruthy();
+    rerender(<SemedHumanResourcesPage {...props} initialSection="payslip" />);
+    expect(screen.getByRole("heading", { name: "Holerite" })).toBeTruthy();
+    rerender(<SemedHumanResourcesPage {...props} initialSection="attendance" />);
+    expect(screen.getByRole("heading", { name: "Frequência e movimento" })).toBeTruthy();
+    rerender(<SemedHumanResourcesPage {...props} initialSection="reports" />);
+    expect(screen.getByRole("heading", { name: "Histórico de Recursos Humanos" })).toBeTruthy();
+  });
 });

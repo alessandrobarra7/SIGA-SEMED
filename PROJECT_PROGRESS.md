@@ -26,7 +26,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 90 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 91 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
@@ -41,7 +41,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF coexistentes, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, recuperação defensiva de base local, desktop e mobile. |
 | Nutrição | Planejamento semanal, análise de saldos, planejamento anual, per capita, dias letivos, cobertura, compra/contratação, impressão e CSV local. | Cálculos, permissões, desktop e mobile. |
 | Estoque | Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente, Relatórios e Agricultura Familiar; inclui catálogo, saldo, movimentos, conferência, auditoria, pedidos e guias locais. | 55 testes totais, desktop e mobile. |
-| Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local; dias trabalhados e faltas limitados ao total previsto. | Migração v4, permissões, regressão do limite combinado, desktop, mobile, TypeScript e build. |
+| Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local; dias trabalhados e faltas limitados ao total previsto. Os cinco submenus laterais abrem diretamente sua aba correspondente. | Migração v4, permissões, regressões de limite e navegação, desktop, mobile, TypeScript e build. |
 | Unidades Escolares | Cadastro, pesquisa por código/nome/setor, filtros por tipo, situação e censo, inclusão/edição local, indicadores, relatórios e CSV demonstrativo. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV, impressão local e aviso para sobrepagamentos históricos. | Migração v6, permissões administrativas, alerta preventivo sem alterar o bloqueio de novas baixas, desktop, mobile, TypeScript e build. |

@@ -8,6 +8,8 @@ describe("navegação do shell SIGA SEMED", () => {
     expect(shellViewLabel("records")).toBe("Contratos");
     expect(shellViewLabel("documents")).toBe("Documentos");
     expect(shellViewLabel("nutrition")).toBe("Nutrição");
+    expect(shellViewLabel("people-financial")).toBe("Recursos Humanos");
+    expect(shellViewLabel("people-reports")).toBe("Recursos Humanos");
     expect(shellViewLabel("fleet")).toBe("Frota");
   });
 });

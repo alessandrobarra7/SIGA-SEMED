@@ -523,3 +523,11 @@
 - [x] Ampliar as regressões de identidade, recuperação, Frota, RH, permissões e Financeiro antes da validação final.
 - [x] Validar desktop, mobile, TypeScript e build, preservando composição e comportamento visual do login.
 - [x] Documentar as correções, salvar checkpoint e apresentar a versão publicada.
+
+## Verificação solicitada — submenus de Recursos Humanos
+
+- [x] Mapear os destinos, permissões e conteúdo esperado de Cadastro de Servidores, Ficha Financeira, Holerite, Frequência e movimento e Relatórios.
+- [x] Confirmar no preview autenticado a navegação de cada submenu indicado.
+- [x] Corrigir qualquer destino ou conteúdo sem resposta e incluir regressão correspondente.
+- [x] Validar a versão resultante e apresentar o diagnóstico ao usuário.
+- [x] Criar destinos internos específicos para as cinco abas de Recursos Humanos e propagá-los ao componente de RH.

@@ -1,4 +1,4 @@
-import React, { FormEvent, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, ChevronDown, ClipboardCheck, FileBarChart2, FileText, Pencil, Plus, Printer, Search, UserRoundPlus, UsersRound, WalletCards } from "lucide-react";
 import {
   calculateHrFinancialTotals,
@@ -16,7 +16,7 @@ import {
 } from "./sigaLocalStore";
 import "./siga-hr.css";
 
-type HrSection = "servers" | "financial" | "payslip" | "attendance" | "reports";
+export type HrSection = "servers" | "financial" | "payslip" | "attendance" | "reports";
 type Notice = { tone: "success" | "error"; text: string } | null;
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -88,17 +88,19 @@ function AttendanceForm({ servers, schools, onSave, onCancel }: { servers: Semed
   </form>;
 }
 
-export default function SemedHumanResourcesPage({ currentUser, schools, servers, financialRecords, attendancePeriods, auditLog, canWriteServers, canWriteFinancial, canWriteAttendance, onSaveServer, onSaveFinancial, onSaveAttendance, onNotify }: {
+export default function SemedHumanResourcesPage({ currentUser, schools, servers, financialRecords, attendancePeriods, auditLog, canWriteServers, canWriteFinancial, canWriteAttendance, onSaveServer, onSaveFinancial, onSaveAttendance, onNotify, initialSection = "servers" }: {
   currentUser: SemedLocalAccessUser; schools: SemedNutritionSchool[]; servers: SemedHrServer[]; financialRecords: SemedHrFinancialRecord[]; attendancePeriods: SemedHrAttendancePeriod[]; auditLog: SemedHrAudit[];
   canWriteServers: boolean; canWriteFinancial: boolean; canWriteAttendance: boolean;
   onSaveServer: (input: SemedHrServerInput) => { error: string | null; server: SemedHrServer | null };
   onSaveFinancial: (input: SemedHrFinancialRecordInput) => { error: string | null; record: SemedHrFinancialRecord | null };
   onSaveAttendance: (input: SemedHrAttendanceInput) => { error: string | null; period: SemedHrAttendancePeriod | null };
   onNotify: (message: string) => void;
+  initialSection?: HrSection;
 }) {
-  const [section, setSection] = useState<HrSection>("servers");
+  const [section, setSection] = useState<HrSection>(initialSection);
   const [query, setQuery] = useState(""); const [serverStatus, setServerStatus] = useState("Todos"); const [schoolId, setSchoolId] = useState("Todos");
   const [form, setForm] = useState<"server" | "financial" | "attendance" | "">(""); const [editingServer, setEditingServer] = useState<SemedHrServer | undefined>(); const [expanded, setExpanded] = useState("");
+  useEffect(() => { setSection(initialSection); setForm(""); }, [initialSection]);
   const filteredServers = useMemo(() => servers.filter((server) => `${server.registration} ${server.displayName} ${server.jobTitle}`.toLowerCase().includes(query.toLowerCase()) && (serverStatus === "Todos" || server.status === serverStatus) && (schoolId === "Todos" || server.schoolUnitId === schoolId)), [query, schoolId, serverStatus, servers]);
   const activeServers = servers.filter((server) => server.status === "Ativo").length;
   const pendingServers = servers.filter((server) => server.status === "Aguardando revisão").length;
