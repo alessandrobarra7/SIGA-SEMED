@@ -262,4 +262,4 @@
 - [x] Aplicar leitura e escrita conforme os seis perfis, mantendo dados pessoais demonstrativos e minimizados.
 - [x] Cobrir o módulo com testes de cadastro, competência, frequência, permissões, persistência e regressão.
 - [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
-- [ ] Salvar checkpoint e apresentar o módulo Recursos Humanos funcional no preview.
+- [x] Salvar checkpoint e apresentar o módulo Recursos Humanos funcional no preview.
