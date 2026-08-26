@@ -393,3 +393,19 @@
 - [x] Criar commit descritivo com Configurações institucionais, migração v7, testes e documentação.
 - [x] Enviar a atualização para a branch principal do repositório autorizado.
 - [x] Confirmar o hash remoto e orientar sobre segurança de credenciais.
+
+## Reprodução funcional autorizada — Frota
+
+- [ ] Observar em modo somente leitura veículos, abastecimento, manutenção, ocorrências, filtros, indicadores e relatórios na referência.
+- [ ] Registrar campos, regras, permissões e sequência operacional sem copiar placas, motoristas, valores, documentos ou identificadores reais.
+- [ ] Modelar veículos, movimentações, manutenções, ocorrências e relatórios demonstrativos no armazenamento local, sem D1 ou serviços externos.
+- [ ] Implementar Frota na identidade visual atual, sem alterar login, navegação, permissões ou fluxos existentes.
+- [ ] Cobrir permissões, persistência, validações e regressão com testes; validar desktop, mobile, TypeScript e build.
+- [ ] Documentar a entrega, salvar checkpoint e apresentar o módulo funcional no preview.
+
+## Análise autorizada — perfis, setores e governança de dados
+
+- [x] Mapear os perfis, as permissões e os setores funcionais implementados no código atual.
+- [x] Identificar a origem, transformação, consumo e responsabilidade pelos dados demonstrativos de cada setor.
+- [x] Avaliar lacunas de segregação de funções, validação, auditoria, dependências e governança entre módulos.
+- [x] Apresentar recomendações priorizadas de mudanças efetivas sem alterar código nesta etapa.
