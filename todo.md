@@ -240,5 +240,7 @@
 
 - [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
 - [x] Validar testes, checagem de tipos e build da versão atual antes do envio.
-- [ ] Criar commit descritivo e enviar os módulos Usuários, Nutrição e Estoque ao repositório autorizado.
-- [ ] Confirmar o hash remoto da publicação ao usuário.
+- [x] Criar commit descritivo e enviar os módulos Usuários, Nutrição e Estoque ao repositório autorizado.
+- [x] Confirmar o hash remoto da publicação ao usuário.
+- [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
+- [x] Recomendar a revogação da credencial após confirmar o hash remoto.
