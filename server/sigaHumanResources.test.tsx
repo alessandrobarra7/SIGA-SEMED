@@ -70,6 +70,10 @@ describe("recursos humanos local compatível com a referência observada", () =>
     expect(period.error).toBeNull();
     expect(period.period?.status).toBe("Enviada ao RH");
     expect(database.semedHrAuditLog.some((entry) => entry.action === "competencia.enviada")).toBe(true);
+    const invalid = saveLocalHrAttendancePeriod(database, attendanceInput(server.id, { entries: [{ serverId: server.id, workedDays: 20, absences: 3, notes: "" }] }), technical.id);
+    expect(invalid.error).toContain("não podem ultrapassar");
+    const limit = saveLocalHrAttendancePeriod(database, attendanceInput(server.id, { entries: [{ serverId: server.id, workedDays: 18, absences: 4, notes: "" }] }), technical.id);
+    expect(limit.error).toBeNull();
   });
 
   it("preserva coleções de RH após serialização", () => {

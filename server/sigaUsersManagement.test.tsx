@@ -41,6 +41,15 @@ describe("administração funcional de usuários", () => {
     expect(database.semedUserAuditLog[0].summary).not.toContain(result.provisionalPassword!);
   });
 
+  it("mantém matrícula e CPF no mesmo cadastro e autentica o perfil interno pelos dois identificadores", () => {
+    const database = createLocalSemedDatabase();
+    const result = createLocalUser(database, { ...technicianInput, cpf: "123.456.789-01" }, "u-admin");
+    expect(result.error).toBeNull();
+    expect(result.user).toMatchObject({ registration: "12345678-9", cpf: "12345678901", loginType: "matricula" });
+    expect(loginLocalUser(database, "12345678-9", undefined, result.provisionalPassword)?.user.id).toBe(result.user?.id);
+    expect(loginLocalUser(database, "123.456.789-01", undefined, result.provisionalPassword)?.user.id).toBe(result.user?.id);
+  });
+
   it("conclui primeiro acesso com nova senha e invalida a provisória", () => {
     const database = createLocalSemedDatabase();
     const created = createLocalUser(database, technicianInput, "u-admin")!;
@@ -91,7 +100,7 @@ describe("administração funcional de usuários", () => {
     expect(setLocalUserActive(database, "u-admin", false, "u-admin")).toBe(false);
   });
 
-  it("renderiza a página completa, sem o placeholder anterior, e abre o cadastro por matrícula", () => {
+  it("renderiza a página completa, sem o placeholder anterior, e abre o cadastro com matrícula e CPF", () => {
     const database = createLocalSemedDatabase();
     const admin = { ...database.semedUsers[0], mustChangePassword: false };
     render(<SemedUsersPage
@@ -111,10 +120,11 @@ describe("administração funcional de usuários", () => {
     fireEvent.click(screen.getByRole("button", { name: /Novo usuário/i }));
     expect(screen.getByRole("heading", { name: "Cadastrar usuário" })).toBeTruthy();
     expect(screen.getByText("Matrícula para acesso")).toBeTruthy();
+    expect(screen.getByText("CPF para acesso")).toBeTruthy();
     expect(screen.getByText("Permissões de módulos")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Perfil"), { target: { value: "Auditoria Externa" } });
-    expect((screen.getByLabelText("Tipo de acesso") as HTMLSelectElement).value).toBe("cpf");
-    expect(screen.getByText("CPF para acesso")).toBeTruthy();
+    expect((screen.getByLabelText("Matrícula para acesso") as HTMLInputElement).required).toBe(false);
+    expect((screen.getByLabelText("CPF para acesso") as HTMLInputElement).required).toBe(true);
     expect(screen.getByText(/Edição manual bloqueada/)).toBeTruthy();
   });
 

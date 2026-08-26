@@ -104,13 +104,12 @@ function UserEditor({ initial, permissions, onClose, onSave }: { initial: SemedL
     moduleKeys: userPermissionKeys(initial.id, permissions),
   } : emptyForm);
   const [message, setMessage] = useState("");
-  const loginByCpf = form.profile === "Auditoria Externa" || form.profile === "Contadora Municipal";
+  const requiresCpf = form.profile === "Auditoria Externa" || form.profile === "Contadora Municipal";
   const needsSchool = form.profile === "Gestor Escolar" || form.profile === "Secretário Escolar";
   const editablePermissions = form.profile === "Técnico";
 
   function changeProfile(profile: SemedUserProfile) {
-    const cpfProfile = profile === "Auditoria Externa" || profile === "Contadora Municipal";
-    setForm((current) => ({ ...current, profile, registration: cpfProfile ? "" : current.registration, cpf: cpfProfile ? current.cpf : "", schoolUnitId: profile === "Gestor Escolar" || profile === "Secretário Escolar" ? current.schoolUnitId : "", moduleKeys: profile === "Técnico" ? current.moduleKeys : defaultModuleKeysForProfile(profile) }));
+    setForm((current) => ({ ...current, profile, schoolUnitId: profile === "Gestor Escolar" || profile === "Secretário Escolar" ? current.schoolUnitId : "", moduleKeys: profile === "Técnico" ? current.moduleKeys : defaultModuleKeysForProfile(profile) }));
     setMessage("");
   }
 
@@ -132,8 +131,8 @@ function UserEditor({ initial, permissions, onClose, onSave }: { initial: SemedL
         <label className="wide">Nome completo<input required value={form.displayName} onChange={(event) => setForm((current) => ({ ...current, displayName: event.target.value }))} placeholder="Nome do usuário" /></label>
         <label>Perfil<select aria-label="Perfil" value={form.profile} onChange={(event) => changeProfile(event.target.value as SemedUserProfile)}>{SEMED_USER_PROFILES.map((profile) => <option key={profile}>{profile}</option>)}</select></label>
         <label>Situação<select value={form.active ? "Ativo" : "Inativo"} onChange={(event) => setForm((current) => ({ ...current, active: event.target.value === "Ativo" }))}><option>Ativo</option><option>Inativo</option></select></label>
-        <label>Tipo de acesso<select aria-label="Tipo de acesso" value={loginByCpf ? "cpf" : "matricula"} disabled><option value="matricula">Matrícula</option><option value="cpf">CPF</option></select></label>
-        {loginByCpf ? <label>CPF para acesso<input required inputMode="numeric" value={form.cpf} onChange={(event) => setForm((current) => ({ ...current, cpf: event.target.value }))} placeholder="000.000.000-00" /></label> : <label>Matrícula para acesso<input required value={form.registration} onChange={(event) => setForm((current) => ({ ...current, registration: event.target.value }))} placeholder="00000000-0" /></label>}
+        <label>Matrícula para acesso<input required={!requiresCpf} value={form.registration} onChange={(event) => setForm((current) => ({ ...current, registration: event.target.value }))} placeholder="00000000-0" /></label>
+        <label>CPF para acesso<input required={requiresCpf} inputMode="numeric" value={form.cpf} onChange={(event) => setForm((current) => ({ ...current, cpf: event.target.value }))} placeholder="000.000.000-00" /></label>
         <label>Vínculo no RH<input value={form.serverRegistrationId} onChange={(event) => setForm((current) => ({ ...current, serverRegistrationId: event.target.value }))} placeholder="Matrícula funcional opcional" /></label>
         {needsSchool ? <label className="wide">Unidade escolar<select required value={form.schoolUnitId} onChange={(event) => setForm((current) => ({ ...current, schoolUnitId: event.target.value }))}><option value="">Selecione uma unidade</option>{schoolUnits.map((unit) => <option key={unit.id} value={unit.id}>{unit.label}</option>)}</select></label> : null}
       </div>

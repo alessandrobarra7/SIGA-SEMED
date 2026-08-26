@@ -497,3 +497,29 @@
 - [x] Revisar o estado Git, o destino remoto e os arquivos alterados, excluindo credenciais e referências somente leitura.
 - [x] Preparar um commit descritivo com a migração v10, Gestão, painel Início, testes e documentação.
 - [x] Enviar a versão validada para a branch principal do repositório autorizado e confirmar o hash remoto.
+
+## Avaliação recebida — orientações de correção
+
+- [x] Confirmar a autenticação por matrícula ou CPF para todos os perfis e o cadastro com os dois identificadores coexistentes.
+- [x] Confirmar recuperação defensiva da lista de usuários durante a normalização de bases locais migradas.
+- [x] Confirmar restauração do status de veículo após cancelamento de manutenção e a visibilidade de ações de Frota conforme permissão.
+- [x] Confirmar sinalização de pagamento acima do contratado no Financeiro, sem alterar a decisão de negócio sobre bloqueio.
+- [x] Confirmar a validação combinada de dias trabalhados e faltas no RH.
+- [x] Avaliar os quatro itens de manutenibilidade para encaminhamento posterior, sem ampliar o escopo sem validação.
+- [x] Consolidar diagnóstico, impacto, testes necessários e escopo recomendado antes de alterar o preview.
+
+## Correções recomendadas — aguardando confirmação
+
+- [x] Permitir cadastro e login por matrícula ou CPF coexistentes em todos os perfis, com regressão de autenticação pelos dois identificadores.
+- [x] Proteger a normalização da coleção de usuários e cobrir recuperação de base local parcialmente corrompida.
+- [x] Restaurar a disponibilidade do veículo ao cancelar manutenção, preservando bloqueio quando existir outra manutenção aberta.
+- [x] Validar que dias trabalhados mais faltas não ultrapassam o total previsto da competência de RH.
+- [x] Alinhar as opções de cancelamento e resolução da Frota à permissão de governança antes do preenchimento do formulário.
+- [x] Sinalizar pagamentos históricos acima do contratado sem alterar o bloqueio atual de novas baixas acima do saldo.
+- [x] Manter em backlog técnico o teste genérico de normalização, a regra de comentários administrativos, o contador persistido de Cadastros e a abertura contextual de abas da Frota.
+
+## Execução autorizada — correções prioritárias
+
+- [x] Ampliar as regressões de identidade, recuperação, Frota, RH, permissões e Financeiro antes da validação final.
+- [x] Validar desktop, mobile, TypeScript e build, preservando composição e comportamento visual do login.
+- [x] Documentar as correções, salvar checkpoint e apresentar a versão publicada.

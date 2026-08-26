@@ -8,7 +8,7 @@
 |---|---|
 | Referência funcional | O sistema original é fonte de observação estrutural e funcional, sempre em modo somente leitura. |
 | Aparência | A identidade visual clara, azul e verde foi explicitamente autorizada após a entrega do Financeiro ampliado. Login, shell, navegação, superfícies e módulos adotam a nova linguagem; lógica, rotas, permissões, dados, cálculos e fluxos permanecem inalterados. |
-| Login | A composição atual do login é oficial. O acesso local aceita matrícula ou CPF e mantém primeiro acesso com troca de senha local. |
+| Login | A composição atual do login é oficial. Todo perfil ativo pode autenticar-se por matrícula ou CPF quando ambos estiverem registrados, mantendo primeiro acesso com troca de senha local. |
 | Dados | O preview usa apenas dados demonstrativos próprios persistidos no navegador. Dados, documentos, identificadores, tokens e credenciais do sistema original não são copiados. |
 | Banco de dados | Não há conexão com Cloudflare D1, banco externo ou ambiente de produção. A compatibilidade estrutural é mantida por um repositório local versionado. |
 | Segurança | Credenciais nunca devem ser registradas em código, documentação, commits ou arquivos de configuração. |
@@ -26,28 +26,28 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 87 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 90 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 
 | Módulo | Entrega funcional atual | Validação concluída |
 |---|---|---|
-| Login e primeiro acesso | Matrícula/CPF, senha local, validação, alteração obrigatória de senha no primeiro acesso e encerramento de sessão. | Desktop, mobile e regressões de acesso. |
+| Login e primeiro acesso | Matrícula e CPF coexistentes no cadastro de qualquer perfil; autenticação pelo identificador disponível, senha local, validação, alteração obrigatória no primeiro acesso e encerramento de sessão. | Desktop, mobile e regressões de acesso pelos dois identificadores. |
 | Shell e Início | Boas-vindas, agenda local, visão mensal navegável de prazos de Gestão, anotações, navegação lateral expansível e indicadores de tarefas abertas, aprovações pendentes e alertas de Gestão quando o perfil possui leitura permitida. | Desktop, mobile, permissões e regressões. |
 | Gestão | Tarefas persistentes com prazo, prioridade, responsável e contexto; filtros combináveis por área, responsável, intervalo, situação e prioridade; alertas derivados de tarefas, contratos e documentos; relatórios CSV locais; metadados de anexos; solicitações de aprovação com decisão segregada, devolução fundamentada, histórico de auditoria e comentários internos locais restritos a solicitante e decisor. | Migração v10, permissões, auditoria transversal, 87 testes totais, validação manual desktop e revisão móvel. |
 | Cadastros | Escolas, núcleos, prédios administrativos e biblioteca, com filtros e criação local demonstrativa. | Desktop, mobile, testes e build. |
 | Contratos e Documentos | Fluxos de registros, filtros, documentos, parcelas, baixas, histórico e exclusão confirmada. | Operações locais e persistência. |
-| Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, persistência, desktop e mobile. |
+| Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF coexistentes, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, recuperação defensiva de base local, desktop e mobile. |
 | Nutrição | Planejamento semanal, análise de saldos, planejamento anual, per capita, dias letivos, cobertura, compra/contratação, impressão e CSV local. | Cálculos, permissões, desktop e mobile. |
 | Estoque | Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente, Relatórios e Agricultura Familiar; inclui catálogo, saldo, movimentos, conferência, auditoria, pedidos e guias locais. | 55 testes totais, desktop e mobile. |
-| Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local. | Migração v4, permissões, desktop, mobile, TypeScript e build. |
+| Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local; dias trabalhados e faltas limitados ao total previsto. | Migração v4, permissões, regressão do limite combinado, desktop, mobile, TypeScript e build. |
 | Unidades Escolares | Cadastro, pesquisa por código/nome/setor, filtros por tipo, situação e censo, inclusão/edição local, indicadores, relatórios e CSV demonstrativo. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
-| Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV e impressão local. | Migração v6, permissões administrativas, 68 testes totais, desktop, mobile, TypeScript e build. |
+| Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV, impressão local e aviso para sobrepagamentos históricos. | Migração v6, permissões administrativas, alerta preventivo sem alterar o bloqueio de novas baixas, desktop, mobile, TypeScript e build. |
 | Configurações institucionais | Identificação, exercício, comunicações, segurança e auditoria local; parâmetros demonstrativos persistidos, regras de limites e salvamento restrito ao Administrador. | Migração v7, proteção administrativa, 71 testes totais, desktop, mobile, TypeScript e build. |
 | Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
-| Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios demonstrativos; cálculo de abastecimento, estados operacionais, referências de governança e auditoria transversal. | Migração v8, segregação de cancelamento/resolução, 79 testes totais, desktop, mobile, TypeScript e build. |
+| Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios demonstrativos; cálculo de abastecimento, estados operacionais, referências de governança e auditoria transversal. Cancelamento de manutenção restaura disponibilidade quando não houver outra manutenção agendada; ações restritas são ocultadas para perfis sem governança. | Migração v8, segregação de cancelamento/resolução, regressões de estado e interface, desktop, mobile, TypeScript e build. |
 | Buscador global | Índice local de módulos e contextos do shell; consulta normalizada sem acentos, resultados navegáveis por clique ou Enter, estado vazio e ocultação de visões sem permissão. | Regressão de busca e permissões; validação manual de resultado, navegação e estado vazio; responsividade do cabeçalho, 81 testes totais, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.

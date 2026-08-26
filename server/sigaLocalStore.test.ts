@@ -21,7 +21,7 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     const database = createLocalSemedDatabase();
     const contract = listLocalRecords(database).find((record) => record.id === "r12");
     expect(contract).toMatchObject({ paidAmount: 78500, balanceAmount: 270000 });
-    expect(calculateFinancialPosition(1000, [{ id: "p", recordId: "r", paymentDate: "2026-01-01", amount: 240, notes: "PARCIAL", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 240, balanceAmount: 760 });
+    expect(calculateFinancialPosition(1000, [{ id: "p", recordId: "r", paymentDate: "2026-01-01", amount: 240, notes: "PARCIAL", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 240, balanceAmount: 760, hasOverpayment: false, overpaidAmount: 0 });
   });
 
   it("preserva a leitura brasileira do valor usado pela baixa local", () => {
@@ -86,6 +86,16 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     expect(hydrated?.semedRecords).toHaveLength(4);
     expect(hydrated?.semedDocuments).toHaveLength(3);
     expect(hydrateLocalDatabase("inválido")).toBeNull();
+  });
+
+  it("recupera os demais dados quando a coleção de usuários estiver ausente ou corrompida", () => {
+    const database = createLocalSemedDatabase();
+    const damaged = { ...database, semedUsers: null };
+    const restored = hydrateLocalDatabase(JSON.stringify(damaged))!;
+    expect(restored.semedUsers).toEqual([]);
+    expect(restored.semedRecords).toHaveLength(database.semedRecords.length);
+    expect(restored.semedDocuments).toHaveLength(database.semedDocuments.length);
+    expect(restored.semedFleetVehicles).toHaveLength(database.semedFleetVehicles.length);
   });
 
   it("persiste operações do repositório em armazenamento local e as restaura", () => {

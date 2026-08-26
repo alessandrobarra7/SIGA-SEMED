@@ -168,6 +168,8 @@ export type SemedRecord = {
   payments: SemedRecordPayment[];
   paidAmount: number;
   balanceAmount: number;
+  hasOverpayment?: boolean;
+  overpaidAmount?: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -543,7 +545,7 @@ function validateLocalUserInput(database: SemedLocalDatabase, input: SemedLocalU
 
 function normalizedLocalUserInput(input: SemedLocalUserInput) {
   const loginType = profileLoginType(input.profile);
-  const registration = loginType === "matricula" ? normalizeRegistration(input.registration) : "";
+  const registration = normalizeRegistration(input.registration);
   const cpf = normalizeCpf(input.cpf);
   return {
     displayName: input.displayName.trim(),
@@ -867,7 +869,7 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
 export function getLocalUserIdentity(username: string) {
   const cleanUsername = username.trim().toLowerCase() || "tecnico1";
   const cleanCpf = normalizeCpf(username);
-  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf));
+  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.cpf && candidate.cpf === cleanCpf));
   return user
     ? { username: user.username, displayName: user.displayName, role: user.role }
     : { username: cleanUsername, displayName: cleanUsername, role: "Técnico" };
@@ -881,7 +883,7 @@ export function requiresDeleteConfirmation(value: string) { return value.trim().
 export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now(), password = ""): SemedLocalLogin | null {
   const cleanUsername = username.trim().toLowerCase();
   const cleanCpf = normalizeCpf(username);
-  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf)));
+  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.cpf && candidate.cpf === cleanCpf)));
   if (!user) return null;
   if (user.passwordHash.startsWith("LOCAL:") && localPasswordDigest(password) !== user.passwordHash) return null;
   const session: SemedLocalSession = {
@@ -917,7 +919,8 @@ export function logoutLocalSession(database: SemedLocalDatabase, tokenHash: stri
 
 export function calculateFinancialPosition(contractAmount: number, payments: SemedRecordPayment[]) {
   const paidAmount = Math.round(payments.reduce((total, payment) => total + payment.amount, 0) * 100) / 100;
-  return { paidAmount, balanceAmount: Math.max(Math.round((contractAmount - paidAmount) * 100) / 100, 0) };
+  const overpaidAmount = Math.max(Math.round((paidAmount - contractAmount) * 100) / 100, 0);
+  return { paidAmount, balanceAmount: Math.max(Math.round((contractAmount - paidAmount) * 100) / 100, 0), hasOverpayment: overpaidAmount > 0, overpaidAmount };
 }
 
 export function parseBrazilianAmount(value: string) {
@@ -1219,7 +1222,9 @@ export function saveLocalFleetMaintenance(database: SemedLocalDatabase, input: S
   if (!input.maintenanceDate || input.odometerKm < 0 || input.cost < 0 || input.nextOdometerKm < input.odometerKm || !input.supplier.trim() || !input.description.trim()) return { error: "Preencha os dados de manutenção e os próximos marcos corretamente.", maintenance: null };
   const maintenance: SemedFleetMaintenance = { id: existing?.id ?? localId("fleet-maintenance"), ...input, supplier: input.supplier.trim(), description: input.description.trim(), createdAt: existing?.createdAt ?? timestamp, updatedAt: timestamp };
   if (existing) database.semedFleetMaintenances[database.semedFleetMaintenances.indexOf(existing)] = maintenance; else database.semedFleetMaintenances.push(maintenance);
-  if (maintenance.status === "Agendada") vehicle.status = "Em manutenção"; if (maintenance.status === "Concluída" && vehicle.status === "Em manutenção") vehicle.status = "Ativo";
+  const hasOpenMaintenance = database.semedFleetMaintenances.some((item) => item.vehicleId === vehicle.id && item.status === "Agendada");
+  if (hasOpenMaintenance) vehicle.status = "Em manutenção";
+  else if (vehicle.status === "Em manutenção") vehicle.status = "Ativo";
   vehicle.odometerKm = Math.max(vehicle.odometerKm, maintenance.odometerKm); vehicle.updatedAt = timestamp;
   governanceAudit(database, "Manutenção de frota", maintenance.id, action, actorUserId, ["veículo", "tipo", "custo", "situação"], `Manutenção demonstrativa ${maintenance.status.toLowerCase()}.`, vehicle.id, timestamp);
   return { error: null, maintenance };
@@ -1506,6 +1511,7 @@ export function saveLocalHrAttendancePeriod(database: SemedLocalDatabase, input:
   if (!plannedDays) return { error: "Informe os dias previstos da competência.", period: null };
   const entries = input.entries.filter((entry) => database.semedHrServers.some((server) => server.id === entry.serverId)).map((entry) => ({ serverId: entry.serverId, workedDays: Math.min(plannedDays, Math.round(nonNegative(entry.workedDays))), absences: Math.min(plannedDays, Math.round(nonNegative(entry.absences))), notes: entry.notes.trim() }));
   if (!entries.length) return { error: "Inclua ao menos um servidor demonstrativo na competência.", period: null };
+  if (entries.some((entry) => entry.workedDays + entry.absences > plannedDays)) return { error: `Dias trabalhados e faltas não podem ultrapassar os ${plannedDays} dias previstos.`, period: null };
   const current = input.id ? database.semedHrAttendancePeriods.find((period) => period.id === input.id) : database.semedHrAttendancePeriods.find((period) => period.referenceMonth === input.referenceMonth && period.schoolUnitId === input.schoolUnitId);
   const period: SemedHrAttendancePeriod = { id: current?.id ?? localId("hr-attendance"), code: upper(input.code), referenceMonth: input.referenceMonth, schoolUnitId: input.schoolUnitId, plannedDays, calendarEvents: input.calendarEvents.map((event) => ({ ...event, id: event.id || localId("hr-calendar"), description: event.description.trim() })), entries, status: input.status, returnReason: input.returnReason.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
   if (current) database.semedHrAttendancePeriods[database.semedHrAttendancePeriods.indexOf(current)] = period;
@@ -1772,10 +1778,11 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
 		const nutritionDefaults = createLocalSemedDatabase();
 		const current = database as Partial<SemedLocalDatabase>;
+		const safeUsers = Array.isArray(current.semedUsers) ? current.semedUsers : [];
 		return {
 			...database,
 			    schemaVersion: 10,
-		semedUsers: database.semedUsers.map((user) => ({
+		semedUsers: safeUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
       profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),

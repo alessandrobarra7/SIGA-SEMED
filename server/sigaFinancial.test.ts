@@ -3,11 +3,11 @@ import { calculateFinancialPosition, parseBrazilianAmount } from "../client/src/
 
 describe("fluxo financeiro visual", () => {
   it("deriva pago e saldo a partir das baixas locais", () => {
-    expect(calculateFinancialPosition(1000, [{ id: "p1", recordId: "r1", paymentDate: "2026-01-01", amount: 240, notes: "PARCIAL", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 240, balanceAmount: 760 });
+    expect(calculateFinancialPosition(1000, [{ id: "p1", recordId: "r1", paymentDate: "2026-01-01", amount: 240, notes: "PARCIAL", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 240, balanceAmount: 760, hasOverpayment: false, overpaidAmount: 0 });
   });
 
   it("não expõe saldo negativo quando as baixas excedem o valor", () => {
-    expect(calculateFinancialPosition(100, [{ id: "p1", recordId: "r1", paymentDate: "2026-01-01", amount: 120, notes: "AJUSTE", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 120, balanceAmount: 0 });
+    expect(calculateFinancialPosition(100, [{ id: "p1", recordId: "r1", paymentDate: "2026-01-01", amount: 120, notes: "AJUSTE", createdAt: "2026-01-01" }])).toEqual({ paidAmount: 120, balanceAmount: 0, hasOverpayment: true, overpaidAmount: 20 });
   });
 
   it("interpreta valor brasileiro positivo para o formulário de baixa", () => {

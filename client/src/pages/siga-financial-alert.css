@@ -1,0 +1,17 @@
+.siga-financial-warning {
+  margin: 14px 0 0;
+  border: 1px solid #edc8a2;
+  border-left: 4px solid #c26b1c;
+  border-radius: 5px;
+  padding: 10px 12px;
+  background: #fff6e8;
+  color: #7a4514;
+  font: 700 11px/1.55 Manrope, sans-serif;
+}
+
+@media (max-width: 840px) {
+  .siga-financial-warning {
+    padding: 10px;
+    font-size: 10px;
+  }
+}
