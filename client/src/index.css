@@ -14,7 +14,7 @@
   --siga-font-editorial: "Lora", Georgia, serif;
   --siga-font-formal: "Merriweather", Georgia, serif;
   --siga-font-classic: "Libre Baskerville", Georgia, serif;
-  --siga-font-caption: var(--siga-font-body);
+  --siga-font-caption: var(--siga-font-dashboard);
   --siga-font-login: "Manrope", sans-serif;
   --siga-text-page: clamp(2.35rem, 3vw, 3.35rem);
   --siga-text-section: clamp(1.55rem, 2vw, 2.1rem);

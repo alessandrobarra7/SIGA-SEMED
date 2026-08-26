@@ -330,15 +330,15 @@
 .siga-home-editorial { gap: 18px; font-family: var(--siga-font-body); }
 .siga-home-editorial-intro { display: grid; grid-template-columns: 1fr; align-items: end; min-height: 116px; padding: 7px 4px 0; }
 .siga-home-editorial-intro h1 { margin: 3px 0 5px; color: #0a3e63; font-family: var(--siga-font-display); font-size: var(--siga-text-page); font-weight: 800; letter-spacing: -.045em; line-height: 1.08; }
-.siga-home-editorial-intro > div > p:last-child { max-width: 480px; margin: 0; color: #52707c; font-family: var(--siga-font-body); font-size: var(--siga-text-body); font-weight: 500; line-height: 1.55; }
+.siga-home-editorial-intro > div > p:last-child { max-width: 480px; margin: 0; color: #52707c; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-body); font-weight: 500; line-height: 1.55; }
 .siga-home-editorial-illustration { display: none; }
 .siga-home-editorial-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
 .siga-editorial-metric { display: flex; align-items: center; gap: 12px; min-height: 116px; padding: 16px; border: 1px solid #e7eeeb; border-radius: 14px; background: #fff; box-shadow: 0 9px 21px rgba(25, 78, 70, .045); }
 .siga-editorial-metric > span { flex: none; width: 43px; height: 43px; }
 .siga-editorial-metric > div { display: grid; min-width: 0; gap: 1px; }
 .siga-editorial-metric strong { color: #0d3f61; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; letter-spacing: -.035em; line-height: 1; }
-.siga-editorial-metric small { color: #60737d; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.45; }
-.siga-editorial-metric button { display: flex; align-items: center; gap: 4px; width: max-content; margin-top: 5px; padding: 0; border: 0; background: transparent; color: #228c50; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; }
+.siga-editorial-metric small { color: #60737d; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.45; }
+.siga-editorial-metric button { display: flex; align-items: center; gap: 4px; width: max-content; margin-top: 5px; padding: 0; border: 0; background: transparent; color: #228c50; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; }
 .siga-editorial-metric.blue button { color: #1685a5; }.siga-editorial-metric.pink button { color: #d43d79; }.siga-editorial-metric.orange button { color: #db8719; }
 .siga-editorial-metric.blue .siga-home-stat-icon { background: #e6f5fb; color: #1685a5; }.siga-editorial-metric.pink .siga-home-stat-icon { background: #feebf3; color: #d43d79; }.siga-editorial-metric.orange .siga-home-stat-icon { background: #fff2df; color: #db8719; }
 
@@ -347,19 +347,19 @@
 .siga-agenda-card, .siga-notes-card, .siga-home-quick-actions, .siga-home-pending { border: 1px solid #e6eeeb; border-radius: 14px; background: #fff; box-shadow: 0 9px 22px rgba(25, 78, 70, .045); }
 .siga-agenda-card, .siga-notes-card, .siga-home-quick-actions, .siga-home-pending { padding: 19px; }
 .siga-card-heading { align-items: flex-start; }
-.siga-card-heading p { color: #527367; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 700; line-height: 1.4; text-transform: none; }
+.siga-card-heading p { color: #527367; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 700; line-height: 1.4; text-transform: none; }
 .siga-card-heading h2 { color: #0c3f61; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; letter-spacing: -.03em; line-height: 1.16; }
-.siga-card-heading .siga-home-outline { height: 32px; border-radius: 9px; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; }
+.siga-card-heading .siga-home-outline { height: 32px; border-radius: 9px; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-label); font-weight: 700; }
 .siga-week-grid { gap: 9px; margin-top: 15px; }
 .siga-week-day { min-height: 124px; padding: 13px; border: 1px solid #e9efed; border-top: 4px solid #239252; border-radius: 11px; background: linear-gradient(155deg, #fff, #fafffc); }
-.siga-week-day small { font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 700; letter-spacing: .01em; line-height: 1.35; }.siga-week-day strong { color: #1b9251; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; line-height: 1; }.siga-week-day span { font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.45; }
+.siga-week-day small { font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 700; letter-spacing: .01em; line-height: 1.35; }.siga-week-day strong { color: #1b9251; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; line-height: 1; }.siga-week-day span { font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.45; }
 .siga-week-day:nth-child(2) { border-top-color: #1886a9; }.siga-week-day:nth-child(2) strong { color: #1886a9; }.siga-week-day:nth-child(3) { border-top-color: #df8d20; }.siga-week-day:nth-child(3) strong { color: #df8d20; }.siga-week-day:nth-child(4) { border-top-color: #df4d82; }.siga-week-day:nth-child(4) strong { color: #df4d82; }
 .siga-home-quick-actions > div:last-child { display: grid; gap: 4px; margin-top: 12px; }
-.siga-home-quick-actions > div:last-child button { display: flex; align-items: center; justify-content: space-between; min-height: 49px; padding: 8px 10px; border: 0; border-radius: 10px; background: #f7fcf8; color: #188749; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; text-align: left; }
-.siga-home-quick-actions button span { display: grid; gap: 1px; }.siga-home-quick-actions button small { color: #769188; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.35; }.siga-home-quick-actions button.orange { background: #fff8ef; color: #d78216; }.siga-home-quick-actions button.blue { background: #f0f9fc; color: #1686a5; }.siga-home-quick-actions button.pink { background: #fff2f7; color: #d5407c; }
-.siga-home-pending .siga-card-heading > button { border: 0; background: transparent; color: #248a50; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; }
+.siga-home-quick-actions > div:last-child button { display: flex; align-items: center; justify-content: space-between; min-height: 49px; padding: 8px 10px; border: 0; border-radius: 10px; background: #f7fcf8; color: #188749; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; text-align: left; }
+.siga-home-quick-actions button span { display: grid; gap: 1px; }.siga-home-quick-actions button small { color: #769188; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.35; }.siga-home-quick-actions button.orange { background: #fff8ef; color: #d78216; }.siga-home-quick-actions button.blue { background: #f0f9fc; color: #1686a5; }.siga-home-quick-actions button.pink { background: #fff2f7; color: #d5407c; }
+.siga-home-pending .siga-card-heading > button { border: 0; background: transparent; color: #248a50; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-label); font-weight: 700; cursor: pointer; }
 .siga-home-pending > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-.siga-home-pending > div:last-child span { display: flex; align-items: center; gap: 7px; color: #4f6874; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.4; }.siga-home-pending svg { color: #238d50; }.siga-home-pending b { margin-left: auto; color: #168549; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; }
+.siga-home-pending > div:last-child span { display: flex; align-items: center; gap: 7px; color: #4f6874; font-family: var(--siga-font-dashboard); font-size: var(--siga-text-meta); font-weight: 600; line-height: 1.4; }.siga-home-pending svg { color: #238d50; }.siga-home-pending b { margin-left: auto; color: #168549; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; }
 
 .siga-shell .siga-welcome-hero {
   border: 1px solid #e5eeea !important;
@@ -643,8 +643,8 @@
   .siga-home-pending > div:last-child span,
   .siga-week-day small,
   .siga-week-day p,
-  .siga-home-monthly-deadline small,
-  .siga-home-monthly-deadline p,
+  .siga-home-monthly-deadlines small,
+  .siga-home-monthly-deadlines > p,
   .siga-hr-audit-list small,
   .siga-hr-server-main small,
   .siga-nutrition-list small,
@@ -686,7 +686,7 @@
   .siga-hr-action-bar p
 ) {
   color: #287254;
-  font-family: "Inter", sans-serif !important;
+  font-family: var(--siga-font-dashboard) !important;
   font-size: .74rem !important;
   font-weight: 600 !important;
   letter-spacing: .012em;

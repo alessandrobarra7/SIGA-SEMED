@@ -638,3 +638,17 @@
 - [x] Estender a regressão tipográfica para inspecionar os seletores reais da página Início e impedir fontes legadas ou escalas rígidas.
 - [x] Validar o painel Início em sessão autenticada, em desktop e mobile, após a alteração e sem modificar a tela de login.
 - [x] Documentar o resultado comprovado e atualizar o checkpoint somente após a validação específica de Início.
+
+## Auditoria corretiva — fontes efetivamente renderizadas em Início
+
+- [x] Inspecionar no sandbox a família tipográfica calculada dos títulos, legendas, indicadores, agenda, ações rápidas e prazos de Início.
+- [x] Corrigir somente a causa comprovada de fonte não aplicada ou de percepção visual insuficiente, sem alterar login, dados ou fluxos.
+- [x] Revalidar visualmente no sandbox e repetir a regressão, TypeScript e build antes de novo checkpoint.
+- [x] Documentar o resultado com evidência da fonte calculada e da comparação visual, sem alegar mudança não perceptível.
+
+## Direção autorizada — Manrope nas legendas internas de Início
+
+- [x] Mapear as legendas, descrições, menus, botões, controles e metadados visíveis de Início que receberão Manrope, preservando Montserrat nos títulos e números.
+- [x] Aplicar Manrope diretamente aos seletores efetivos de Início, sem tocar no login, nos fluxos, nos dados locais ou nas permissões.
+- [x] Verificar a família calculada de títulos e legendas no sandbox, validar desktop e mobile e executar regressões antes de novo checkpoint.
+- [x] Documentar o resultado visual comparável e salvar checkpoint somente após a validação autenticada.

@@ -59,7 +59,7 @@ describe("tipografia institucional do shell", () => {
     expect(indexStyles).toContain(".siga-shell .kicker--card");
     expect(indexStyles).toContain('content: none !important;');
     expect(indexStyles).not.toContain(".siga-shell .siga-kicker:not(.kicker)");
-    expect(indexStyles).toContain("--siga-font-caption: var(--siga-font-body);");
+    expect(indexStyles).toContain("--siga-font-caption: var(--siga-font-dashboard);");
   });
 
   it("sobrepõe fontes legadas de todos os estilos internos com tokens funcionais", () => {
@@ -132,18 +132,20 @@ describe("tipografia institucional do shell", () => {
 
     expectTokenRule(pagesStyles, ".siga-home-heading h1", "var(--siga-font-display)", "var(--siga-text-page)");
     expectTokenRule(pagesStyles, ".siga-card-heading h2", "var(--siga-font-display)", "var(--siga-text-section)");
-    expectTokenRule(pagesStyles, ".siga-week-day small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(pagesStyles, ".siga-week-day small", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
     expectTokenRule(pagesStyles, ".siga-week-day strong", "var(--siga-font-display)", "var(--siga-text-section)");
-    expectTokenRule(pagesStyles, ".siga-week-day span", "var(--siga-font-body)", "var(--siga-text-meta)");
-    expectTokenRule(pagesStyles, ".siga-home-stat small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(pagesStyles, ".siga-week-day span", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
+    expectTokenRule(pagesStyles, ".siga-home-stat small", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
 
     expectTokenRule(homeStyles, ".siga-home-editorial-intro h1", "var(--siga-font-display)", "var(--siga-text-page)");
     expectTokenRule(homeStyles, ".siga-editorial-metric strong", "var(--siga-font-display)", "var(--siga-text-section)");
-    expectTokenRule(homeStyles, ".siga-editorial-metric small", "var(--siga-font-body)", "var(--siga-text-meta)");
-    expectTokenRule(homeStyles, ".siga-home-quick-actions > div:last-child button", "var(--siga-font-body)", "var(--siga-text-label)");
+    expectTokenRule(homeStyles, ".siga-editorial-metric small", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
+    expectTokenRule(homeStyles, ".siga-home-quick-actions > div:last-child button", "var(--siga-font-dashboard)", "var(--siga-text-label)");
 
     expectTokenRule(complementStyles, ".siga-home-monthly-deadlines h3", "var(--siga-font-display)", "var(--siga-text-section)");
     expectTokenRule(complementStyles, ".siga-home-monthly-deadlines strong", "var(--siga-font-display)", "var(--siga-text-card)");
-    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines small", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
+    expect(homeStyles).toContain(".siga-home-monthly-deadlines small,");
+    expect(homeStyles).not.toContain(".siga-home-monthly-deadline small,");
   });
 });
