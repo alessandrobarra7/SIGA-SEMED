@@ -14,6 +14,7 @@ import {
   Search,
   School,
   ShieldCheck,
+  Settings2,
   Truck,
   UserCog,
   UsersRound,
@@ -47,7 +48,8 @@ export type ShellView =
   | "stock-office"
   | "stock-reports"
   | "fleet"
-  | "users";
+  | "users"
+  | "settings";
 
 type PreviewUser = { displayName: string; role: string };
 
@@ -131,6 +133,7 @@ const navigation: NavigationItem[] = [
     ],
   },
   { id: "users", label: "Usuários", icon: ShieldCheck },
+  { id: "settings", label: "Configurações", icon: Settings2 },
 ];
 
 function isSectionActive(item: NavigationItem, activeView: ShellView) {

@@ -371,3 +371,18 @@
 - [x] Criar commit descritivo com o login congelado, a reformulação interna e a remoção do banner fotográfico.
 - [x] Enviar a atualização visual para a branch principal do repositório autorizado.
 - [x] Confirmar o hash remoto e orientar sobre segurança de credenciais.
+
+## Reprodução funcional autorizada — Configurações institucionais
+
+- [x] Observar em modo somente leitura as seções, formulários, controles e permissões de Configurações na referência.
+- [x] Registrar campos, regras, estados e sequência operacional sem copiar dados, contatos, chaves, documentos ou identificadores reais.
+- [x] Modelar preferências e parâmetros demonstrativos no armazenamento local, sem D1 ou serviços externos.
+- [x] Implementar Configurações institucionais na identidade visual atual, sem alterar login, navegação ou fluxos existentes.
+- [x] Aplicar permissões, cobrir persistência e regressão com testes, e validar desktop, mobile, TypeScript e build.
+- [x] Documentar a entrega, salvar checkpoint e apresentar o módulo funcional no preview.
+
+## Escopo confirmado — novo módulo institucional demonstrativo
+
+- [x] Criar um módulo novo de configurações por autorização explícita do usuário, já que a referência não possui uma área institucional própria.
+- [x] Definir parâmetros locais para identificação institucional, exercício, comunicações, segurança e auditoria, sem serviços ou credenciais externas.
+- [x] Restringir leitura e escrita das configurações ao Administrador, preservando os demais perfis em modo protegido.

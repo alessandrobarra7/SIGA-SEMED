@@ -22,12 +22,12 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início e menu lateral na ordem observada. |
-| Persistência local | Concluída: armazenamento versionado para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço e Financeiro ampliado. |
+| Persistência local | Concluída: armazenamento v7 para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado e Configurações institucionais. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 68 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado foi reformulado para barra lateral clara, cabeçalho editorial, painel inicial com indicadores, agenda, ações rápidas e imagem municipal discreta; a camada compartilhada preserva os módulos funcionais. |
+| Testes mais recentes | 71 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 
@@ -45,6 +45,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Unidades Escolares | Cadastro, pesquisa por código/nome/setor, filtros por tipo, situação e censo, inclusão/edição local, indicadores, relatórios e CSV demonstrativo. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV e impressão local. | Migração v6, permissões administrativas, 68 testes totais, desktop, mobile, TypeScript e build. |
+| Configurações institucionais | Identificação, exercício, comunicações, segurança e auditoria local; parâmetros demonstrativos persistidos, regras de limites e salvamento restrito ao Administrador. | Migração v7, proteção administrativa, 71 testes totais, desktop, mobile, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.
 
@@ -79,6 +80,7 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`stock_reference_observation.md`](./stock_reference_observation.md) | Categorias, abas, controles e estados observados para Estoque. |
 | [`schools_educapaco_reference_observation.md`](./schools_educapaco_reference_observation.md) | Navegação, campos, filtros, indicadores e limites de reprodução local de Unidades Escolares e Educa Paço. |
 | [`finance_reference_observation.md`](./finance_reference_observation.md) | Navegação, campos, filtros, permissões, cálculos e limites de reprodução local do Financeiro ampliado. |
+| [`settings_reference_observation.md`](./settings_reference_observation.md) | Registro de que a referência possui apenas configuração pessoal de senha e dos limites para o módulo institucional novo autorizado. |
 | [`visual_identity_refresh.md`](./visual_identity_refresh.md) | Diretrizes e limites funcionais da identidade visual clara, azul e verde autorizada pelo usuário. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 
