@@ -364,3 +364,10 @@
 - [x] Remover a imagem municipal fotográfica do ambiente autenticado, incluindo barra lateral, boas-vindas e painel inicial.
 - [x] Preservar a tela de login congelada e todos os fluxos funcionais durante o ajuste.
 - [x] Validar o ambiente interno limpo, documentar e salvar checkpoint.
+
+## Publicação autorizada — nova aparência interna
+
+- [x] Revisar o estado Git, os arquivos visuais e a autorização de escrita antes do envio.
+- [x] Criar commit descritivo com o login congelado, a reformulação interna e a remoção do banner fotográfico.
+- [ ] Enviar a atualização visual para a branch principal do repositório autorizado.
+- [ ] Confirmar o hash remoto e orientar sobre segurança de credenciais.
