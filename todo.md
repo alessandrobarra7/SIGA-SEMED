@@ -319,5 +319,5 @@
 
 - [x] Revisar o estado Git, o diff e a autorização de escrita antes do envio.
 - [x] Criar commit descritivo com Financeiro ampliado, migração v6, testes e documentação.
-- [ ] Enviar a atualização para a branch principal do repositório autorizado.
-- [ ] Confirmar o hash remoto e recomendar a revogação de credenciais anteriormente expostas.
+- [x] Enviar a atualização para a branch principal do repositório autorizado.
+- [x] Confirmar o hash remoto e recomendar a revogação de credenciais anteriormente expostas.
