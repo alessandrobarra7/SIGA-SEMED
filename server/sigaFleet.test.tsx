@@ -13,7 +13,7 @@ describe("Frota local", () => {
     const legacy = { ...current, schemaVersion: 7 } as Record<string, unknown>;
     delete legacy.semedFleetVehicles; delete legacy.semedFleetFuelLogs; delete legacy.semedFleetMaintenances; delete legacy.semedFleetOccurrences;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(10);
+    expect(restored.schemaVersion).toBe(11);
     expect(restored.semedFleetVehicles.length).toBeGreaterThan(0);
     expect(restored.semedFinanceExecutions).toHaveLength(current.semedFinanceExecutions.length);
     expect(restored.semedInstitutionSettings.acronym).toBe("SEMED");

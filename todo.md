@@ -531,3 +531,9 @@
 - [x] Corrigir qualquer destino ou conteúdo sem resposta e incluir regressão correspondente.
 - [x] Validar a versão resultante e apresentar o diagnóstico ao usuário.
 - [x] Criar destinos internos específicos para as cinco abas de Recursos Humanos e propagá-los ao componente de RH.
+
+## Alteração autorizada — senha demonstrativa do Administrador
+
+- [x] Localizar a conta Administrador e atualizar sua senha local para o valor informado, sem registrá-lo em código, documentação ou testes.
+- [x] Preservar o estado de primeiro acesso e as credenciais dos demais perfis demonstrativos.
+- [x] Validar o acesso administrativo com a nova senha, executar regressão de autenticação e salvar checkpoint.

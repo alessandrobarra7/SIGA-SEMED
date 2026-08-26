@@ -384,7 +384,7 @@ export type SemedInstitutionSettingsInput = Omit<SemedInstitutionSettings, "id" 
 export type SemedInstitutionSettingsAudit = { id: string; action: "configuracoes.salvas"; changedFields: string[]; summary: string; actorUserId: string; createdAt: string };
 
 export type SemedLocalDatabase = {
-  schemaVersion: 10;
+  schemaVersion: 11;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -695,8 +695,8 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = now();
   return {
-    schemaVersion: 10,
-    semedUsers: localUsers.map((user) => ({ ...user })),
+    schemaVersion: 11,
+    semedUsers: localUsers.map((user) => user.id === "u-admin" ? { ...user, passwordHash: localPasswordDigest(user.username), mustChangePassword: false, provisionalPasswordIssuedAt: "" } : { ...user }),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
@@ -1698,6 +1698,7 @@ export function serializeLocalDatabase(database: SemedLocalDatabase) { return JS
 type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: number };
 type SemedLocalDatabaseV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: 7 };
 type SemedLocalDatabaseV8 = Omit<SemedLocalDatabase, "schemaVersion" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: 8 };
+type SemedLocalDatabaseV10 = Omit<SemedLocalDatabase, "schemaVersion"> & { schemaVersion: 10 };
 type SemedLocalDatabaseV9 = Omit<SemedLocalDatabase, "schemaVersion" | "semedManagementApprovalComments"> & { schemaVersion: 9 };
 type SemedLocalDatabaseV6 = Omit<SemedLocalDatabaseV7, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: 6 };
 type SemedLocalDatabaseV5 = Omit<SemedLocalDatabaseV6, "schemaVersion" | "semedFinanceSources" | "semedFinanceRules" | "semedFinancePlanningEntries" | "semedFinanceRevenues" | "semedFinanceExecutions" | "semedFinanceAuditLog"> & { schemaVersion: 5 };
@@ -1732,8 +1733,8 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
 	const nutritionDefaults = createLocalSemedDatabase();
 		return {
 			...database,
-			    schemaVersion: 10,
-		semedUsers: migratedUsers,
+			    schemaVersion: 11,
+		semedUsers: migratedUsers.map((user) => user.id === "u-admin" ? { ...user, passwordHash: localPasswordDigest(user.username), passwordSalt: "", passwordIterations: 100000, mustChangePassword: false, provisionalPasswordIssuedAt: "", updatedAt: migratedAt } : user),
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
     semedStockItems: nutritionDefaults.semedStockItems,
@@ -1775,13 +1776,13 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			  };
 		}
 
-function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
+function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
 		const nutritionDefaults = createLocalSemedDatabase();
 		const current = database as Partial<SemedLocalDatabase>;
 		const safeUsers = Array.isArray(current.semedUsers) ? current.semedUsers : [];
 		return {
 			...database,
-			    schemaVersion: 10,
+			    schemaVersion: 11,
 		semedUsers: safeUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -1887,9 +1888,26 @@ function migrateManagementCommentsDatabase(database: SemedLocalDatabaseV9): Seme
   return normalizeCurrentDatabase(database);
 }
 
+function migrateAdministratorDemoPasswordDatabase(database: SemedLocalDatabaseV10): SemedLocalDatabase {
+  const migratedAt = now();
+  return normalizeCurrentDatabase({
+    ...database,
+    schemaVersion: 10,
+    semedUsers: database.semedUsers.map((user) => user.id === "u-admin" ? {
+      ...user,
+      passwordHash: localPasswordDigest(user.username),
+      passwordSalt: "",
+      passwordIterations: 100000,
+      mustChangePassword: false,
+      provisionalPasswordIssuedAt: "",
+      updatedAt: migratedAt,
+    } : user),
+  });
+}
+
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
@@ -1899,7 +1917,8 @@ export function hydrateLocalDatabase(serialized: string) {
     if (parsed.schemaVersion === 7) return migrateFleetDatabase(parsed);
     if (parsed.schemaVersion === 8) return migrateManagementDatabase(parsed);
     if (parsed.schemaVersion === 9) return migrateManagementCommentsDatabase(parsed);
-    if (parsed.schemaVersion === 10) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 10) return migrateAdministratorDemoPasswordDatabase(parsed);
+    if (parsed.schemaVersion === 11) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;

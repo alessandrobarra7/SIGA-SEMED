@@ -4,7 +4,7 @@ import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecor
 describe("estrutura local compatível com o SIGA SEMED", () => {
   it("mantém as coleções estruturais e administrativas da referência", () => {
     const database = createLocalSemedDatabase();
-    expect(database).toMatchObject({ schemaVersion: 10 });
+    expect(database).toMatchObject({ schemaVersion: 11 });
     expect(database.semedUsers).toHaveLength(3);
     expect(database.semedUserPermissions.length).toBeGreaterThan(0);
     expect(database.semedUserAuditLog).toEqual([]);
@@ -34,9 +34,11 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     expect(getLocalUserIdentity("tecnico1")).toEqual({ username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico" });
   });
 
-  it("autoriza todos os perfis demonstrativos cadastrados", () => {
+  it("autoriza a conta administrativa com a senha demonstrativa atualizada e preserva os demais perfis", () => {
     const database = createLocalSemedDatabase();
-    expect(loginLocalUser(database, "admin")?.user.role).toBe("Administrador");
+    const administrator = database.semedUsers.find((user) => user.id === "u-admin")!;
+    expect(loginLocalUser(database, administrator.username, "2026-08-25T12:00:00.000Z", administrator.username)?.user.role).toBe("Administrador");
+    expect(loginLocalUser(database, administrator.username, "2026-08-25T12:00:00.000Z", "senha-incorreta")).toBeNull();
     expect(loginLocalUser(database, "tecnico1")?.user.displayName).toBe("Técnico SEMED 1");
     expect(loginLocalUser(database, "tecnico2")?.user.displayName).toBe("Técnico SEMED 2");
     expect(loginLocalUser(database, "usuario-invalido")).toBeNull();
@@ -44,11 +46,11 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
 
   it("simula login, primeiro acesso e encerramento pela estrutura de sessões", () => {
     const database = createLocalSemedDatabase();
-    const access = loginLocalUser(database, "admin", "2026-08-25T12:00:00.000Z");
+    const access = loginLocalUser(database, "tecnico1", "2026-08-25T12:00:00.000Z");
     expect(access?.user.mustChangePassword).toBe(true);
     expect(database.semedSessions).toHaveLength(1);
     expect(access?.session.expiresAt).toBe("2026-09-01T12:00:00.000Z");
-    expect(completeLocalFirstAccess(database, "u-admin", "2026-08-25T12:01:00.000Z")?.mustChangePassword).toBe(false);
+    expect(completeLocalFirstAccess(database, "u-tecnico1", "2026-08-25T12:01:00.000Z")?.mustChangePassword).toBe(false);
     expect(logoutLocalSession(database, access!.session.tokenHash)).toBe(true);
     expect(database.semedSessions).toHaveLength(0);
   });
@@ -119,9 +121,9 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
 
   it("mantém o primeiro acesso concluído após reidratar o repositório local", () => {
     const database = createLocalSemedDatabase();
-    const access = loginLocalUser(database, "admin", "2026-08-25T12:00:00.000Z");
+    const access = loginLocalUser(database, "tecnico1", "2026-08-25T12:00:00.000Z");
     completeLocalFirstAccess(database, access!.user.id, "2026-08-25T12:01:00.000Z");
     const restored = hydrateLocalDatabase(serializeLocalDatabase(database))!;
-    expect(loginLocalUser(restored, "admin", "2026-08-25T12:02:00.000Z")?.user.mustChangePassword).toBe(false);
+    expect(loginLocalUser(restored, "tecnico1", "2026-08-25T12:02:00.000Z")?.user.mustChangePassword).toBe(false);
   });
 });

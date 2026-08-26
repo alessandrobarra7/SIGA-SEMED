@@ -118,7 +118,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
     });
 
     const migrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(migrated.schemaVersion).toBe(10);
+    expect(migrated.schemaVersion).toBe(11);
     expect(migrated.semedRecords).toHaveLength(current.semedRecords.length);
     expect(migrated.semedDocuments).toHaveLength(current.semedDocuments.length);
     expect(migrated.semedRecordPayments).toHaveLength(current.semedRecordPayments.length);
@@ -132,7 +132,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
 
   it("aceita CPF normalizado para perfis externos e bloqueia usuário inativo", () => {
     const database = createLocalSemedDatabase();
-    const external = profileUser("Auditoria Externa", { id: "u-auditoria", username: "", loginType: "cpf", cpf: "12345678901", active: true });
+    const external = profileUser("Auditoria Externa", { id: "u-auditoria", username: "", loginType: "cpf", cpf: "12345678901", passwordHash: "", active: true });
     database.semedUsers.push(external);
     database.semedUserPermissions.push(...buildLocalUserPermissions(external.id, external.profile, "u-admin", "2026-08-25T21:00:00.000Z"));
 
