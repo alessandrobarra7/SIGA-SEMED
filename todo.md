@@ -252,3 +252,14 @@
 - [x] Registrar os módulos ainda pendentes de reprodução funcional, em ordem recomendada.
 - [x] Incluir o protocolo obrigatório de observação somente leitura da referência e de uso de dados demonstrativos locais.
 - [x] Revisar o documento, atualizar o checklist e salvar checkpoint da documentação.
+
+## Reprodução funcional autorizada — Recursos Humanos
+
+- [x] Observar em modo somente leitura Cadastro de Servidores, Ficha Financeira, Holerite, Frequência e movimento e Relatórios na referência.
+- [x] Registrar campos, filtros, indicadores, abas, estados, permissões e ordem operacional sem copiar dados pessoais, valores ou documentos reais.
+- [x] Modelar servidores demonstrativos, competências, fichas financeiras, holerites, frequência e auditoria no armazenamento local, sem D1.
+- [x] Implementar Recursos Humanos dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar leitura e escrita conforme os seis perfis, mantendo dados pessoais demonstrativos e minimizados.
+- [x] Cobrir o módulo com testes de cadastro, competência, frequência, permissões, persistência e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [ ] Salvar checkpoint e apresentar o módulo Recursos Humanos funcional no preview.

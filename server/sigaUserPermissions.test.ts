@@ -118,7 +118,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
     });
 
     const migrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(migrated.schemaVersion).toBe(3);
+    expect(migrated.schemaVersion).toBe(4);
     expect(migrated.semedRecords).toHaveLength(current.semedRecords.length);
     expect(migrated.semedDocuments).toHaveLength(current.semedDocuments.length);
     expect(migrated.semedRecordPayments).toHaveLength(current.semedRecordPayments.length);
@@ -127,6 +127,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
     expect(migrated.semedUserPermissions.some((permission) => permission.userId === "u-admin" && permission.moduleKey === "usuarios")).toBe(true);
     expect(migrated.semedUserPermissions.some((permission) => permission.userId === "u-tecnico1" && permission.moduleKey === "contratos")).toBe(true);
     expect(migrated.semedStockItems.length).toBeGreaterThan(0);
+    expect(migrated.semedHrServers.length).toBeGreaterThan(0);
   });
 
   it("aceita CPF normalizado para perfis externos e bloqueia usuário inativo", () => {
