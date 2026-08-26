@@ -272,3 +272,15 @@
 - [x] Confirmar o hash remoto da publicação ao usuário.
 - [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
 - [x] Recomendar a revogação da credencial após confirmar o hash remoto.
+
+## Reprodução funcional autorizada — Unidades Escolares e Educa Paço
+
+- [x] Observar em modo somente leitura Cadastro e Relatórios de Unidades Escolares na referência.
+- [x] Observar em modo somente leitura Cadastro de Núcleos e Relatórios de Educa Paço na referência.
+- [x] Registrar campos, filtros, indicadores, abas, estados, permissões e sequência operacional sem copiar dados de unidades, pessoas, contatos ou endereços reais.
+- [x] Modelar unidades, núcleos, turmas, atividades e relatórios demonstrativos no armazenamento local, sem D1.
+- [x] Implementar Unidades Escolares e Educa Paço dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar leitura e escrita conforme os seis perfis e o escopo de unidade escolar.
+- [x] Cobrir os dois módulos com testes de cadastro, filtros, persistência, permissões e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [x] Salvar checkpoint e apresentar os dois módulos funcionais no preview.

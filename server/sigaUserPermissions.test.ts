@@ -118,7 +118,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
     });
 
     const migrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
     expect(migrated.semedRecords).toHaveLength(current.semedRecords.length);
     expect(migrated.semedDocuments).toHaveLength(current.semedDocuments.length);
     expect(migrated.semedRecordPayments).toHaveLength(current.semedRecordPayments.length);

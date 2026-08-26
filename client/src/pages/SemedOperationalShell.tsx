@@ -29,7 +29,9 @@ export type ShellView =
   | "documents"
   | "records"
   | "schools"
+  | "schools-reports"
   | "educa"
+  | "educa-reports"
   | "people"
   | "nutrition"
   | "nutrition-weekly"
@@ -67,7 +69,7 @@ const navigation: NavigationItem[] = [
     icon: School,
     children: [
       { label: "Cadastro", target: "schools" },
-      { label: "Relatórios", target: "schools" },
+      { label: "Relatórios", target: "schools-reports" },
     ],
   },
   {
@@ -76,7 +78,7 @@ const navigation: NavigationItem[] = [
     icon: UsersRound,
     children: [
       { label: "Cadastro de Núcleos", target: "educa" },
-      { label: "Relatórios", target: "educa" },
+      { label: "Relatórios", target: "educa-reports" },
     ],
   },
   {
@@ -137,6 +139,8 @@ export function shellViewLabel(view: ShellView) {
   if (view === "welcome") return "Boas-vindas";
   if (view === "nutrition-weekly" || view === "nutrition-annual") return "Nutrição";
   if (view.startsWith("stock-")) return "Estoque";
+  if (view.startsWith("schools")) return "Unidades Escolares";
+  if (view.startsWith("educa")) return "Educa Paço";
   return navigation.find((item) => item.id === view)?.label ?? "SIGA SEMED";
 }
 

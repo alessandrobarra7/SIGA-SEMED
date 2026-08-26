@@ -270,8 +270,25 @@ export type SemedHrAttendancePeriod = {
 export type SemedHrAttendanceInput = Omit<SemedHrAttendancePeriod, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedHrAudit = { id: string; action: SemedHrAuditAction; targetId: string; summary: string; actorUserId: string; createdAt: string };
 
+export type SemedSchoolUnitType = "Municipal" | "Conveniada";
+export type SemedSchoolUnitStatus = "Ativa" | "Inativa";
+export type SemedSchoolUnit = {
+  id: string; code: string; name: string; type: SemedSchoolUnitType; status: SemedSchoolUnitStatus;
+  censusYear: number; neighborhood: string; address: string; students: number; hasUex: boolean; hasMap: boolean; createdAt: string; updatedAt: string;
+};
+export type SemedSchoolUnitInput = Omit<SemedSchoolUnit, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedEducaClassification = "Pedagógico" | "Esportivo" | "Pleno";
+export type SemedEducaStatus = "Ativo" | "Inativo";
+export type SemedEducaNucleus = {
+  id: string; code: string; name: string; classification: SemedEducaClassification; status: SemedEducaStatus;
+  roomCount: number; capacityPerShift: number; activities: string[]; sportModalities: string[]; address: string;
+  coordination: string; supervision: string; integratedNutrition: boolean; createdAt: string; updatedAt: string;
+};
+export type SemedEducaNucleusInput = Omit<SemedEducaNucleus, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
 export type SemedLocalDatabase = {
-  schemaVersion: 4;
+  schemaVersion: 5;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -296,6 +313,8 @@ export type SemedLocalDatabase = {
   semedHrFinancialRecords: SemedHrFinancialRecord[];
   semedHrAttendancePeriods: SemedHrAttendancePeriod[];
   semedHrAuditLog: SemedHrAudit[];
+  semedSchoolUnits: SemedSchoolUnit[];
+  semedEducaNuclei: SemedEducaNucleus[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -561,9 +580,9 @@ const localUsers: SemedLocalUser[] = [
 ];
 
 export function createLocalSemedDatabase(): SemedLocalDatabase {
-  const createdAt = "2026-01-10T12:00:00.000Z";
+  const createdAt = now();
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -661,6 +680,15 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "hr-attendance-1", code: "SIGA-FREQ-DEMO-001", referenceMonth: "2026-07", schoolUnitId: "nutrition-school-1", plannedDays: 22, calendarEvents: [], entries: [{ serverId: "hr-server-1", workedDays: 22, absences: 0, notes: "Frequência demonstrativa." }], status: "Em preparação", returnReason: "", createdAt, updatedAt: createdAt },
     ],
     semedHrAuditLog: [],
+    semedSchoolUnits: [
+      { id: "nutrition-school-1", code: "UE-DEMO-001", name: "Unidade Escolar Demonstrativa Norte", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Norte", address: "Endereço demonstrativo 01", students: 420, hasUex: true, hasMap: true, createdAt, updatedAt: createdAt },
+      { id: "nutrition-school-2", code: "UE-DEMO-002", name: "Unidade Escolar Demonstrativa Centro", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Centro", address: "Endereço demonstrativo 02", students: 310, hasUex: false, hasMap: true, createdAt, updatedAt: createdAt },
+      { id: "nutrition-school-3", code: "UE-DEMO-003", name: "Unidade Escolar Demonstrativa Sul", type: "Conveniada", status: "Inativa", censusYear: 2025, neighborhood: "Setor demonstrativo Sul", address: "Endereço demonstrativo 03", students: 185, hasUex: false, hasMap: false, createdAt, updatedAt: createdAt },
+    ],
+    semedEducaNuclei: [
+      { id: "educa-nucleus-1", code: "EP-DEMO-001", name: "Núcleo Demonstrativo de Aprendizagem", classification: "Pedagógico", status: "Ativo", roomCount: 4, capacityPerShift: 90, activities: ["Reforço demonstrativo", "Leitura"], sportModalities: [], address: "Endereço demonstrativo do núcleo 01", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: true, createdAt, updatedAt: createdAt },
+      { id: "educa-nucleus-2", code: "EP-DEMO-002", name: "Núcleo Demonstrativo de Esporte", classification: "Esportivo", status: "Ativo", roomCount: 2, capacityPerShift: 70, activities: ["Atividade corporal"], sportModalities: ["Modalidade demonstrativa"], address: "Endereço demonstrativo do núcleo 02", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: false, createdAt, updatedAt: createdAt },
+    ],
   };
 }
 
@@ -1126,8 +1154,47 @@ export function saveLocalHrAttendancePeriod(database: SemedLocalDatabase, input:
   return { error: null, period };
 }
 
+export function saveLocalSchoolUnit(database: SemedLocalDatabase, input: SemedSchoolUnitInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "unidades_escolares")) return { error: "Usuário sem permissão para alterar unidades escolares.", unit: null };
+  const code = upper(input.code); const name = input.name.trim(); const censusYear = Math.round(nonNegative(input.censusYear));
+  if (!code || !name || !censusYear) return { error: "Informe código, nome e ano de censo da unidade.", unit: null };
+  const duplicate = database.semedSchoolUnits.find((unit) => unit.id !== input.id && upper(unit.code) === code);
+  if (duplicate) return { error: "Já existe uma unidade demonstrativa com este código.", unit: null };
+  const current = input.id ? database.semedSchoolUnits.find((unit) => unit.id === input.id) : null;
+  const unit: SemedSchoolUnit = {
+    id: current?.id ?? localId("school-unit"), code, name, type: input.type, status: input.status, censusYear,
+    neighborhood: input.neighborhood.trim(), address: input.address.trim(), students: Math.round(nonNegative(input.students)),
+    hasUex: Boolean(input.hasUex), hasMap: Boolean(input.hasMap), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedSchoolUnits[database.semedSchoolUnits.indexOf(current)] = unit;
+  else database.semedSchoolUnits.push(unit);
+  return { error: null, unit };
+}
+
+export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: SemedEducaNucleusInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "educa_paco")) return { error: "Usuário sem permissão para alterar núcleos do Educa Paço.", nucleus: null };
+  const code = upper(input.code); const name = input.name.trim();
+  if (!code || !name) return { error: "Informe código e nome do núcleo.", nucleus: null };
+  const duplicate = database.semedEducaNuclei.find((nucleus) => nucleus.id !== input.id && upper(nucleus.code) === code);
+  if (duplicate) return { error: "Já existe um núcleo demonstrativo com este código.", nucleus: null };
+  const current = input.id ? database.semedEducaNuclei.find((nucleus) => nucleus.id === input.id) : null;
+  const list = (items: string[]) => items.map((item) => item.trim()).filter(Boolean);
+  const nucleus: SemedEducaNucleus = {
+    id: current?.id ?? localId("educa-nucleus"), code, name, classification: input.classification, status: input.status,
+    roomCount: Math.round(nonNegative(input.roomCount)), capacityPerShift: Math.round(nonNegative(input.capacityPerShift)), activities: list(input.activities), sportModalities: list(input.sportModalities),
+    address: input.address.trim(), coordination: input.coordination.trim(), supervision: input.supervision.trim(), integratedNutrition: Boolean(input.integratedNutrition),
+    createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedEducaNuclei[database.semedEducaNuclei.indexOf(current)] = nucleus;
+  else database.semedEducaNuclei.push(nucleus);
+  return { error: null, nucleus };
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type SemedLocalDatabaseV3 = Omit<SemedLocalDatabase, "schemaVersion" | "semedHrServers" | "semedHrFinancialRecords" | "semedHrAttendancePeriods" | "semedHrAuditLog"> & { schemaVersion: 3 };
+type SemedLocalDatabaseV4 = Omit<SemedLocalDatabase, "schemaVersion" | "semedSchoolUnits" | "semedEducaNuclei"> & { schemaVersion: 4 };
+type SemedLocalDatabaseV3 = Omit<SemedLocalDatabaseV4, "schemaVersion" | "semedHrServers" | "semedHrFinancialRecords" | "semedHrAttendancePeriods" | "semedHrAuditLog"> & { schemaVersion: 3 };
 type SemedLocalDatabaseV2 = Omit<SemedLocalDatabaseV3, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
 type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
 type LegacySemedLocalDatabase = Omit<SemedLocalDatabaseV2, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
@@ -1154,10 +1221,10 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
     } satisfies SemedLocalUser;
   });
   const migratedAt = now();
-const nutritionDefaults = createLocalSemedDatabase();
-return {
-...database,
-    schemaVersion: 4,
+	const nutritionDefaults = createLocalSemedDatabase();
+	return {
+	...database,
+	    schemaVersion: 5,
 semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
@@ -1172,6 +1239,8 @@ semedKitOrders: nutritionDefaults.semedKitOrders,
     semedHrFinancialRecords: nutritionDefaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: nutritionDefaults.semedHrAttendancePeriods,
     semedHrAuditLog: nutritionDefaults.semedHrAuditLog,
+    semedSchoolUnits: nutritionDefaults.semedSchoolUnits,
+    semedEducaNuclei: nutritionDefaults.semedEducaNuclei,
 semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
@@ -1182,10 +1251,10 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 }
 
 function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
-const nutritionDefaults = createLocalSemedDatabase();
-return {
-...database,
-    schemaVersion: 4,
+	const nutritionDefaults = createLocalSemedDatabase();
+	return {
+	...database,
+	    schemaVersion: 5,
 semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -1211,6 +1280,8 @@ semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders
     semedHrFinancialRecords: Array.isArray(database.semedHrFinancialRecords) ? database.semedHrFinancialRecords : nutritionDefaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: Array.isArray(database.semedHrAttendancePeriods) ? database.semedHrAttendancePeriods : nutritionDefaults.semedHrAttendancePeriods,
     semedHrAuditLog: Array.isArray(database.semedHrAuditLog) ? database.semedHrAuditLog : nutritionDefaults.semedHrAuditLog,
+    semedSchoolUnits: Array.isArray(database.semedSchoolUnits) ? database.semedSchoolUnits : nutritionDefaults.semedSchoolUnits,
+    semedEducaNuclei: Array.isArray(database.semedEducaNuclei) ? database.semedEducaNuclei : nutritionDefaults.semedEducaNuclei,
 semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
@@ -1221,10 +1292,10 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 }
 
 function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
-const defaults = createLocalSemedDatabase();
-return normalizeCurrentDatabase({
-...database,
-    schemaVersion: 4,
+	const defaults = createLocalSemedDatabase();
+	return normalizeCurrentDatabase({
+	...database,
+	    schemaVersion: 5,
 semedStockItems: defaults.semedStockItems,
     semedStockMovements: defaults.semedStockMovements,
     semedStockAudits: defaults.semedStockAudits,
@@ -1236,6 +1307,8 @@ semedKitOrders: defaults.semedKitOrders,
     semedHrFinancialRecords: defaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
     semedHrAuditLog: defaults.semedHrAuditLog,
+    semedSchoolUnits: defaults.semedSchoolUnits,
+    semedEducaNuclei: defaults.semedEducaNuclei,
 });
 }
 
@@ -1243,21 +1316,29 @@ function migrateHumanResourcesDatabase(database: SemedLocalDatabaseV3): SemedLoc
   const defaults = createLocalSemedDatabase();
   return normalizeCurrentDatabase({
     ...database,
-    schemaVersion: 4,
+    schemaVersion: 5,
     semedHrServers: defaults.semedHrServers,
     semedHrFinancialRecords: defaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
     semedHrAuditLog: defaults.semedHrAuditLog,
+    semedSchoolUnits: defaults.semedSchoolUnits,
+    semedEducaNuclei: defaults.semedEducaNuclei,
   });
+}
+
+function migrateSchoolsEducaDatabase(database: SemedLocalDatabaseV4): SemedLocalDatabase {
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({ ...database, schemaVersion: 5, semedSchoolUnits: defaults.semedSchoolUnits, semedEducaNuclei: defaults.semedEducaNuclei });
 }
 
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
-    if (parsed.schemaVersion === 4) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 4) return migrateSchoolsEducaDatabase(parsed);
+    if (parsed.schemaVersion === 5) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1309,6 +1390,7 @@ export function useSigaLocalRepository() {
     schoolStockMovements: database.semedSchoolStockMovements, kitOrders: database.semedKitOrders,
     hrServers: database.semedHrServers, hrFinancialRecords: database.semedHrFinancialRecords,
     hrAttendancePeriods: database.semedHrAttendancePeriods, hrAuditLog: database.semedHrAuditLog,
+    schoolUnits: database.semedSchoolUnits, educaNuclei: database.semedEducaNuclei,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
@@ -1344,6 +1426,8 @@ export function useSigaLocalRepository() {
     saveHrServer(input: SemedHrServerInput, actorUserId: string) { return mutate((draft) => saveLocalHrServer(draft, input, actorUserId)); },
     saveHrFinancialRecord(input: SemedHrFinancialRecordInput, actorUserId: string) { return mutate((draft) => saveLocalHrFinancialRecord(draft, input, actorUserId)); },
     saveHrAttendancePeriod(input: SemedHrAttendanceInput, actorUserId: string) { return mutate((draft) => saveLocalHrAttendancePeriod(draft, input, actorUserId)); },
+    saveSchoolUnit(input: SemedSchoolUnitInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolUnit(draft, input, actorUserId)); },
+    saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

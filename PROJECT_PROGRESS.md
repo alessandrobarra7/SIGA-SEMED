@@ -22,11 +22,11 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início e menu lateral na ordem observada. |
-| Persistência local | Concluída: armazenamento versionado para contratos, documentos, usuários, nutrição e estoque. |
+| Persistência local | Concluída: armazenamento versionado para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares e núcleos Educa Paço. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 55 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 64 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 
 ## 3. Módulos concluídos no preview
 
@@ -40,6 +40,9 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, persistência, desktop e mobile. |
 | Nutrição | Planejamento semanal, análise de saldos, planejamento anual, per capita, dias letivos, cobertura, compra/contratação, impressão e CSV local. | Cálculos, permissões, desktop e mobile. |
 | Estoque | Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente, Relatórios e Agricultura Familiar; inclui catálogo, saldo, movimentos, conferência, auditoria, pedidos e guias locais. | 55 testes totais, desktop e mobile. |
+| Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local. | Migração v4, permissões, desktop, mobile, TypeScript e build. |
+| Unidades Escolares | Cadastro, pesquisa por código/nome/setor, filtros por tipo, situação e censo, inclusão/edição local, indicadores, relatórios e CSV demonstrativo. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
+| Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.
 
@@ -50,11 +53,8 @@ A navegação e a estrutura dos itens abaixo já foram mapeadas na referência, 
 | Prioridade sugerida | Setor | Escopo a reproduzir a partir da referência |
 |---:|---|---|
 | 1 | Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios, com permissões e histórico local. |
-| 2 | Recursos Humanos | Cadastro de servidores, ficha financeira, holerite, frequência e movimento, relatórios e regras de acesso. |
-| 3 | Unidades Escolares | Cadastro, filtros, indicadores, relatórios e visualização estrutural de unidade. |
-| 4 | Educa Paço | Cadastro de núcleos, relatórios, capacidade, atividades e equipes demonstrativas. |
-| 5 | Financeiro | Aprofundar planejamento, receitas, execução, fontes e regras e relatórios, além dos fluxos de contratos já existentes. |
-| 6 | Gestão complementar | Expandir aprovações, anexos e relatórios somente após nova observação direta da referência quando houver dúvida de fluxo. |
+| 2 | Financeiro | Aprofundar planejamento, receitas, execução, fontes e regras e relatórios, além dos fluxos de contratos já existentes. |
+| 3 | Gestão complementar | Expandir aprovações, anexos e relatórios somente após nova observação direta da referência quando houver dúvida de fluxo. |
 
 ## 5. Protocolo obrigatório para cada novo setor
 
@@ -76,6 +76,7 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`users_permissions_functional_spec.md`](./users_permissions_functional_spec.md) | Especificação de perfis, permissões, auditoria e regras do módulo Usuários. |
 | [`nutrition_reference_observation.md`](./nutrition_reference_observation.md) | Campos, fórmulas e validações observadas para Nutrição. |
 | [`stock_reference_observation.md`](./stock_reference_observation.md) | Categorias, abas, controles e estados observados para Estoque. |
+| [`schools_educapaco_reference_observation.md`](./schools_educapaco_reference_observation.md) | Navegação, campos, filtros, indicadores e limites de reprodução local de Unidades Escolares e Educa Paço. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 
 ## 7. Rotina de atualização deste documento
