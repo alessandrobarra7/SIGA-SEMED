@@ -31,6 +31,7 @@ import SemedHumanResourcesPage from "./SemedHumanResourcesPage";
 import SemedSchoolsEducaPage, { type SchoolsEducaSection } from "./SemedSchoolsEducaPage";
 import SemedFinancePage from "./SemedFinancePage";
 import SemedUsersPage from "./SemedUsersPage";
+import "./siga-identity-refresh.css";
 import {
   parseBrazilianAmount,
   type SemedLocalAccessUser,
@@ -48,7 +49,7 @@ type Alert = "A vencer" | "Vencido" | "Em dia";
 type DeleteTarget = { kind: "registro" | "documento"; id: string; label: string };
 type Editing = { kind: "record"; data: SemedRecord } | { kind: "document"; data: SemedDocument } | null;
 
-const logo = "/manus-storage/semed-logo_62496e33.png";
+const logo = "/manus-storage/paco-do-lumiar-logo_0229a064.png";
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const displayDate = (date: string) => (date ? new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR") : "—");
 const dateValue = (date: string) => date.slice(0, 10);

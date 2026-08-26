@@ -321,3 +321,18 @@
 - [x] Criar commit descritivo com Financeiro ampliado, migração v6, testes e documentação.
 - [x] Enviar a atualização para a branch principal do repositório autorizado.
 - [x] Confirmar o hash remoto e recomendar a revogação de credenciais anteriormente expostas.
+
+## Redesenho visual autorizado — identidade do SIGA SEMED
+
+- [x] Receber as referências, elementos e prioridades visuais do usuário.
+- [x] Mapear tokens visuais, componentes afetados e limites de preservação funcional.
+- [x] Aplicar a nova identidade ao shell e aos componentes compartilhados sem alterar rotas, fluxos, permissões ou dados locais.
+- [x] Adaptar as páginas existentes à nova identidade sem alterar comportamentos funcionais.
+- [x] Validar desktop, mobile, acessibilidade, testes, TypeScript e build.
+- [x] Documentar o redesenho, salvar checkpoint e apresentar o preview atualizado.
+
+### Direção visual confirmada
+
+- [x] Incorporar base clara, azul institucional profundo, verde como destaque, cartões brancos leves, tipografia humanizada e legendas mais claras.
+- [x] Atualizar primeiro o login com composição institucional ilustrada, painel de acesso branco e novo logotipo fornecido.
+- [x] Propagar a mesma identidade ao shell, navegação lateral, painéis, formulários, tabelas e indicadores sem alterar qualquer comportamento.

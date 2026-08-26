@@ -1,33 +1,37 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, KeyRound, LockKeyhole, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, GraduationCap, HeartHandshake, KeyRound, LockKeyhole, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import WorkspacePreview from "./WorkspacePreview";
 import { validateFirstAccess } from "./sigaFlow";
 import { SemedLocalAccessUser, useSigaLocalRepository } from "./sigaLocalStore";
 import "./siga-pages.css";
+import "./siga-login-refresh.css";
 
 type AccessScreen = "checking" | "login" | "firstAccess" | "workspace";
 
 type PreviewUser = SemedLocalAccessUser & { sessionToken: string };
 
 const ASSETS = {
-  officialLogo: "/manus-storage/semed-logo_62496e33.png",
-  paçoLumiar: "/manus-storage/paco-lumiar-login-reference_c8e73635.webp",
+  officialLogo: "/manus-storage/paco-do-lumiar-logo_0229a064.png",
+  educationScene: "/manus-storage/siga-semed-login-education-scene_40c62f4f.png",
 };
 
 function InstitutionalContext() {
   return (
     <aside className="siga-auth-context" aria-label="Identidade institucional">
-      <div className="siga-context-image" style={{ backgroundImage: `url(${ASSETS.paçoLumiar})` }} />
+      <div className="siga-context-image" style={{ backgroundImage: `url(${ASSETS.educationScene})` }} />
       <div className="siga-context-shade" />
       <div className="siga-context-content">
         <div className="siga-context-municipality">
           <img src={ASSETS.officialLogo} alt="Prefeitura de Paço do Lumiar — SEMED" />
-          <span>Prefeitura de Paço do Lumiar<br />Secretaria Municipal de Educação</span>
+          <span>Prefeitura de Paço do Lumiar<br /><strong>Secretaria Municipal de Educação</strong></span>
         </div>
         <div className="siga-context-title">
-          <p>Sistema Integrado de Gestão e Acompanhamento</p>
-          <h1>SIGA SEMED</h1>
+          <p>Sistema integrado de gestão e acompanhamento</p>
+          <h1><span>SIGA</span> SEMED</h1>
+          <em>Sistema integrado de Gestão<br />e Acompanhamento</em>
+          <div className="siga-context-motto"><HeartHandshake size={21} aria-hidden="true" /><span>Cuidar, educar<br />e transformar juntos!</span></div>
         </div>
+        <div className="siga-context-security"><ShieldCheck size={23} aria-hidden="true" /><span>Ambiente seguro<br />e monitorado</span></div>
       </div>
     </aside>
   );
@@ -78,11 +82,12 @@ function LoginPage({ onLoggedIn }: { onLoggedIn: (username: string, password: st
 
   return (
     <AccessFrame>
-      <form className="siga-access-form" onSubmit={handleSubmit}>
+      <form className="siga-access-form siga-login-form" onSubmit={handleSubmit}>
         <div className="siga-sheet-heading">
-          <p>Sistema Integrado de Gestão e Acompanhamento</p>
-          <h2>SIGA SEMED</h2>
-          <span>Acesso restrito à equipe técnica.</span>
+          <span className="siga-login-emblem" aria-hidden="true"><GraduationCap size={31} /></span>
+          <p>Sistema integrado de gestão e acompanhamento</p>
+          <h2>Bem-vindo(a)!</h2>
+          <span>Acesse o <strong>SIGA SEMED</strong> com sua conta.</span>
         </div>
 
         <label className="siga-field">

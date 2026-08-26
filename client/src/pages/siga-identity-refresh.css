@@ -1,0 +1,207 @@
+/* Camada institucional compartilhada — sem alterar componentes, estados ou handlers. */
+.siga-shell {
+  --siga-navy: #073b62;
+  --siga-green: #238e51;
+  --siga-paper: #ffffff;
+  --siga-line: #e3ece9;
+  --siga-muted: #6d7f89;
+  background:
+    radial-gradient(circle at 76% -8%, rgba(194, 235, 214, .48), transparent 26%),
+    #f5f9f7;
+  color: #173b56;
+  font-family: Manrope, sans-serif;
+}
+
+.siga-shell-sidebar {
+  padding: 19px 14px 16px;
+  background:
+    radial-gradient(circle at 120% 96%, rgba(101, 216, 139, .28), transparent 35%),
+    linear-gradient(166deg, #063b62 0%, #075c59 54%, #128346 100%);
+  box-shadow: 10px 0 28px rgba(8, 57, 83, .13);
+}
+.siga-shell-mark { align-items: center; gap: 11px; margin: 0 4px 20px; padding: 4px 4px 17px; }
+.siga-shell-mark img { width: 54px; height: 54px; border-radius: 13px; padding: 5px; box-shadow: 0 5px 15px rgba(0,0,0,.14); }
+.siga-shell-mark small { color: #a9e6c3; font-size: 8px; }
+.siga-shell-mark strong { font-family: Manrope, sans-serif; font-size: 18px; font-weight: 900; letter-spacing: -.055em; }
+.siga-shell-nav { gap: 5px; }
+.siga-nav-item {
+  min-height: 43px;
+  border-radius: 12px;
+  padding: 0 12px;
+  color: rgba(255,255,255,.88);
+  font-size: 11px;
+}
+.siga-nav-item:hover { background: rgba(255,255,255,.12); }
+.siga-nav-item.active {
+  background: linear-gradient(100deg, #1b904d, #31ad65);
+  box-shadow: 0 8px 18px rgba(0, 42, 38, .22);
+}
+.siga-nav-submenu { margin-left: 20px; border-left-color: rgba(208, 244, 220, .48); }
+.siga-nav-submenu button { color: #d9f1e2; }
+.siga-shell-sidebar-footer { color: #ccebd6; }
+
+.siga-shell-header {
+  min-height: 84px;
+  border-bottom-color: #e4ecea;
+  padding-right: clamp(20px, 3vw, 48px);
+  background: rgba(255,255,255,.93);
+  box-shadow: 0 3px 13px rgba(17, 65, 72, .035);
+}
+.siga-shell-header-title span { color: #219052; }
+.siga-shell-header-title strong { color: #0b3d60; font-family: Manrope, sans-serif; font-size: 26px; font-weight: 850; letter-spacing: -.06em; }
+.siga-shell-header-title small { color: #8a9a9e; }
+.siga-header-icon { width: 38px; height: 38px; border-color: #dfebe6; border-radius: 12px; color: #178451; }
+.siga-header-icon:hover { background: #f0faf3; }
+.siga-shell-user span { color: #133e5d; }
+.siga-header-text-button { border-bottom-color: #91d4aa; color: #1a8750; }
+.siga-shell-content { width: min(1540px, 100%); padding-top: 25px; }
+
+.siga-kicker { color: #259456; }
+.siga-welcome { gap: 20px; }
+.siga-welcome-hero {
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, .64fr);
+  border: 1px solid rgba(45, 150, 91, .12);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 73% 42%, rgba(126, 220, 159, .24), transparent 24%),
+    linear-gradient(120deg, #ffffff 2%, #f0fbf2 56%, #e7f8ed 100%);
+  box-shadow: 0 16px 34px rgba(17, 83, 62, .08);
+  color: #123d5e;
+}
+.siga-welcome-hero::after {
+  position: absolute;
+  right: -80px;
+  bottom: -108px;
+  width: 420px;
+  height: 230px;
+  border: 28px solid rgba(36, 143, 78, .12);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+.siga-welcome h1 { color: #0a4263; font-family: Manrope, sans-serif; font-weight: 850; letter-spacing: -.075em; }
+.siga-welcome h1::first-letter { color: #0a4263; }
+.siga-welcome-copy { color: #5f7480; }
+.siga-welcome-primary { border-radius: 12px; background: linear-gradient(105deg, #16864b, #2ca35e); color: #fff; box-shadow: 0 8px 17px rgba(29, 135, 75, .18); }
+.siga-welcome-status { position: relative; z-index: 1; border-color: #ccebd6; border-radius: 17px; background: rgba(255,255,255,.72); color: #184c55; box-shadow: 0 8px 20px rgba(26, 92, 64, .06); }
+.siga-welcome-status > span { color: #299054; }
+.siga-welcome-status strong { color: #0b3d60; font-family: Manrope, sans-serif; font-weight: 850; }
+.siga-welcome-status p { color: #607783; }
+.siga-welcome-status > div { border-top-color: #dcece3; color: #277a4c; }
+.siga-welcome-briefing article { border-color: #e3ece9; border-radius: 16px; box-shadow: 0 9px 20px rgba(25, 71, 70, .045); }
+.siga-briefing-icon.navy { background: #e5f1f8; color: #17658a; }.siga-briefing-icon.green { background: #e8f8ed; color: #218d52; }.siga-briefing-icon.orange { background: #fff3db; color: #ce8a19; }
+.siga-welcome-briefing strong { color: #143d5a; }
+.siga-welcome-briefing p { color: #72818a; }
+
+.siga-home-heading h1, .siga-list-heading h2, .siga-form-heading h2 { color: #123f5d; font-family: Manrope, sans-serif; font-weight: 850; letter-spacing: -.055em; }
+.siga-home-outline { border-color: #b8dfc4; border-radius: 10px; background: #f5fcf7; color: #1c8750; }
+.siga-metric-card, .siga-list-panel, .siga-form-panel, .siga-record-row { border-color: #e2ebe8; border-radius: 15px; background: #fff; box-shadow: 0 7px 18px rgba(22, 75, 72, .035); }
+.siga-metric-card strong { color: #123f5d; font-family: Manrope, sans-serif; font-weight: 850; }
+.siga-metric-card::before { border-radius: 12px 0 0 12px; }
+.siga-panel-trigger { border-bottom-color: #e9f0ed; background: linear-gradient(95deg, #fff, #f6fcf8); color: #123f5d; }
+.siga-module-tabs button { border-color: #e0eae7; border-radius: 12px; color: #43616e; }
+.siga-module-tabs button.active { border-color: #1b8b4f; background: linear-gradient(105deg, #16864b, #2ca35e); }
+.siga-workspace-notice { border-radius: 10px; background: #effaf2; color: #257a49; }
+
+@media (max-width: 840px) {
+  .siga-shell { grid-template-columns: 1fr; }
+  .siga-shell-sidebar { position: static; height: auto; max-height: none; }
+  .siga-shell-header { padding: 15px 18px; }
+  .siga-shell-content { padding: 18px 14px 38px; }
+  .siga-welcome-hero { grid-template-columns: 1fr; border-radius: 17px; }
+  .siga-welcome-status { min-height: 0; }
+}
+
+/* Módulos funcionais: a mesma linguagem visual, sem alteração de estrutura ou lógica. */
+.siga-module-surface :is(
+  .siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero,
+  .siga-hr-toolbar, .siga-hr-action-bar, .schools-educa-form,
+  .siga-finance-panel, .siga-finance-legal, .siga-finance-integrations, .siga-finance-monthly,
+  .siga-stock-table-panel, .siga-stock-audit, .siga-stock-family, .siga-stock-reports,
+  .siga-hr-financial-grid > article, .siga-hr-report-grid > article,
+  .schools-educa-card, .schools-educa-report-grid article
+) {
+  border-color: #e1ece7 !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg, #fff 0%, #fbfefc 100%) !important;
+  box-shadow: 0 10px 24px rgba(17, 79, 66, .055) !important;
+}
+.siga-module-surface :is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero) {
+  border-top: 3px solid #2c9b59 !important;
+}
+.siga-module-surface :is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1) {
+  color: #0c4162 !important;
+  font-family: Manrope, sans-serif !important;
+  font-weight: 850 !important;
+  letter-spacing: -.055em !important;
+}
+.siga-module-surface :is(.siga-finance-hero-icon, .siga-stock-icon) { background: #e8f8ee !important; color: #238e51 !important; }
+.siga-module-surface :is(.siga-finance-hero small, .siga-nutrition-hero p, .siga-stock-hero small, .siga-hr-action-bar p) { color: #278e52 !important; }
+
+.siga-module-surface :is(.siga-finance-tabs, .siga-stock-contexts, .siga-hr-tabs) { border-radius: 14px; }
+.siga-module-surface :is(.siga-finance-tabs button, .siga-nutrition-tabs button, .siga-stock-contexts button, .siga-hr-tabs button) {
+  border-color: #e0ebe6 !important;
+  border-radius: 11px !important;
+  color: #48636f !important;
+}
+.siga-module-surface :is(.siga-finance-tabs button.active, .siga-nutrition-tabs button.active, .siga-stock-contexts button.active, .siga-hr-tabs button.active) {
+  border-color: #258e51 !important;
+  background: linear-gradient(105deg, #16864b, #2ca35e) !important;
+  color: #fff !important;
+  box-shadow: 0 7px 15px rgba(30, 134, 75, .15) !important;
+}
+
+.siga-module-surface :is(.siga-finance-metric, .siga-nutrition-metric, .siga-report-cards article, .siga-hr-financial-grid > article, .siga-hr-report-grid > article) {
+  border-color: #e2ece7 !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 7px 18px rgba(20, 76, 68, .04) !important;
+}
+.siga-module-surface :is(.siga-finance-metric strong, .siga-nutrition-metric strong, .siga-hr-financial-grid > article > strong, .siga-hr-report-grid > article > strong) {
+  color: #103f5e !important;
+  font-family: Manrope, sans-serif !important;
+  font-weight: 850 !important;
+}
+.siga-module-surface .siga-nutrition-heading { border-top-color: #2e9b59 !important; border-radius: 15px !important; background: #fff !important; }
+.siga-module-surface .siga-nutrition-heading h2, .siga-module-surface .siga-nutrition-section-heading h3 { color: #103f5e !important; font-family: Manrope, sans-serif !important; font-weight: 850 !important; }
+
+.siga-module-surface :is(input, select, textarea) {
+  border-color: #dce9e2 !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: #1e425a !important;
+}
+.siga-module-surface :is(input, select, textarea):focus {
+  border-color: #2c9b59 !important;
+  box-shadow: 0 0 0 3px rgba(44, 155, 89, .11) !important;
+}
+.siga-module-surface :is(.schools-educa-card, .siga-hr-server-row, .siga-hr-payslip-list > article, .siga-hr-attendance-list > article, .siga-nutrition-list > article) {
+  border-color: #e1ece7 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 7px 18px rgba(20, 76, 68, .035) !important;
+}
+.siga-module-surface :is(.schools-educa-card h2, .siga-hr-server-main strong, .siga-nutrition-list .summary strong, .siga-stock-hero h1) { color: #113f5f !important; }
+.siga-module-surface :is(.schools-educa-card-metrics .good, .siga-hr-status.good, .siga-stock-status.disponível, .siga-finance-status.active) { background: #e7f8ed !important; color: #1c7d46 !important; }
+
+.siga-module-surface [class*="table-wrap"] { border-color: #e2ece7 !important; border-radius: 12px !important; }
+.siga-module-surface [class*="table-wrap"] th { background: #f1faf4 !important; color: #347055 !important; }
+.siga-module-surface [class*="table-wrap"] td { border-bottom-color: #edf3ef !important; color: #365664 !important; }
+.siga-module-surface .schools-educa-report-grid article { border-top: 3px solid #39a45f !important; }
+
+@media (max-width: 760px) {
+  .siga-module-surface :is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero, .siga-hr-toolbar, .siga-hr-action-bar) { border-radius: 13px !important; }
+}
+
+/* Alguns módulos são renderizados fora de .siga-module-surface; estes reforços preservam a mesma identidade. */
+:is(.siga-finance-tabs button.active, .siga-nutrition-tabs button.active, .siga-stock-contexts button.active, .siga-hr-tabs button.active) {
+  border-color: #258e51 !important;
+  background: linear-gradient(105deg, #16864b, #2ca35e) !important;
+  color: #fff !important;
+}
+.siga-nutrition-heading { border-top-color: #2e9b59 !important; border-radius: 15px !important; background: #fff !important; }
+.siga-nutrition-heading h2, .siga-nutrition-section-heading h3 { color: #103f5e !important; font-family: Manrope, sans-serif !important; font-weight: 850 !important; }
+:is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero, .siga-hr-toolbar, .siga-hr-action-bar, .schools-educa-form) { border-color: #e1ece7 !important; border-radius: 16px !important; box-shadow: 0 10px 24px rgba(17,79,66,.055) !important; }
+:is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero) { border-top-color: #2c9b59 !important; }
+:is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1) { color: #0c4162 !important; font-family: Manrope, sans-serif !important; font-weight: 850 !important; letter-spacing: -.055em !important; }

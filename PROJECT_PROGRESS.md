@@ -7,7 +7,7 @@
 | Tema | Decisão vigente |
 |---|---|
 | Referência funcional | O sistema original é fonte de observação estrutural e funcional, sempre em modo somente leitura. |
-| Aparência | O visual registrado no checkpoint de base é a referência oficial do novo preview. Layout, navegação, cores e hierarquia não devem ser alterados sem autorização explícita. |
+| Aparência | A identidade visual clara, azul e verde foi explicitamente autorizada após a entrega do Financeiro ampliado. Login, shell, navegação, superfícies e módulos adotam a nova linguagem; lógica, rotas, permissões, dados, cálculos e fluxos permanecem inalterados. |
 | Login | A composição atual do login é oficial. O acesso local aceita matrícula ou CPF e mantém primeiro acesso com troca de senha local. |
 | Dados | O preview usa apenas dados demonstrativos próprios persistidos no navegador. Dados, documentos, identificadores, tokens e credenciais do sistema original não são copiados. |
 | Banco de dados | Não há conexão com Cloudflare D1, banco externo ou ambiente de produção. A compatibilidade estrutural é mantida por um repositório local versionado. |
@@ -27,6 +27,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
 | Testes mais recentes | 68 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada, painel de acesso claro, barra lateral azul/verde, cartões leves e camada visual compartilhada para os módulos. |
 
 ## 3. Módulos concluídos no preview
 
@@ -78,6 +79,7 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`stock_reference_observation.md`](./stock_reference_observation.md) | Categorias, abas, controles e estados observados para Estoque. |
 | [`schools_educapaco_reference_observation.md`](./schools_educapaco_reference_observation.md) | Navegação, campos, filtros, indicadores e limites de reprodução local de Unidades Escolares e Educa Paço. |
 | [`finance_reference_observation.md`](./finance_reference_observation.md) | Navegação, campos, filtros, permissões, cálculos e limites de reprodução local do Financeiro ampliado. |
+| [`visual_identity_refresh.md`](./visual_identity_refresh.md) | Diretrizes e limites funcionais da identidade visual clara, azul e verde autorizada pelo usuário. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 
 ## 7. Rotina de atualização deste documento

@@ -19,6 +19,7 @@ import {
   Wheat,
 } from "lucide-react";
 import { useState } from "react";
+import "./siga-identity-refresh.css";
 
 export type ShellView =
   | "welcome"
