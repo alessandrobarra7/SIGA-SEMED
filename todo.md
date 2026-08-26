@@ -491,3 +491,9 @@
 - [x] Adicionar uma visão mensal demonstrativa de prazos no painel Início, respeitando a leitura de Gestão do perfil atual.
 - [x] Cobrir persistência, permissões e regressões; validar desktop, mobile, TypeScript e build sem alterar o login congelado.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a versão publicada.
+
+## Publicação autorizada — Gestão e visão mensal
+
+- [x] Revisar o estado Git, o destino remoto e os arquivos alterados, excluindo credenciais e referências somente leitura.
+- [ ] Preparar um commit descritivo com a migração v10, Gestão, painel Início, testes e documentação.
+- [ ] Enviar a versão validada para a branch principal do repositório autorizado e confirmar o hash remoto.
