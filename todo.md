@@ -596,3 +596,11 @@
 - [x] Revisar estado Git, integração GitHub, arquivos alterados e destino remoto, excluindo credenciais e referências somente leitura.
 - [x] Preparar commit descritivo com a atualização tipográfica, testes e documentação atuais.
 - [x] Enviar a versão para a branch principal do repositório autorizado e confirmar o hash remoto.
+
+## Implementação autorizada — tokens tipográficos globais nos módulos
+
+- [x] Auditar todas as ocorrências de fontes fixas nos estilos de páginas internas e mapear a função editorial de cada uso.
+- [x] Declarar tokens globais de Montserrat e Inter em `client/src/index.css` e carregá-las antecipadamente em `client/index.html`.
+- [x] Substituir fontes fixas nos módulos por tokens funcionais, mantendo o login congelado e sem alterar textos, ids, testids, fluxos ou permissões.
+- [x] Ampliar a regressão para todos os estilos de módulo e validar os módulos internos em desktop e mobile, TypeScript e build.
+- [x] Documentar que o login permanece fora do escopo visual, salvar checkpoint e apresentar a atualização.

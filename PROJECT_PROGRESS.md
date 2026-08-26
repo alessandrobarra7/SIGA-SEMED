@@ -21,13 +21,13 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 
 | Elemento | Situação atual |
 |---|---|
-| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e hierarquia discreta de legendas para títulos, contexto, rótulos, metadados, estados e ações. |
+| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e tokens tipográficos globais aplicados por função aos módulos internos. |
 | Persistência local | Concluída: armazenamento v11 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 95 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Montserrat ExtraBold para títulos, chamadas e números de destaque; Inter organiza menus, botões, legendas, descrições e tabelas. Marcadores decorativos e caixa alta compulsória foram removidos de cartões, agenda e ações rápidas; caixa alta permanece apenas em estados e cabeçalhos de tabela. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Testes mais recentes | 96 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. Montserrat ExtraBold e Inter foram centralizadas em tokens globais: a primeira atende títulos, chamadas e números de destaque; a segunda organiza menus, botões, legendas, descrições e tabelas em todos os módulos internos. Os tokens complementares permanecem disponíveis para usos futuros por função. O login foi mantido deliberadamente fora desta migração visual. Marcadores decorativos e caixa alta compulsória foram removidos de cartões, agenda e ações rápidas; caixa alta permanece apenas em estados e cabeçalhos de tabela. |
 
 ## 3. Módulos concluídos no preview
 

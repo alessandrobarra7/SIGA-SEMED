@@ -391,9 +391,6 @@
 
 /* Tipografia institucional do ambiente autenticado — o login permanece intocado. */
 .siga-shell {
-  --siga-font-body: "Inter", sans-serif;
-  --siga-font-display: "Montserrat", sans-serif;
-  --siga-font-caption: "Inter", sans-serif;
   font-family: var(--siga-font-body);
 }
 .siga-shell :is(button, input, select, textarea) { font-family: inherit; }
@@ -714,4 +711,45 @@
   .siga-fleet-table th
 ) {
   font-family: var(--siga-font-caption) !important;
+}
+
+/* Tokens globais de tipografia: sobrepõem fontes legadas das páginas internas sem atingir o login congelado. */
+.siga-shell .siga-module-surface :is(
+  p,
+  span,
+  small,
+  label,
+  button,
+  input,
+  select,
+  textarea,
+  table,
+  th,
+  td,
+  li,
+  dt,
+  dd,
+  pre
+) {
+  font-family: var(--siga-font-body) !important;
+}
+.siga-shell .siga-module-surface :is(
+  h1,
+  h2,
+  h3,
+  .siga-finance-hero h1,
+  .siga-nutrition-hero h1,
+  .siga-stock-hero h1,
+  .siga-hr-header h1,
+  .schools-educa-heading h1,
+  .siga-editorial-metric strong,
+  .siga-metric-card strong,
+  .siga-week-day strong,
+  .siga-financial-grid > article > strong,
+  .siga-hr-financial-grid > article > strong,
+  .siga-hr-report-grid > article > strong,
+  .siga-home-monthly-deadlines h3
+) {
+  font-family: var(--siga-font-display) !important;
+  font-weight: 800 !important;
 }

@@ -6,16 +6,29 @@ const projectRoot = resolve(import.meta.dirname, "..");
 const indexHtml = readFileSync(resolve(projectRoot, "client/index.html"), "utf8");
 const indexStyles = readFileSync(resolve(projectRoot, "client/src/index.css"), "utf8");
 const shellStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-identity-refresh.css"), "utf8");
+const moduleStylePaths = [
+  "siga-pages.css",
+  "siga-nutrition.css",
+  "siga-stock.css",
+  "siga-hr.css",
+  "siga-fleet.css",
+  "siga-financial-alert.css",
+  "siga-schools-educa.css",
+  "siga-management-complement.css",
+];
+const moduleStyles = moduleStylePaths.map((fileName) =>
+  readFileSync(resolve(projectRoot, "client/src/pages", fileName), "utf8"),
+);
 
 describe("tipografia institucional do shell", () => {
   it("mantém Montserrat e Inter como tipografia institucional do ambiente autenticado", () => {
-    expect(indexStyles).toContain("family=Manrope");
-    expect(indexStyles).toContain("family=Source+Serif+4");
-    expect(indexStyles).toContain("family=Montserrat");
-    expect(indexStyles).toContain("family=Inter");
+    expect(indexHtml).toContain("family=Montserrat");
+    expect(indexHtml).toContain("family=Inter");
+    expect(indexStyles).toContain('--siga-font-display: "Montserrat"');
+    expect(indexStyles).toContain('--siga-font-body: "Inter"');
+    expect(indexStyles).toContain("--siga-font-impact:");
+    expect(indexStyles).toContain("--siga-font-classic:");
     expect(indexHtml).not.toContain("IBM+Plex");
-    expect(shellStyles).toContain('--siga-font-body: "Inter", sans-serif;');
-    expect(shellStyles).toContain('--siga-font-display: "Montserrat", sans-serif;');
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
     expect(shellStyles).toContain('font-family: var(--siga-font-display) !important;');
@@ -46,6 +59,16 @@ describe("tipografia institucional do shell", () => {
     expect(indexStyles).toContain(".siga-shell .kicker--card");
     expect(indexStyles).toContain('content: none !important;');
     expect(indexStyles).not.toContain(".siga-shell .siga-kicker:not(.kicker)");
-    expect(shellStyles).toContain('--siga-font-caption: "Inter", sans-serif;');
+    expect(indexStyles).toContain("--siga-font-caption: var(--siga-font-body);");
+  });
+
+  it("sobrepõe fontes legadas de todos os estilos internos com tokens funcionais", () => {
+    expect(moduleStyles).toHaveLength(8);
+    expect(moduleStyles.every((styles) => styles.length > 0)).toBe(true);
+    expect(shellStyles).toContain("Tokens globais de tipografia");
+    expect(shellStyles).toContain(".siga-shell .siga-module-surface :is(");
+    expect(shellStyles).toContain("font-family: var(--siga-font-body) !important;");
+    expect(shellStyles).toContain("font-family: var(--siga-font-display) !important;");
+    expect(shellStyles).toContain("sem atingir o login congelado");
   });
 });
