@@ -314,3 +314,10 @@
 - [x] Cobrir o setor com testes de persistência, permissões, cálculos e regressão.
 - [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
 - [x] Atualizar a documentação, salvar checkpoint e apresentar o setor funcional no preview.
+
+## Publicação autorizada — Financeiro ampliado
+
+- [x] Revisar o estado Git, o diff e a autorização de escrita antes do envio.
+- [x] Criar commit descritivo com Financeiro ampliado, migração v6, testes e documentação.
+- [ ] Enviar a atualização para a branch principal do repositório autorizado.
+- [ ] Confirmar o hash remoto e recomendar a revogação de credenciais anteriormente expostas.
