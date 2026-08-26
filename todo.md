@@ -416,6 +416,21 @@
 - [x] Mapear módulos, modelos de dados, autenticação, permissões e fluxos somente pela leitura dos arquivos.
 - [x] Comparar o pacote com o preview atual e apresentar recomendações sem copiar dados, credenciais ou documentos reais.
 
+## Verificação de primeiro acesso e troca de senha
+
+- [x] Inspecionar a regra local de primeiro acesso e seu marcador de persistência sem alterar a aparência do login.
+- [x] Corrigir repetição indevida da troca de senha, se confirmada (não aplicável: a persistência já está correta).
+- [x] Validar a troca, o novo login e a reidratação do armazenamento local.
+
+## Correção funcional — buscador global
+
+- [x] Inspecionar o campo de busca, seus handlers e as visões disponíveis no shell autenticado.
+- [x] Implementar resultados filtrados e navegação para os módulos e contextos já existentes.
+- [x] Cobrir busca, seleção de resultado e preservação das permissões com testes.
+- [x] Validar desktop, mobile, TypeScript e build sem alterar o login congelado.
+- [x] Documentar a correção e salvar checkpoint.
+- [x] Manter o buscador global disponível e utilizável no cabeçalho em largura móvel.
+
 ## Análise autorizada — perfis, setores e governança de dados
 
 - [x] Mapear os perfis, as permissões e os setores funcionais implementados no código atual.

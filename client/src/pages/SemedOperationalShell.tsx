@@ -20,7 +20,7 @@ import {
   UsersRound,
   Wheat,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import "./siga-identity-refresh.css";
 
 export type ShellView =
@@ -149,6 +149,15 @@ export function shellViewLabel(view: ShellView) {
   return navigation.find((item) => item.id === view)?.label ?? "SIGA SEMED";
 }
 
+const searchIndex = navigation.flatMap((item) => [
+  { key: item.id, label: item.label, context: "Módulo", view: item.id },
+  ...(item.children ?? []).map((child) => ({ key: `${item.id}-${child.target}-${child.label}`, label: child.label, context: item.label, view: child.target })),
+]);
+
+function normalizeSearch(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").trim();
+}
+
 export default function SemedOperationalShell({
   user,
   activeView,
@@ -169,10 +178,22 @@ export default function SemedOperationalShell({
   children: React.ReactNode;
 }) {
   const [openGroup, setOpenGroup] = useState<ShellView | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const userInitials = user.displayName.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "SM";
+  const normalizedSearch = normalizeSearch(searchQuery);
+  const searchResults = normalizedSearch
+    ? searchIndex.filter((entry) => isViewAllowed?.(entry.view) !== false && normalizeSearch(`${entry.label} ${entry.context}`).includes(normalizedSearch)).slice(0, 7)
+    : [];
 
   function chooseView(view: ShellView) {
     onViewChange(view);
+  }
+
+  function chooseSearchResult(view: ShellView) {
+    chooseView(view);
+    setSearchQuery("");
+    setSearchOpen(false);
   }
 
   return (
@@ -251,9 +272,25 @@ export default function SemedOperationalShell({
             <strong>{shellViewLabel(activeView)}</strong>
             <small>Visão geral e acesso rápido aos principais recursos.</small>
           </div>
-          <div className="siga-shell-search" aria-label="Pesquisa visual do sistema">
-            <span>Buscar no sistema...</span>
+          <div className="siga-shell-search" aria-label="Buscar no sistema">
             <Search size={17} aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              placeholder="Buscar no sistema..."
+              aria-label="Buscar módulos e áreas do sistema"
+              aria-expanded={searchOpen && Boolean(normalizedSearch)}
+              aria-controls="siga-shell-search-results"
+              onFocus={() => setSearchOpen(true)}
+              onChange={(event) => { setSearchQuery(event.target.value); setSearchOpen(true); }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && searchResults[0]) { event.preventDefault(); chooseSearchResult(searchResults[0].view); }
+                if (event.key === "Escape") { setSearchOpen(false); event.currentTarget.blur(); }
+              }}
+            />
+            {searchOpen && normalizedSearch ? <div className="siga-shell-search-results" id="siga-shell-search-results" role="listbox">
+              {searchResults.length ? searchResults.map((entry) => <button key={entry.key} type="button" role="option" onMouseDown={(event) => event.preventDefault()} onClick={() => chooseSearchResult(entry.view)}><span>{entry.label}</span><small>{entry.context}</small></button>) : <p>Nenhum módulo ou contexto encontrado.</p>}
+            </div> : null}
           </div>
           <div className="siga-shell-account">
             <button className="siga-header-icon" type="button" onClick={() => onViewChange("governance")} title="Alertas locais">

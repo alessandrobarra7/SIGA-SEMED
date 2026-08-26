@@ -21,12 +21,12 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 
 | Elemento | Situação atual |
 |---|---|
-| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início e menu lateral na ordem observada. |
+| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada e buscador global com navegação por resultados permitidos. |
 | Persistência local | Concluída: armazenamento v8 para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 79 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 81 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
@@ -48,6 +48,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Configurações institucionais | Identificação, exercício, comunicações, segurança e auditoria local; parâmetros demonstrativos persistidos, regras de limites e salvamento restrito ao Administrador. | Migração v7, proteção administrativa, 71 testes totais, desktop, mobile, TypeScript e build. |
 | Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
 | Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios demonstrativos; cálculo de abastecimento, estados operacionais, referências de governança e auditoria transversal. | Migração v8, segregação de cancelamento/resolução, 79 testes totais, desktop, mobile, TypeScript e build. |
+| Buscador global | Índice local de módulos e contextos do shell; consulta normalizada sem acentos, resultados navegáveis por clique ou Enter, estado vazio e ocultação de visões sem permissão. | Regressão de busca e permissões; validação manual de resultado, navegação e estado vazio; responsividade do cabeçalho, 81 testes totais, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.
 
