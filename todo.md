@@ -471,3 +471,13 @@
 - [x] Criar solicitações de aprovação, com decisão segregada, devolução fundamentada e auditoria local.
 - [x] Registrar metadados de anexos locais vinculados a contextos existentes, sem upload ou transmissão de arquivos.
 - [x] Preparar relatórios gerenciais locais com recorte por área e exportação CSV apenas no navegador.
+
+## Aprimoramentos autorizados — Gestão e painel Início
+
+- [x] Mapear os componentes, coleções locais e permissões afetados por filtros de tarefas, histórico de aprovações e indicadores do painel Início.
+- [x] Definir os filtros por área, responsável e intervalo de prazo; o histórico por solicitação será derivado da auditoria transversal, sem nova coleção persistida.
+- [x] Implementar filtros de tarefas por responsável e intervalo de prazo, sem alterar os dados fora do navegador.
+- [x] Registrar e apresentar o histórico de decisões por solicitação, mantendo a segregação de aprovador e solicitante.
+- [x] Integrar indicadores demonstrativos de Gestão ao painel Início, respeitando a leitura permitida ao perfil atual.
+- [x] Cobrir os aprimoramentos com testes e validar desktop, mobile, TypeScript e build sem modificar o login congelado.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a nova versão publicada.

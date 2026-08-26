@@ -3,6 +3,7 @@ import React from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GovernancePage } from "../client/src/pages/SemedManagementPages";
+import WorkspacePreview from "../client/src/pages/WorkspacePreview";
 import { createLocalSemedDatabase, hydrateLocalDatabase, saveLocalManagementApproval, saveLocalManagementAttachment, saveLocalManagementTask } from "../client/src/pages/sigaLocalStore";
 
 afterEach(() => cleanup());
@@ -54,5 +55,32 @@ describe("Gestão complementar local", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Aprovações" }));
     fireEvent.click(screen.getAllByRole("button", { name: "Aprovar" })[0]);
     expect(onSaveApproval).toHaveBeenCalledWith(expect.objectContaining({ status: "Aprovada" }));
+  });
+
+  it("filtra tarefas por responsável e prazo e apresenta a trilha de decisão local", () => {
+    const database = createLocalSemedDatabase();
+    const tasks = [
+      { id: "task-one", title: "Tarefa da técnica", area: "Gestão", dueDate: "2026-09-03", priority: "Média" as const, status: "Programada" as const, assigneeUserId: "u-tecnico1", summary: "Resumo local.", recordId: "", documentId: "", createdBy: "u-admin", createdAt: "2026-08-26T10:00:00.000Z", updatedAt: "2026-08-26T10:00:00.000Z" },
+      { id: "task-two", title: "Tarefa administrativa", area: "Contratos", dueDate: "2026-10-03", priority: "Alta" as const, status: "Em andamento" as const, assigneeUserId: "u-admin", summary: "Resumo administrativo.", recordId: "", documentId: "", createdBy: "u-admin", createdAt: "2026-08-26T10:00:00.000Z", updatedAt: "2026-08-26T10:00:00.000Z" },
+    ];
+    const approval = { ...database.semedManagementApprovals[0], id: "approval-history", status: "Aprovada" as const, decidedByUserId: "u-admin", decidedAt: "2026-08-26T12:00:00.000Z", updatedAt: "2026-08-26T12:00:00.000Z" };
+    const auditLog = [{ id: "audit-approval", entityType: "Solicitação de aprovação" as const, entityId: approval.id, action: "aprovar" as const, actorUserId: "u-admin", changedFields: ["solicitacao.aprovada"], summary: "Solicitação local aprovada: teste de histórico.", correlationId: approval.id, createdAt: "2026-08-26T12:00:00.000Z" }];
+    const { container } = render(<GovernancePage onNavigate={vi.fn()} users={database.semedUsers} tasks={tasks} attachments={[]} approvals={[approval]} records={database.semedRecords as never} documents={database.semedDocuments} auditLog={auditLog} canApprove={true} onSaveTask={vi.fn(() => null)} onSaveAttachment={vi.fn(() => null)} onSaveApproval={vi.fn(() => null)} />);
+    fireEvent.change(screen.getByLabelText("Responsável"), { target: { value: "u-tecnico1" } });
+    fireEvent.change(screen.getByLabelText("Prazo final"), { target: { value: "2026-09-30" } });
+    expect(screen.getAllByText("Tarefa da técnica").length).toBeGreaterThan(0);
+    expect(container.querySelector(".siga-task-list")?.textContent).not.toContain("Tarefa administrativa");
+    fireEvent.click(screen.getByRole("tab", { name: "Aprovações" }));
+    expect(screen.getByRole("heading", { name: "Histórico das solicitações" })).toBeTruthy();
+    expect(screen.getByText("Solicitação local aprovada: teste de histórico.")).toBeTruthy();
+  });
+
+  it("leva indicadores permitidos de Gestão ao painel Início", () => {
+    window.localStorage.clear();
+    const database = createLocalSemedDatabase();
+    render(<WorkspacePreview user={{ ...database.semedUsers[0], mustChangePassword: false }} onLogout={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ir para o painel" }));
+    expect(screen.getByText("Tarefas em aberto")).toBeTruthy();
+    expect(screen.getByText("Aprovações aguardando")).toBeTruthy();
   });
 });

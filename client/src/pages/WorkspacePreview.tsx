@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import React, { FormEvent, useMemo, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
@@ -40,6 +40,8 @@ import {
   type SemedModuleKey,
   SemedDocument,
   SemedDocumentInput,
+  SemedManagementApproval,
+  SemedManagementTask,
   SemedRecord,
   SemedRecordInput,
   useSigaLocalRepository,
@@ -206,11 +208,14 @@ function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
   </section>;
 }
 
-function HomeDashboard({ records, documents, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; onViewChange: (view: ShellView) => void }) {
+function HomeDashboard({ records, documents, tasks = [], approvals = [], canReadGovernance = false, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; canReadGovernance?: boolean; onViewChange: (view: ShellView) => void }) {
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
   const dueRecords = records.filter((record) => recordAlert(record) !== "Em dia").length;
   const dueDocuments = documents.filter((document) => documentAlert(document) !== "Em dia").length;
+  const openManagementTasks = tasks.filter((task) => !["Concluída", "Cancelada"].includes(task.status)).length;
+  const pendingManagementApprovals = approvals.filter((approval) => approval.status === "Pendente").length;
+  const openAlerts = dueRecords + dueDocuments + (canReadGovernance ? openManagementTasks + pendingManagementApprovals : 0);
 
   function saveNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -239,9 +244,9 @@ function HomeDashboard({ records, documents, onViewChange }: { records: SemedRec
 
     <div className="siga-home-editorial-metrics">
       <article className="siga-editorial-metric green"><span className="siga-home-stat-icon green"><ClipboardCheck size={22} aria-hidden="true" /></span><div><strong>{records.length}</strong><small>Registros locais</small><button type="button" onClick={() => onViewChange("records")}>Ver contratos <ArrowRight size={14} /></button></div></article>
-      <article className="siga-editorial-metric blue"><span className="siga-home-stat-icon navy"><ListChecks size={22} aria-hidden="true" /></span><div><strong>{agendaDays.length}</strong><small>Rotinas na semana</small><button type="button" onClick={() => onViewChange("governance")}>Ver gestão <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric blue"><span className="siga-home-stat-icon navy"><ListChecks size={22} aria-hidden="true" /></span><div><strong>{canReadGovernance ? openManagementTasks : agendaDays.length}</strong><small>{canReadGovernance ? "Tarefas em aberto" : "Rotinas na semana"}</small><button type="button" onClick={() => onViewChange("governance")}>Ver gestão <ArrowRight size={14} /></button></div></article>
       <article className="siga-editorial-metric pink"><span className="siga-home-stat-icon orange"><FileText size={22} aria-hidden="true" /></span><div><strong>{documents.length}</strong><small>Documentos locais</small><button type="button" onClick={() => onViewChange("documents")}>Ver documentos <ArrowRight size={14} /></button></div></article>
-      <article className="siga-editorial-metric orange"><span className="siga-home-stat-icon orange"><FileClock size={22} aria-hidden="true" /></span><div><strong>{dueRecords + dueDocuments}</strong><small>Alertas em aberto</small><button type="button" onClick={() => onViewChange("finance")}>Ver financeiro <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric orange"><span className="siga-home-stat-icon orange"><FileClock size={22} aria-hidden="true" /></span><div><strong>{openAlerts}</strong><small>Alertas em aberto</small><button type="button" onClick={() => onViewChange(canReadGovernance ? "governance" : "finance")}>{canReadGovernance ? "Ver gestão" : "Ver financeiro"} <ArrowRight size={14} /></button></div></article>
     </div>
 
     <div className="siga-home-editorial-main-grid">
@@ -264,7 +269,7 @@ function HomeDashboard({ records, documents, onViewChange }: { records: SemedRec
       </section>
       <section className="siga-home-pending" aria-label="Atividades pendentes">
         <div className="siga-card-heading"><div><p>Atividades pendentes</p><h2>Prioridades locais</h2></div><button type="button" onClick={() => onViewChange("governance")}>Ver todas</button></div>
-        <div><span><FileText size={15} />Documentos para assinatura <b>{dueDocuments}</b></span><span><FileClock size={15} />Contratos para renovação <b>{dueRecords}</b></span><span><ClipboardCheck size={15} />Rotinas da semana <b>{agendaDays.length}</b></span></div>
+        <div><span><FileText size={15} />Documentos para assinatura <b>{dueDocuments}</b></span><span><FileClock size={15} />Contratos para renovação <b>{dueRecords}</b></span>{canReadGovernance ? <><span><ClipboardCheck size={15} />Tarefas de Gestão <b>{openManagementTasks}</b></span><span><ListChecks size={15} />Aprovações aguardando <b>{pendingManagementApprovals}</b></span></> : <span><ClipboardCheck size={15} />Rotinas da semana <b>{agendaDays.length}</b></span>}</div>
       </section>
     </div>
   </section>;
@@ -315,8 +320,8 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
     <SemedOperationalShell user={user} activeView={activeView} onViewChange={changeView} onPassword={() => setSecurityOpen(true)} onLogout={onLogout} isViewAllowed={(view) => { const permissionKey = viewPermissionKey[view]; return permissionKey ? repository.canRead(user.id, permissionKey) : true; }} logo={logo}>
       {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
       {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
-      {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} onViewChange={changeView} /> : null}
-      {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} records={repository.records} documents={repository.documents} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onNotify={setNotice} /> : null}
+      {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} canReadGovernance={repository.canRead(user.id, "gestao")} onViewChange={changeView} /> : null}
+      {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} records={repository.records} documents={repository.documents} auditLog={repository.governanceAuditLog} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onNotify={setNotice} /> : null}
       {activeView === "masters" ? <MastersPage readOnly={!repository.canWrite(user.id, "cadastros_gerais")} /> : null}
       {activeView === "finance" ? <SemedFinancePage sources={repository.financeSources} rules={repository.financeRules} planningEntries={repository.financePlanningEntries} revenues={repository.financeRevenues} executions={repository.financeExecutions} contractCount={repository.records.length} hrRecordCount={repository.hrFinancialRecords.length} canWrite={repository.canWrite(user.id, "financeiro")} canManageRules={user.profile === "Administrador" && repository.canWrite(user.id, "financeiro")} onSaveSource={(input) => repository.saveFinanceSource(input, user.id)} onSaveRule={(input) => repository.saveFinanceRule(input, user.id)} onSavePlanning={(input) => repository.saveFinancePlanningEntry(input, user.id)} onSaveRevenue={(input) => repository.saveFinanceRevenue(input, user.id)} onSaveExecution={(input) => repository.saveFinanceExecution(input, user.id)} onNotify={setNotice} /> : null}
       {activeView === "users" ? <SemedUsersPage currentUser={user} users={repository.users} permissions={repository.userPermissions} auditLog={repository.userAuditLog} onCreate={(input) => repository.createUser(input, user.id)} onUpdate={(userId, input) => repository.updateUser(userId, input, user.id)} onSetActive={(userId, active) => repository.setUserActive(userId, active, user.id)} onIssuePassword={(userId) => repository.issueProvisionalPassword(userId, user.id)} onTerminateSessions={(userId) => repository.terminateUserSessions(userId, user.id)} onNotify={setNotice} /> : null}
