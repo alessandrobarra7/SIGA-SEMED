@@ -235,3 +235,20 @@
 - [x] Cobrir Estoque com testes de saldo, movimentação, auditoria, persistência, permissões e regressão.
 - [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
 - [x] Salvar checkpoint e apresentar o módulo Estoque funcional no preview.
+
+## Publicação autorizada — Usuários, Nutrição e Estoque
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
+- [x] Validar testes, checagem de tipos e build da versão atual antes do envio.
+- [x] Criar commit descritivo e enviar os módulos Usuários, Nutrição e Estoque ao repositório autorizado.
+- [x] Confirmar o hash remoto da publicação ao usuário.
+- [x] Usar a credencial fornecida somente em memória para o envio, sem persistência em arquivos, remotos ou commits.
+- [x] Recomendar a revogação da credencial após confirmar o hash remoto.
+
+## Documentação de andamento do projeto
+
+- [x] Consolidar em um documento único as decisões de produto, segurança e arquitetura já tomadas.
+- [x] Registrar os módulos reproduzidos, seus fluxos locais, validações e checkpoints correspondentes.
+- [x] Registrar os módulos ainda pendentes de reprodução funcional, em ordem recomendada.
+- [x] Incluir o protocolo obrigatório de observação somente leitura da referência e de uso de dados demonstrativos locais.
+- [ ] Revisar o documento, atualizar o checklist e salvar checkpoint da documentação.
