@@ -624,3 +624,9 @@
 - [x] Reforçar o teste para verificar tokens nas regras reais de Gestão, não apenas sua presença em algum arquivo.
 - [x] Validar a Gestão em sessão autenticada com captura posterior à alteração antes de salvar qualquer checkpoint visual.
 - [x] Documentar o resultado ou o bloqueio de validação e apresentar a próxima ação sem afirmar uma correção visual não comprovada.
+
+## Publicação autorizada — correção estrutural de Gestão
+
+- [x] Revisar os arquivos pendentes e excluir documentos externos, capturas, credenciais e utilitários temporários do envio.
+- [ ] Criar commit da correção estrutural de Gestão, da regressão e da documentação relacionada.
+- [ ] Enviar a atualização à branch principal do repositório autorizado e confirmar o hash remoto.
