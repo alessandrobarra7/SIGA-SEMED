@@ -292,3 +292,14 @@
 - [ ] Criar commit descritivo e enviar Unidades Escolares, Educa Paço, migração v5, testes e documentação ao repositório autorizado.
 - [ ] Confirmar o hash remoto da publicação ao usuário.
 - [ ] Recomendar a revogação da credencial exposta após a confirmação do envio.
+
+## Verificação de autorização GitHub
+
+- [x] Consultar convites pendentes da conta GitHub conectada para o repositório autorizado.
+- [ ] Aceitar convite pendente, se disponibilizado pelo proprietário do repositório.
+- [x] Confirmar a permissão de escrita e retomar o envio do commit preparado.
+
+## Retomada autorizada da publicação
+
+- [x] Verificar a nova autorização de escrita da integração GitHub.
+- [ ] Enviar o commit preparado de Unidades Escolares e Educa Paço ao repositório autorizado.
