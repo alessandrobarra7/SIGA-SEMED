@@ -219,8 +219,34 @@ export type SemedNutritionAnnualPlan = {
 export type SemedNutritionAnnualInput = Omit<SemedNutritionAnnualPlan, "id" | "enrollmentSnapshot" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedNutritionAnnualResult = SemedNutritionAnnualItem & { monthlyNeeds: number[]; monthlyEffectiveOffers: number[]; totalNeed: number; coverage: number; toAcquire: number };
 
+export const SEMED_STOCK_SCOPES = ["Industrializado", "Kit do Aluno", "Alimentação Escolar", "Material de Limpeza", "Material de Expediente"] as const;
+export type SemedStockScope = (typeof SEMED_STOCK_SCOPES)[number];
+export type SemedStockMovementType = "Entrada" | "Saída" | "Ajuste";
+export type SemedStockSituation = "Disponível" | "Estoque baixo" | "Sem saldo" | "Inativo";
+export type SemedStockAuditStatus = "Em andamento" | "Concluída";
+export type SemedSchoolStockCountStatus = "Pendente" | "Conferida" | "Com divergência";
+export type SemedKitOrderStatus = "Em andamento" | "Recebido" | "Distribuído" | "Arquivado";
+
+export type SemedStockItem = {
+  id: string; scope: SemedStockScope; code: string; name: string; category: string; unit: "KG" | "L" | "UN";
+  minimumQuantity: number; balance: number; location: string; barcode: string; active: boolean; unitCost: number; createdAt: string; updatedAt: string;
+};
+export type SemedStockItemInput = Omit<SemedStockItem, "id" | "balance" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedStockMovement = {
+  id: string; scope: SemedStockScope; itemId: string; type: SemedStockMovementType; quantity: number; origin: string; destination: string; reference: string; notes: string; movementDate: string; actorUserId: string; createdAt: string;
+};
+export type SemedStockMovementInput = Omit<SemedStockMovement, "id" | "createdAt" | "actorUserId">;
+export type SemedStockAuditEntry = { itemId: string; registeredBalance: number; countedQuantity: number; difference: number };
+export type SemedStockAudit = { id: string; scope: SemedStockScope; status: SemedStockAuditStatus; notes: string; entries: SemedStockAuditEntry[]; openedAt: string; closedAt: string; actorUserId: string };
+export type SemedSchoolStock = { id: string; scope: Exclude<SemedStockScope, "Industrializado" | "Kit do Aluno">; schoolId: string; itemId: string; balance: number; guideReference: string; updatedAt: string };
+export type SemedSchoolStockCount = { id: string; schoolStockId: string; countedQuantity: number; status: SemedSchoolStockCountStatus; notes: string; countedAt: string; actorUserId: string };
+export type SemedSchoolStockMovement = { id: string; schoolStockId: string; type: "Recebimento" | "Consumo" | "Ajuste"; quantity: number; reference: string; notes: string; movementDate: string; actorUserId: string };
+export type SemedKitOrderItem = { itemId: string; requestedQuantity: number; receivedQuantity: number; distributedQuantity: number };
+export type SemedKitOrder = { id: string; schoolId: string; className: string; referenceYear: number; status: SemedKitOrderStatus; items: SemedKitOrderItem[]; notes: string; createdAt: string; updatedAt: string };
+export type SemedKitOrderInput = Omit<SemedKitOrder, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
 export type SemedLocalDatabase = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -234,6 +260,13 @@ export type SemedLocalDatabase = {
   semedNutritionStages: SemedNutritionStage[];
   semedNutritionCatalog: SemedNutritionCatalogItem[];
   semedNutritionAnnualPlans: SemedNutritionAnnualPlan[];
+  semedStockItems: SemedStockItem[];
+  semedStockMovements: SemedStockMovement[];
+  semedStockAudits: SemedStockAudit[];
+  semedSchoolStocks: SemedSchoolStock[];
+  semedSchoolStockCounts: SemedSchoolStockCount[];
+  semedSchoolStockMovements: SemedSchoolStockMovement[];
+  semedKitOrders: SemedKitOrder[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -501,7 +534,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = "2026-01-10T12:00:00.000Z";
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -564,6 +597,29 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
         { id: "nutrition-annual-item-2", name: "Bebida láctea demonstrativa", source: "Industrializado", category: "Lácteos", catalogKey: "catalog-leite", basis: "Mensal consolidado", consumptionUnit: "ml", supplyUnit: "L", perCapita: 180, monthlyOffers: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
       ], status: "Em elaboração", notes: "Planejamento demonstrativo sem vínculo com o ambiente original.", enrollmentSnapshot: { totalStudents: 320, capturedAt: createdAt }, createdAt, updatedAt: createdAt },
     ],
+    semedStockItems: [
+      { id: "stock-rice", scope: "Industrializado", code: "EST-DEMO-001", name: "Arroz demonstrativo", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 180, balance: 520, location: "Almoxarifado central", barcode: "", active: true, unitCost: 6.8, createdAt, updatedAt: createdAt },
+      { id: "stock-milk", scope: "Industrializado", code: "EST-DEMO-002", name: "Bebida láctea demonstrativa", category: "Alimentação Escolar", unit: "L", minimumQuantity: 110, balance: 90, location: "Almoxarifado central", barcode: "", active: true, unitCost: 4.4, createdAt, updatedAt: createdAt },
+      { id: "stock-biscuit", scope: "Industrializado", code: "EST-DEMO-003", name: "Biscoito demonstrativo", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 80, balance: 0, location: "Almoxarifado central", barcode: "", active: true, unitCost: 12.5, createdAt, updatedAt: createdAt },
+      { id: "stock-backpack", scope: "Kit do Aluno", code: "KIT-DEMO-001", name: "Mochila demonstrativa", category: "Fardamento e kit", unit: "UN", minimumQuantity: 50, balance: 180, location: "Almoxarifado de kits", barcode: "", active: true, unitCost: 42, createdAt, updatedAt: createdAt },
+      { id: "stock-notebook", scope: "Kit do Aluno", code: "KIT-DEMO-002", name: "Caderno demonstrativo", category: "Material escolar", unit: "UN", minimumQuantity: 120, balance: 360, location: "Almoxarifado de kits", barcode: "", active: true, unitCost: 7.2, createdAt, updatedAt: createdAt },
+      { id: "stock-banana", scope: "Alimentação Escolar", code: "ALI-DEMO-001", name: "Fruta demonstrativa", category: "Alimentação Escolar", unit: "KG", minimumQuantity: 30, balance: 135, location: "Unidade escolar", barcode: "", active: true, unitCost: 5.5, createdAt, updatedAt: createdAt },
+      { id: "stock-detergent", scope: "Material de Limpeza", code: "LIM-DEMO-001", name: "Detergente demonstrativo", category: "Limpeza", unit: "UN", minimumQuantity: 18, balance: 48, location: "Unidade escolar", barcode: "", active: true, unitCost: 3.2, createdAt, updatedAt: createdAt },
+      { id: "stock-paper", scope: "Material de Expediente", code: "EXP-DEMO-001", name: "Papel A4 demonstrativo", category: "Expediente", unit: "UN", minimumQuantity: 10, balance: 32, location: "Unidade escolar", barcode: "", active: true, unitCost: 28, createdAt, updatedAt: createdAt },
+    ],
+    semedStockMovements: [
+      { id: "stock-movement-1", scope: "Industrializado", itemId: "stock-rice", type: "Entrada", quantity: 520, origin: "Fornecedor demonstrativo", destination: "Almoxarifado central", reference: "REC-DEMO-001", notes: "Recebimento demonstrativo local.", movementDate: "2026-08-03", actorUserId: "u-admin", createdAt },
+      { id: "stock-movement-2", scope: "Industrializado", itemId: "stock-milk", type: "Entrada", quantity: 90, origin: "Fornecedor demonstrativo", destination: "Almoxarifado central", reference: "REC-DEMO-002", notes: "Recebimento demonstrativo local.", movementDate: "2026-08-08", actorUserId: "u-admin", createdAt },
+    ],
+    semedStockAudits: [],
+    semedSchoolStocks: [
+      { id: "school-stock-food-1", scope: "Alimentação Escolar", schoolId: "nutrition-school-1", itemId: "stock-banana", balance: 135, guideReference: "GUIA-DEMO-001", updatedAt: createdAt },
+      { id: "school-stock-cleaning-1", scope: "Material de Limpeza", schoolId: "nutrition-school-2", itemId: "stock-detergent", balance: 48, guideReference: "GUIA-DEMO-002", updatedAt: createdAt },
+      { id: "school-stock-office-1", scope: "Material de Expediente", schoolId: "nutrition-school-3", itemId: "stock-paper", balance: 32, guideReference: "GUIA-DEMO-003", updatedAt: createdAt },
+    ],
+    semedSchoolStockCounts: [],
+    semedSchoolStockMovements: [],
+    semedKitOrders: [],
   };
 }
 
@@ -841,9 +897,129 @@ export function archiveLocalNutritionAnnualPlan(database: SemedLocalDatabase, pl
   return true;
 }
 
+function stockModuleKey(scope: SemedStockScope): SemedModuleKey {
+  if (scope === "Industrializado") return "estoque.industrializado";
+  if (scope === "Kit do Aluno") return "estoque.kit_aluno";
+  return "estoque.categorias";
+}
+
+function stockValue(value: unknown) { return Math.round(nonNegative(value) * 1000) / 1000; }
+
+export function stockSituation(item: Pick<SemedStockItem, "active" | "balance" | "minimumQuantity">): SemedStockSituation {
+  if (!item.active) return "Inativo";
+  if (stockValue(item.balance) <= 0) return "Sem saldo";
+  if (stockValue(item.balance) <= stockValue(item.minimumQuantity)) return "Estoque baixo";
+  return "Disponível";
+}
+
+export function saveLocalStockItem(database: SemedLocalDatabase, input: SemedStockItemInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(input.scope))) return { error: "Usuário sem permissão para alterar o catálogo de estoque.", item: null };
+  const code = upper(input.code);
+  const name = input.name.trim();
+  if (!code || !name || !input.category.trim()) return { error: "Informe código, produto e categoria.", item: null };
+  const duplicate = database.semedStockItems.find((item) => item.id !== input.id && item.scope === input.scope && upper(item.code) === code);
+  if (duplicate) return { error: "Já existe um produto com este código nesta categoria de estoque.", item: null };
+  const current = input.id ? database.semedStockItems.find((item) => item.id === input.id) : null;
+  const item: SemedStockItem = {
+    id: current?.id ?? localId("stock-item"), scope: input.scope, code, name, category: input.category.trim(), unit: input.unit,
+    minimumQuantity: stockValue(input.minimumQuantity), balance: current?.balance ?? 0, location: input.location.trim(), barcode: input.barcode.trim(),
+    active: input.active, unitCost: stockValue(input.unitCost), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedStockItems[database.semedStockItems.indexOf(current)] = item;
+  else database.semedStockItems.push(item);
+  return { error: null, item };
+}
+
+export function registerLocalStockMovement(database: SemedLocalDatabase, input: SemedStockMovementInput, actorUserId: string, timestamp = now()) {
+  const item = database.semedStockItems.find((candidate) => candidate.id === input.itemId && candidate.scope === input.scope);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(input.scope))) return { error: "Usuário sem permissão para movimentar este estoque.", movement: null };
+  if (!item || !item.active) return { error: "Produto de estoque não encontrado ou inativo.", movement: null };
+  const quantity = stockValue(input.quantity);
+  if (!quantity) return { error: "Informe uma quantidade maior que zero.", movement: null };
+  const nextBalance = input.type === "Entrada" ? item.balance + quantity : input.type === "Saída" ? item.balance - quantity : quantity;
+  if (nextBalance < 0) return { error: "A saída não pode superar o saldo demonstrativo disponível.", movement: null };
+  item.balance = stockValue(nextBalance);
+  item.updatedAt = timestamp;
+  const movement: SemedStockMovement = {
+    id: localId("stock-movement"), scope: input.scope, itemId: item.id, type: input.type, quantity, origin: input.origin.trim(), destination: input.destination.trim(),
+    reference: input.reference.trim(), notes: input.notes.trim(), movementDate: input.movementDate || timestamp.slice(0, 10), actorUserId, createdAt: timestamp,
+  };
+  database.semedStockMovements.unshift(movement);
+  return { error: null, movement };
+}
+
+export function startLocalStockAudit(database: SemedLocalDatabase, scope: SemedStockScope, actorUserId: string, notes = "", timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, stockModuleKey(scope))) return { error: "Usuário sem permissão para iniciar auditoria de estoque.", audit: null };
+  const audit: SemedStockAudit = {
+    id: localId("stock-audit"), scope, status: "Em andamento", notes: notes.trim(),
+    entries: database.semedStockItems.filter((item) => item.scope === scope && item.active).map((item) => ({ itemId: item.id, registeredBalance: item.balance, countedQuantity: item.balance, difference: 0 })),
+    openedAt: timestamp, closedAt: "", actorUserId,
+  };
+  database.semedStockAudits.unshift(audit);
+  return { error: null, audit };
+}
+
+export function finishLocalStockAudit(database: SemedLocalDatabase, auditId: string, entries: SemedStockAuditEntry[], actorUserId: string, timestamp = now()) {
+  const audit = database.semedStockAudits.find((candidate) => candidate.id === auditId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!audit || !actor || !canWriteLocalModule(database, actor, stockModuleKey(audit.scope))) return false;
+  audit.entries = audit.entries.map((entry) => {
+    const supplied = entries.find((candidate) => candidate.itemId === entry.itemId);
+    const countedQuantity = stockValue(supplied?.countedQuantity ?? entry.countedQuantity);
+    const item = database.semedStockItems.find((candidate) => candidate.id === entry.itemId);
+    if (item) { item.balance = countedQuantity; item.updatedAt = timestamp; }
+    return { itemId: entry.itemId, registeredBalance: entry.registeredBalance, countedQuantity, difference: stockValue(countedQuantity - entry.registeredBalance) };
+  });
+  audit.status = "Concluída";
+  audit.closedAt = timestamp;
+  return true;
+}
+
+export function saveLocalSchoolStockCount(database: SemedLocalDatabase, schoolStockId: string, countedQuantity: number, notes: string, actorUserId: string, timestamp = now()) {
+  const schoolStock = database.semedSchoolStocks.find((candidate) => candidate.id === schoolStockId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!schoolStock || !actor || !canWriteLocalModule(database, actor, "estoque.categorias") || !canAccessLocalSchoolUnit(actor, schoolStock.schoolId)) return { error: "Usuário sem permissão para conferir este saldo escolar.", count: null };
+  const quantity = stockValue(countedQuantity);
+  const status: SemedSchoolStockCountStatus = quantity === schoolStock.balance ? "Conferida" : "Com divergência";
+  const count: SemedSchoolStockCount = { id: localId("school-stock-count"), schoolStockId, countedQuantity: quantity, status, notes: notes.trim(), countedAt: timestamp, actorUserId };
+  database.semedSchoolStockCounts.unshift(count);
+  schoolStock.balance = quantity;
+  schoolStock.updatedAt = timestamp;
+  return { error: null, count };
+}
+
+export function registerLocalSchoolStockMovement(database: SemedLocalDatabase, schoolStockId: string, type: SemedSchoolStockMovement["type"], quantity: number, reference: string, notes: string, actorUserId: string, timestamp = now()) {
+  const schoolStock = database.semedSchoolStocks.find((candidate) => candidate.id === schoolStockId);
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!schoolStock || !actor || !canWriteLocalModule(database, actor, "estoque.categorias") || !canAccessLocalSchoolUnit(actor, schoolStock.schoolId)) return { error: "Usuário sem permissão para movimentar este saldo escolar.", movement: null };
+  const amount = stockValue(quantity);
+  const nextBalance = type === "Recebimento" ? schoolStock.balance + amount : type === "Consumo" ? schoolStock.balance - amount : amount;
+  if (!amount || nextBalance < 0) return { error: "Quantidade inválida para o saldo escolar disponível.", movement: null };
+  schoolStock.balance = stockValue(nextBalance);
+  schoolStock.updatedAt = timestamp;
+  const movement: SemedSchoolStockMovement = { id: localId("school-stock-movement"), schoolStockId, type, quantity: amount, reference: reference.trim(), notes: notes.trim(), movementDate: timestamp.slice(0, 10), actorUserId };
+  database.semedSchoolStockMovements.unshift(movement);
+  return { error: null, movement };
+}
+
+export function saveLocalKitOrder(database: SemedLocalDatabase, input: SemedKitOrderInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "estoque.kit_aluno") || !canAccessLocalSchoolUnit(actor, input.schoolId)) return { error: "Usuário sem permissão para registrar pedidos de kit.", order: null };
+  if (!input.className.trim() || !input.items.length) return { error: "Informe turma e ao menos um item para o pedido.", order: null };
+  const current = input.id ? database.semedKitOrders.find((order) => order.id === input.id) : null;
+  const order: SemedKitOrder = { id: current?.id ?? localId("kit-order"), schoolId: input.schoolId, className: input.className.trim(), referenceYear: Math.round(nonNegative(input.referenceYear)), status: input.status, items: input.items.map((item) => ({ itemId: item.itemId, requestedQuantity: stockValue(item.requestedQuantity), receivedQuantity: stockValue(item.receivedQuantity), distributedQuantity: stockValue(item.distributedQuantity) })), notes: input.notes.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedKitOrders[database.semedKitOrders.indexOf(current)] = order;
+  else database.semedKitOrders.push(order);
+  return { error: null, order };
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
+type SemedLocalDatabaseV2 = Omit<SemedLocalDatabase, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
 type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
-type LegacySemedLocalDatabase = Omit<SemedLocalDatabase, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
+type LegacySemedLocalDatabase = Omit<SemedLocalDatabaseV2, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
 
 function normalizeLegacyProfile(role: string): SemedUserProfile {
   if (role === "Administrador") return "Administrador";
@@ -870,10 +1046,17 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
   const nutritionDefaults = createLocalSemedDatabase();
   return {
     ...database,
-    schemaVersion: 2,
+    schemaVersion: 3,
     semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
+    semedStockItems: nutritionDefaults.semedStockItems,
+    semedStockMovements: nutritionDefaults.semedStockMovements,
+    semedStockAudits: nutritionDefaults.semedStockAudits,
+    semedSchoolStocks: nutritionDefaults.semedSchoolStocks,
+    semedSchoolStockCounts: nutritionDefaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: nutritionDefaults.semedSchoolStockMovements,
+    semedKitOrders: nutritionDefaults.semedKitOrders,
     semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
@@ -887,7 +1070,7 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
   const nutritionDefaults = createLocalSemedDatabase();
   return {
     ...database,
-    schemaVersion: 2,
+    schemaVersion: 3,
     semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -902,6 +1085,13 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
     })),
     semedUserPermissions: Array.isArray(database.semedUserPermissions) ? database.semedUserPermissions.filter((permission) => isSemedModuleKey(permission.moduleKey)) : [],
     semedUserAuditLog: Array.isArray(database.semedUserAuditLog) ? database.semedUserAuditLog : [],
+    semedStockItems: Array.isArray(database.semedStockItems) ? database.semedStockItems : nutritionDefaults.semedStockItems,
+    semedStockMovements: Array.isArray(database.semedStockMovements) ? database.semedStockMovements : nutritionDefaults.semedStockMovements,
+    semedStockAudits: Array.isArray(database.semedStockAudits) ? database.semedStockAudits : nutritionDefaults.semedStockAudits,
+    semedSchoolStocks: Array.isArray(database.semedSchoolStocks) ? database.semedSchoolStocks : nutritionDefaults.semedSchoolStocks,
+    semedSchoolStockCounts: Array.isArray(database.semedSchoolStockCounts) ? database.semedSchoolStockCounts : nutritionDefaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: Array.isArray(database.semedSchoolStockMovements) ? database.semedSchoolStockMovements : nutritionDefaults.semedSchoolStockMovements,
+    semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders : nutritionDefaults.semedKitOrders,
     semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
@@ -911,11 +1101,27 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
   };
 }
 
+function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({
+    ...database,
+    schemaVersion: 3,
+    semedStockItems: defaults.semedStockItems,
+    semedStockMovements: defaults.semedStockMovements,
+    semedStockAudits: defaults.semedStockAudits,
+    semedSchoolStocks: defaults.semedSchoolStocks,
+    semedSchoolStockCounts: defaults.semedSchoolStockCounts,
+    semedSchoolStockMovements: defaults.semedSchoolStockMovements,
+    semedKitOrders: defaults.semedKitOrders,
+  });
+}
+
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
-    if (parsed.schemaVersion === 2) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
+    if (parsed.schemaVersion === 3) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -962,6 +1168,9 @@ export function useSigaLocalRepository() {
     nutritionSchools: database.semedNutritionSchools, nutritionContracts: database.semedNutritionContracts,
     nutritionWeeklyPlans: database.semedNutritionWeeklyPlans, nutritionStages: database.semedNutritionStages,
     nutritionCatalog: database.semedNutritionCatalog, nutritionAnnualPlans: database.semedNutritionAnnualPlans,
+    stockItems: database.semedStockItems, stockMovements: database.semedStockMovements, stockAudits: database.semedStockAudits,
+    schoolStocks: database.semedSchoolStocks, schoolStockCounts: database.semedSchoolStockCounts,
+    schoolStockMovements: database.semedSchoolStockMovements, kitOrders: database.semedKitOrders,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
@@ -987,6 +1196,13 @@ export function useSigaLocalRepository() {
     archiveNutritionAnnualPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionAnnualPlan(draft, planId, actorUserId)); },
     weeklyNutritionAnalysis(plan: Pick<SemedNutritionWeeklyPlan, "id" | "contractId" | "items">) { return weeklyNutritionProductAnalysis(databaseRef.current, plan); },
     annualNutritionResults(plan: Pick<SemedNutritionAnnualPlan, "items" | "enrollmentSnapshot" | "monthDays">) { return annualNutritionPlanResults(databaseRef.current, plan); },
+    saveStockItem(input: SemedStockItemInput, actorUserId: string) { return mutate((draft) => saveLocalStockItem(draft, input, actorUserId)); },
+    registerStockMovement(input: SemedStockMovementInput, actorUserId: string) { return mutate((draft) => registerLocalStockMovement(draft, input, actorUserId)); },
+    startStockAudit(scope: SemedStockScope, actorUserId: string, notes = "") { return mutate((draft) => startLocalStockAudit(draft, scope, actorUserId, notes)); },
+    finishStockAudit(auditId: string, entries: SemedStockAuditEntry[], actorUserId: string) { return mutate((draft) => finishLocalStockAudit(draft, auditId, entries, actorUserId)); },
+    saveSchoolStockCount(schoolStockId: string, countedQuantity: number, notes: string, actorUserId: string) { return mutate((draft) => saveLocalSchoolStockCount(draft, schoolStockId, countedQuantity, notes, actorUserId)); },
+    registerSchoolStockMovement(schoolStockId: string, type: SemedSchoolStockMovement["type"], quantity: number, reference: string, notes: string, actorUserId: string) { return mutate((draft) => registerLocalSchoolStockMovement(draft, schoolStockId, type, quantity, reference, notes, actorUserId)); },
+    saveKitOrder(input: SemedKitOrderInput, actorUserId: string) { return mutate((draft) => saveLocalKitOrder(draft, input, actorUserId)); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

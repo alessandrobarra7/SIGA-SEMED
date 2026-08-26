@@ -62,9 +62,10 @@ describe("persistência do repositório local no navegador", () => {
 
     const migrated = loadLocalDatabase(window.localStorage);
     const persisted = JSON.parse(window.localStorage.getItem("siga-semed-local-schema-v1")!);
-    expect(migrated.schemaVersion).toBe(2);
-    expect(persisted.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
+    expect(persisted.schemaVersion).toBe(3);
     expect(persisted.semedUserPermissions.length).toBeGreaterThan(0);
+    expect(persisted.semedStockItems.length).toBeGreaterThan(0);
     expect(persisted.semedRecords).toHaveLength(current.semedRecords.length);
     expect(persisted.semedDocuments).toHaveLength(current.semedDocuments.length);
   });

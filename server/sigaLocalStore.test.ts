@@ -4,7 +4,7 @@ import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecor
 describe("estrutura local compatível com o SIGA SEMED", () => {
   it("mantém as coleções estruturais e administrativas da referência", () => {
     const database = createLocalSemedDatabase();
-    expect(database).toMatchObject({ schemaVersion: 2 });
+    expect(database).toMatchObject({ schemaVersion: 3 });
     expect(database.semedUsers).toHaveLength(3);
     expect(database.semedUserPermissions.length).toBeGreaterThan(0);
     expect(database.semedUserAuditLog).toEqual([]);
@@ -12,6 +12,8 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     expect(database.semedRecordPayments.length).toBeGreaterThan(0);
     expect(database.semedDocuments).toHaveLength(3);
     expect(database.semedSessions).toEqual([]);
+    expect(database.semedStockItems.length).toBeGreaterThan(0);
+    expect(database.semedSchoolStocks.length).toBeGreaterThan(0);
   });
 
   it("deriva pago e saldo das baixas relacionadas pelo recordId", () => {

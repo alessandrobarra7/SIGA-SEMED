@@ -35,6 +35,13 @@ export type ShellView =
   | "nutrition-weekly"
   | "nutrition-annual"
   | "stock"
+  | "stock-family"
+  | "stock-industrial"
+  | "stock-kit"
+  | "stock-food"
+  | "stock-cleaning"
+  | "stock-office"
+  | "stock-reports"
   | "fleet"
   | "users";
 
@@ -98,13 +105,13 @@ const navigation: NavigationItem[] = [
     label: "Estoque",
     icon: Package,
     children: [
-      { label: "Agricultura Familiar", target: "stock" },
-      { label: "Industrializado", target: "stock" },
-      { label: "Kit do Aluno", target: "stock" },
-      { label: "Estoque Alimentação Escolar", target: "stock" },
-      { label: "Estoque Material de Limpeza", target: "stock" },
-      { label: "Estoque Material de Expediente", target: "stock" },
-      { label: "Relatórios", target: "stock" },
+      { label: "Agricultura Familiar", target: "stock-family" },
+      { label: "Industrializado", target: "stock-industrial" },
+      { label: "Kit do Aluno", target: "stock-kit" },
+      { label: "Estoque Alimentação Escolar", target: "stock-food" },
+      { label: "Estoque Material de Limpeza", target: "stock-cleaning" },
+      { label: "Estoque Material de Expediente", target: "stock-office" },
+      { label: "Relatórios", target: "stock-reports" },
     ],
   },
   {
@@ -129,6 +136,7 @@ function isSectionActive(item: NavigationItem, activeView: ShellView) {
 export function shellViewLabel(view: ShellView) {
   if (view === "welcome") return "Boas-vindas";
   if (view === "nutrition-weekly" || view === "nutrition-annual") return "Nutrição";
+  if (view.startsWith("stock-")) return "Estoque";
   return navigation.find((item) => item.id === view)?.label ?? "SIGA SEMED";
 }
 

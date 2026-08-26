@@ -223,3 +223,15 @@
 - [x] Conectar dias letivos e ofertas aos cálculos mensais de necessidade, cobertura e compra/contratação do planejamento anual.
 - [x] Cobrir por regressão o efeito dos dias letivos nos resultados anuais e revalidar a interface anual.
 - [x] Salvar checkpoint e apresentar o módulo Nutrição funcional no preview.
+
+## Reprodução funcional autorizada — Estoque
+
+- [x] Observar novamente em modo somente leitura as categorias Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente e Relatórios.
+- [x] Observar novamente em modo somente leitura as abas de materiais, movimentações, auditoria, saldos e conferências do Estoque.
+- [x] Registrar categorias, campos, filtros, indicadores, abas, estados e sequência operacional sem copiar dados reais.
+- [x] Modelar catálogo, saldos, movimentações, conferências e relatórios no armazenamento local, sem D1.
+- [x] Implementar o módulo Estoque dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar leitura e escrita de Estoque conforme as permissões dos seis perfis.
+- [x] Cobrir Estoque com testes de saldo, movimentação, auditoria, persistência, permissões e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [ ] Salvar checkpoint e apresentar o módulo Estoque funcional no preview.
