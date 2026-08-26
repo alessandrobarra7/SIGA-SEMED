@@ -590,3 +590,9 @@
 - [x] Aplicar Montserrat aos títulos, chamadas e números de destaque; aplicar Inter a menus, botões, legendas, descrições e tabelas.
 - [x] Validar a nova direção em Início, cartões, agenda, navegação, desktop e mobile, com testes, TypeScript e build.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a nova alternativa tipográfica.
+
+## Publicação autorizada — versão tipográfica atual
+
+- [x] Revisar estado Git, integração GitHub, arquivos alterados e destino remoto, excluindo credenciais e referências somente leitura.
+- [x] Preparar commit descritivo com a atualização tipográfica, testes e documentação atuais.
+- [ ] Enviar a versão para a branch principal do repositório autorizado e confirmar o hash remoto.
