@@ -628,5 +628,5 @@
 ## Publicação autorizada — correção estrutural de Gestão
 
 - [x] Revisar os arquivos pendentes e excluir documentos externos, capturas, credenciais e utilitários temporários do envio.
-- [ ] Criar commit da correção estrutural de Gestão, da regressão e da documentação relacionada.
-- [ ] Enviar a atualização à branch principal do repositório autorizado e confirmar o hash remoto.
+- [x] Criar commit da correção estrutural de Gestão, da regressão e da documentação relacionada.
+- [x] Enviar a atualização à branch principal do repositório autorizado e confirmar o hash remoto.
