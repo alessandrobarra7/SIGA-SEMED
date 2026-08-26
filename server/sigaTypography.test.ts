@@ -11,6 +11,7 @@ describe("tipografia institucional do shell", () => {
   it("mantém Manrope e Source Serif 4 como tipografia institucional do ambiente", () => {
     expect(indexStyles).toContain("family=Manrope");
     expect(indexStyles).toContain("family=Source+Serif+4");
+    expect(indexStyles).toContain("family=Fira+Sans");
     expect(indexHtml).not.toContain("IBM+Plex");
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
@@ -35,14 +36,13 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain(".siga-fleet-status");
   });
 
-  it("declara três níveis unificados de kicker com acento e escopo exclusivo do ambiente interno", () => {
-    expect(indexStyles).toContain("Sistema unificado de kickers do ambiente autenticado");
+  it("mantém legendas internas discretas e sem marcadores decorativos", () => {
+    expect(indexStyles).toContain("Legendas internas: fonte própria, leitura em frase e sem marcadores decorativos.");
     expect(indexStyles).toContain(".siga-shell .kicker--institutional");
     expect(indexStyles).toContain(".siga-shell .kicker--section");
     expect(indexStyles).toContain(".siga-shell .kicker--card");
-    expect(indexStyles).toContain(".siga-shell .kicker::before");
-    expect(indexStyles).toContain(".siga-shell .kicker--inverse");
-    expect(indexStyles).toContain(".siga-shell .siga-kicker:not(.kicker)");
+    expect(indexStyles).toContain('content: none !important;');
+    expect(indexStyles).not.toContain(".siga-shell .siga-kicker:not(.kicker)");
     expect(shellStyles).toContain('--siga-font-caption: "Manrope", sans-serif;');
   });
 });

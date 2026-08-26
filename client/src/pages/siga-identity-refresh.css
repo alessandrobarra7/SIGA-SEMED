@@ -419,11 +419,6 @@
   .siga-shell-header-title span,
   .siga-shell-header-title small,
   .siga-shell-user small,
-  .siga-kicker,
-  .siga-card-heading p,
-  .siga-editorial-metric small,
-  .siga-home-quick-actions button small,
-  .siga-home-pending > div:last-child span,
   .siga-module-surface :is(th, .status-pill, [class*="status"], [class*="badge"])
 ) {
   font-size: .72em;
@@ -699,12 +694,12 @@
   .siga-hr-action-bar p
 ) {
   color: #287254;
-  font-family: var(--siga-font-caption) !important;
-  font-size: var(--siga-text-micro) !important;
-  font-weight: 700 !important;
-  letter-spacing: .045em;
+  font-family: "Fira Sans", sans-serif !important;
+  font-size: .74rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .012em;
   line-height: 1.4;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .siga-shell :is(
   .siga-status-pill,

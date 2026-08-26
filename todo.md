@@ -574,3 +574,11 @@
 - [x] Consolidar as classes em `client/src/index.css` e aplicar a nova semântica sem alterar textos, ids, testids, rotas ou layout estrutural.
 - [x] Cobrir a hierarquia com regressão e validar Início, login, gestão/relatório e alertas/detalhes em desktop e mobile.
 - [x] Atualizar documentação, salvar checkpoint e apresentar o sistema publicado.
+
+## Correção prioritária — regressão de kickers
+
+- [x] Isolar os seletores genéricos que aplicaram fonte, marcadores e caixa alta a textos de apoio de cartões, agenda e ações rápidas.
+- [x] Remover a aplicação de kicker desses textos e preservar legenda discreta, em leitura de frase e sem marcador visual.
+- [x] Restringir kickers a contexto institucional e cabeçalhos de seção, sem alterar layout, ações, dados ou login.
+- [x] Cobrir a regressão e validar cartões, agenda, navegação, desktop, mobile, TypeScript e build.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a correção.

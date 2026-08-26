@@ -21,13 +21,13 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 
 | Elemento | Situação atual |
 |---|---|
-| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e sistema de kickers institucional, de seção e de card para títulos, contexto, descrições, rótulos, metadados, estados e ações. |
+| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e hierarquia discreta de legendas para títulos, contexto, rótulos, metadados, estados e ações. |
 | Persistência local | Concluída: armazenamento v11 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
 | Testes mais recentes | 95 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Manrope para leitura e Source Serif 4 para títulos e dados. As legendas compartilham kickers institucionais, de seção e de card, com acento gráfico, variantes de cor e comportamento responsivo; caixa alta fica reservada a esses contextos, estados e cabeçalhos de tabela. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Manrope para leitura, Source Serif 4 para títulos e dados e Fira Sans para legendas discretas. Marcadores decorativos e caixa alta compulsória foram removidos de cartões, agenda e ações rápidas; caixa alta permanece apenas em estados e cabeçalhos de tabela. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 
