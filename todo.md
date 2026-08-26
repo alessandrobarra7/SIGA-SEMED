@@ -284,3 +284,11 @@
 - [x] Cobrir os dois módulos com testes de cadastro, filtros, persistência, permissões e regressão.
 - [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
 - [x] Salvar checkpoint e apresentar os dois módulos funcionais no preview.
+
+## Publicação autorizada — Unidades Escolares e Educa Paço
+
+- [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
+- [x] Confirmar testes, checagem de tipos e build da versão validada antes do envio.
+- [ ] Criar commit descritivo e enviar Unidades Escolares, Educa Paço, migração v5, testes e documentação ao repositório autorizado.
+- [ ] Confirmar o hash remoto da publicação ao usuário.
+- [ ] Recomendar a revogação da credencial exposta após a confirmação do envio.
