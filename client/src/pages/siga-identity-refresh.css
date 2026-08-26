@@ -261,7 +261,8 @@
 .siga-shell .siga-shell-sidebar-footer {
   position: static;
   inset: auto;
-  margin-top: auto;
+  margin-top: 20px;
+  flex: 0 0 auto;
   display: block;
   min-height: 78px;
   padding: 0 24px 23px;

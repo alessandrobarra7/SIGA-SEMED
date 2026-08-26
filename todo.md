@@ -396,8 +396,8 @@
 
 ## Reprodução funcional autorizada — Frota
 
-- [ ] Observar em modo somente leitura veículos, abastecimento, manutenção, ocorrências, filtros, indicadores e relatórios na referência.
-- [ ] Registrar campos, regras, permissões e sequência operacional sem copiar placas, motoristas, valores, documentos ou identificadores reais.
+- [x] Observar em modo somente leitura veículos, abastecimento, manutenção, ocorrências, filtros, indicadores e relatórios na referência.
+- [x] Registrar campos, regras, permissões e sequência operacional sem copiar placas, motoristas, valores, documentos ou identificadores reais.
 - [ ] Modelar veículos, movimentações, manutenções, ocorrências e relatórios demonstrativos no armazenamento local, sem D1 ou serviços externos.
 - [ ] Implementar Frota na identidade visual atual, sem alterar login, navegação, permissões ou fluxos existentes.
 - [ ] Cobrir permissões, persistência, validações e regressão com testes; validar desktop, mobile, TypeScript e build.
@@ -424,3 +424,9 @@
 - [x] Remover o comportamento travado da barra lateral, mantendo-a alinhada à altura e à rolagem natural do ambiente autenticado.
 - [x] Preservar a tela de login congelada, a navegação, os submenus e os fluxos funcionais durante a correção.
 - [x] Validar a barra lateral e o conteúdo interno em desktop e mobile antes de retomar a governança.
+
+## Correção de publicação — barra lateral esquerda
+
+- [x] Comparar a barra lateral no preview e na versão publicada para identificar a regra visual divergente.
+- [x] Corrigir posicionamento, altura e responsividade da barra lateral sem alterar login, rotas, submenus ou fluxos.
+- [x] Validar a correção nos dois ambientes e salvar um novo checkpoint publicado.
