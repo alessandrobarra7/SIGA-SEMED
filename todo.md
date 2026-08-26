@@ -407,8 +407,8 @@
 
 - [x] Revisar o estado Git, a migração v8, os testes e a autorização de escrita antes do envio.
 - [x] Criar commit descritivo com Frota, governança, correção de barra lateral, testes e documentação.
-- [ ] Enviar a atualização para a branch principal do repositório autorizado.
-- [ ] Confirmar o hash remoto e orientar sobre segurança de credenciais.
+- [x] Enviar a atualização para a branch principal do repositório autorizado.
+- [x] Confirmar o hash remoto e orientar sobre segurança de credenciais.
 
 ## Análise autorizada — perfis, setores e governança de dados
 
