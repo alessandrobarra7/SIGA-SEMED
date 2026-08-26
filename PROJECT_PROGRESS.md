@@ -26,8 +26,8 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 71 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Testes mais recentes | 75 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 
@@ -46,6 +46,8 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
 | Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV e impressão local. | Migração v6, permissões administrativas, 68 testes totais, desktop, mobile, TypeScript e build. |
 | Configurações institucionais | Identificação, exercício, comunicações, segurança e auditoria local; parâmetros demonstrativos persistidos, regras de limites e salvamento restrito ao Administrador. | Migração v7, proteção administrativa, 71 testes totais, desktop, mobile, TypeScript e build. |
+| Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
+| Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.
 
@@ -81,6 +83,8 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`schools_educapaco_reference_observation.md`](./schools_educapaco_reference_observation.md) | Navegação, campos, filtros, indicadores e limites de reprodução local de Unidades Escolares e Educa Paço. |
 | [`finance_reference_observation.md`](./finance_reference_observation.md) | Navegação, campos, filtros, permissões, cálculos e limites de reprodução local do Financeiro ampliado. |
 | [`settings_reference_observation.md`](./settings_reference_observation.md) | Registro de que a referência possui apenas configuração pessoal de senha e dos limites para o módulo institucional novo autorizado. |
+| [`governance_baseline_design.md`](./governance_baseline_design.md) | Matriz de ações, referências estruturadas e escopo da auditoria transversal local. |
+| [`governance_data_flow_analysis.md`](./governance_data_flow_analysis.md) | Diagnóstico técnico de perfis, setores, dependências e prioridades que fundamentou a governança. |
 | [`visual_identity_refresh.md`](./visual_identity_refresh.md) | Diretrizes e limites funcionais da identidade visual clara, azul e verde autorizada pelo usuário. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 

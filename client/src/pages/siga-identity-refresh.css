@@ -212,10 +212,13 @@
   background: #fbfdfc;
 }
 .siga-shell .siga-shell-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
+  position: relative;
+  align-self: stretch;
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
   padding: 24px 16px 18px;
   border-right: 1px solid #e9efec;
   background: #fff !important;
@@ -256,8 +259,9 @@
 .siga-shell .siga-nav-submenu button { color: #5d7480; font-size: 10px; }
 .siga-shell .siga-nav-submenu button:hover { color: #18834a; }
 .siga-shell .siga-shell-sidebar-footer {
-  position: absolute;
-  inset: auto 0 0;
+  position: static;
+  inset: auto;
+  margin-top: auto;
   display: block;
   min-height: 78px;
   padding: 0 24px 23px;

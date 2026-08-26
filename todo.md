@@ -409,3 +409,18 @@
 - [x] Identificar a origem, transformação, consumo e responsabilidade pelos dados demonstrativos de cada setor.
 - [x] Avaliar lacunas de segregação de funções, validação, auditoria, dependências e governança entre módulos.
 - [x] Apresentar recomendações priorizadas de mudanças efetivas sem alterar código nesta etapa.
+
+## Implementação autorizada — base mínima de governança
+
+- [x] Definir matriz local de ações por setor para preparar, revisar, aprovar, executar, cancelar e auditar, sem alterar o login ou os perfis existentes.
+- [x] Criar referências estruturadas locais entre documentos, contratos, pagamentos e execuções financeiras, preservando os campos textuais atuais.
+- [x] Criar auditoria transversal local para alterações críticas, com ator, ação, entidade, resumo e correlação de processo.
+- [x] Aplicar os novos controles aos fluxos atuais de Contratos, Documentos e Financeiro sem quebrar operações existentes.
+- [x] Cobrir as regras com testes de permissão, integridade referencial, auditoria e regressão; validar desktop, mobile, TypeScript e build.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a base de governança funcional.
+
+## Correção de layout — barra lateral interna
+
+- [x] Remover o comportamento travado da barra lateral, mantendo-a alinhada à altura e à rolagem natural do ambiente autenticado.
+- [x] Preservar a tela de login congelada, a navegação, os submenus e os fluxos funcionais durante a correção.
+- [x] Validar a barra lateral e o conteúdo interno em desktop e mobile antes de retomar a governança.

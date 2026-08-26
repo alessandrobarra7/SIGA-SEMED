@@ -38,7 +38,7 @@ describe("Configurações institucionais locais", () => {
   it("renderiza quatro seções e encaminha o salvamento local", () => {
     const database = createLocalSemedDatabase();
     const onSave = vi.fn(() => ({ error: null, settings: database.semedInstitutionSettings }));
-    render(<SemedInstitutionSettingsPage settings={database.semedInstitutionSettings} auditLog={[]} actorUserId="u-admin" readOnly={false} onSave={onSave} />);
+    render(<SemedInstitutionSettingsPage settings={database.semedInstitutionSettings} auditLog={[]} governanceAuditLog={[]} actorUserId="u-admin" readOnly={false} onSave={onSave} />);
     expect(screen.getByRole("heading", { name: "Configurações institucionais" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Exercício/ }));
     expect(screen.getByRole("heading", { name: "Exercício e referência" })).toBeTruthy();

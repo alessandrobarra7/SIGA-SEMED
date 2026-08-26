@@ -22,3 +22,7 @@ As referências fornecidas definem uma interface institucional mais clara, acolh
 A referência interna posterior consolidou uma composição com **barra lateral branca**, cabeçalho arejado, painel inicial em blocos de indicadores, agenda semanal, atalhos rápidos e uso discreto de imagem municipal. Esta linguagem foi aplicada exclusivamente após a autenticação. A página de login foi aprovada pelo usuário e está **congelada**: não pode receber novas alterações visuais ou funcionais sem nova autorização expressa.
 
 Por solicitação posterior, o banner fotográfico municipal foi removido integralmente da barra lateral, da transição de boas-vindas e do painel inicial. O ambiente interno passou a usar somente superfícies claras, gradações institucionais e ícones, preservando a composição limpa.
+
+A barra lateral interna passou a usar o fluxo natural do grid, sem posicionamento travado ou sobreposição sobre os painéis. O login permanece isolado e congelado.
+
+A barra lateral interna passou a usar o fluxo natural do grid, sem posicionamento travado ou sobreposição sobre os painéis. O login permanece isolado e congelado.

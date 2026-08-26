@@ -45,7 +45,7 @@ describe("Financeiro ampliado local", () => {
     expect(restored.semedFinanceRules.length).toBeGreaterThan(0);
   });
 
-  it("protege fontes e regras para Administrador e permite lançamentos ao técnico autorizado", () => {
+  it("protege fontes e regras para Administrador, permite lançamentos técnicos e segrega cancelamento", () => {
     const database = createLocalSemedDatabase();
     expect(saveLocalFinanceSource(database, { code: "TESTE", name: "Fonte de teste", category: "Programa", openingBalance: 0, active: true }, "u-tecnico1").error).toContain("Administrador");
     const source = saveLocalFinanceSource(database, { code: "TESTE", name: "Fonte de teste", category: "Programa", openingBalance: 250, active: true }, "u-admin");
@@ -57,7 +57,8 @@ describe("Financeiro ampliado local", () => {
     expect(saveLocalFinanceRevenue(database, revenueInput({ sourceId: source.source!.id }), technical.id).error).toBeNull();
     const execution = saveLocalFinanceExecution(database, executionInput({ sourceId: source.source!.id }), technical.id);
     expect(execution.error).toBeNull();
-    expect(saveLocalFinanceExecution(database, { ...execution.execution!, status: "Cancelado" }, technical.id).error).toBeNull();
+    expect(saveLocalFinanceExecution(database, { ...execution.execution!, status: "Cancelado" }, technical.id).error).toContain("cancelar");
+    expect(saveLocalFinanceExecution(database, { ...execution.execution!, status: "Cancelado" }, "u-admin").error).toBeNull();
     expect(database.semedFinanceAuditLog.some((entry) => entry.action === "lancamento.cancelado")).toBe(true);
   });
 

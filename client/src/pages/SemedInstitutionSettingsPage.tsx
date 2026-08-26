@@ -1,6 +1,6 @@
 import { BellRing, Building2, CalendarDays, CheckCircle2, Clock3, FileKey2, Landmark, LockKeyhole, Save, ShieldCheck } from "lucide-react";
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
-import type { SemedInstitutionSettings, SemedInstitutionSettingsInput, SemedInstitutionSettingsAudit } from "./sigaLocalStore";
+import type { SemedGovernanceAudit, SemedInstitutionSettings, SemedInstitutionSettingsInput, SemedInstitutionSettingsAudit } from "./sigaLocalStore";
 import "./siga-institution-settings.css";
 
 type SettingsSection = "identidade" | "exercicio" | "comunicacoes" | "seguranca";
@@ -24,12 +24,14 @@ function auditLabel(audit: SemedInstitutionSettingsAudit) {
 export default function SemedInstitutionSettingsPage({
   settings,
   auditLog,
+  governanceAuditLog,
   actorUserId,
   readOnly,
   onSave,
 }: {
   settings: SemedInstitutionSettings;
   auditLog: SemedInstitutionSettingsAudit[];
+  governanceAuditLog: SemedGovernanceAudit[];
   actorUserId: string;
   readOnly: boolean;
   onSave: (input: SemedInstitutionSettingsInput, actorUserId: string) => { error: string | null; settings: SemedInstitutionSettings | null };
@@ -39,6 +41,7 @@ export default function SemedInstitutionSettingsPage({
   const [notice, setNotice] = useState("");
   useEffect(() => setForm(settingsInput(settings)), [settings]);
   const latestAudit = useMemo(() => auditLog.slice(0, 5), [auditLog]);
+  const latestGovernanceAudit = useMemo(() => governanceAuditLog.slice(0, 5), [governanceAuditLog]);
 
   function update<K extends keyof SemedInstitutionSettingsInput>(key: K, value: SemedInstitutionSettingsInput[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -106,6 +109,7 @@ export default function SemedInstitutionSettingsPage({
             <label className="siga-settings-field">Tamanho mínimo de senha<input type="number" min="8" max="64" value={form.minimumPasswordLength} onChange={(event) => update("minimumPasswordLength", Number(event.target.value))} disabled={readOnly} /></label>
           </div>
           <div className="siga-settings-audit"><div className="siga-settings-audit-title"><Clock3 size={18} aria-hidden="true" /><h3>Auditoria local</h3></div>{latestAudit.length ? latestAudit.map((audit) => <article key={audit.id}><strong>{audit.summary}</strong><span>{auditLabel(audit)} · {new Date(audit.createdAt).toLocaleString("pt-BR")}</span></article>) : <p>Nenhuma alteração institucional local registrada.</p>}</div>
+          <div className="siga-settings-audit"><div className="siga-settings-audit-title"><ShieldCheck size={18} aria-hidden="true" /><h3>Trilha transversal</h3></div>{latestGovernanceAudit.length ? latestGovernanceAudit.map((audit) => <article key={audit.id}><strong>{audit.summary}</strong><span>{audit.entityType} · {audit.action} · {new Date(audit.createdAt).toLocaleString("pt-BR")}</span></article>) : <p>Nenhuma ação crítica local registrada nesta sessão.</p>}</div>
         </> : null}
 
         <footer className="siga-settings-actions"><p>{readOnly ? "Apenas Administradores podem salvar alterações institucionais." : "As mudanças são registradas na auditoria local."}</p><button type="submit" disabled={readOnly}><Save size={18} aria-hidden="true" /> Salvar configurações</button></footer>

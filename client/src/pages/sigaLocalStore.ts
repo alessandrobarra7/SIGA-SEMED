@@ -15,6 +15,14 @@ export const SEMED_USER_PROFILES = [
 export type SemedUserProfile = (typeof SEMED_USER_PROFILES)[number];
 export type SemedLoginType = "matricula" | "cpf";
 
+export const SEMED_GOVERNANCE_ACTIONS = ["preparar", "revisar", "aprovar", "executar", "cancelar", "auditar"] as const;
+export type SemedGovernanceAction = (typeof SEMED_GOVERNANCE_ACTIONS)[number];
+export type SemedGovernanceEntity = "Contrato" | "Documento" | "Pagamento contratual" | "Execução financeira";
+export type SemedGovernanceAudit = {
+  id: string; entityType: SemedGovernanceEntity; entityId: string; action: SemedGovernanceAction;
+  actorUserId: string; changedFields: string[]; summary: string; correlationId: string; createdAt: string;
+};
+
 export const SEMED_MODULE_KEYS = [
   "inicio",
   "gestao",
@@ -132,6 +140,9 @@ export type SemedLocalSession = {
 export type SemedRecordPayment = {
   id: string;
   recordId: string;
+  documentId?: string;
+  financeExecutionId?: string;
+  actorUserId?: string;
   paymentDate: string;
   amount: number;
   notes: string;
@@ -173,6 +184,7 @@ export type SemedDocument = {
   destination: string;
   recipient: string;
   relatedRecord: string;
+  relatedRecordId?: string;
   responsible: string;
   documentDate: string;
   dueDate: string;
@@ -301,7 +313,10 @@ export type SemedFinancePlanningEntry = { id: string; referenceMonth: string; so
 export type SemedFinancePlanningInput = Omit<SemedFinancePlanningEntry, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedFinanceRevenue = { id: string; receiptDate: string; sourceId: string; component: string; type: SemedFinanceRevenueType; reference: string; amount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string };
 export type SemedFinanceRevenueInput = Omit<SemedFinanceRevenue, "id" | "createdAt" | "updatedAt"> & { id?: string };
-export type SemedFinanceExecution = { id: string; executionDate: string; sourceId: string; stage: SemedFinanceExecutionStage; description: string; classification: string; documentReference: string; amount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string };
+export type SemedFinanceExecution = {
+  id: string; executionDate: string; sourceId: string; stage: SemedFinanceExecutionStage; description: string; classification: string;
+  documentReference: string; recordId?: string; documentId?: string; paymentId?: string; amount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string;
+};
 export type SemedFinanceExecutionInput = Omit<SemedFinanceExecution, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedFinanceAudit = { id: string; action: SemedFinanceAuditAction; targetId: string; summary: string; actorUserId: string; createdAt: string };
 export type SemedFinanceSummary = { planned: number; revenues: number; committed: number; settled: number; paid: number; availability: number };
@@ -349,6 +364,7 @@ export type SemedLocalDatabase = {
   semedFinanceAuditLog: SemedFinanceAudit[];
   semedInstitutionSettings: SemedInstitutionSettings;
   semedInstitutionSettingsAuditLog: SemedInstitutionSettingsAudit[];
+  semedGovernanceAuditLog: SemedGovernanceAudit[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -755,6 +771,7 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       notificationsEnabled: true, deadlineAlertDays: 15, sessionDays: 7, minimumPasswordLength: 8, maintenanceMessage: "", updatedAt: createdAt, updatedBy: "u-admin",
     },
     semedInstitutionSettingsAuditLog: [],
+    semedGovernanceAuditLog: [],
   };
 }
 
@@ -831,78 +848,118 @@ export function listLocalRecords(database: SemedLocalDatabase): SemedRecord[] {
   });
 }
 
-export function createLocalRecord(database: SemedLocalDatabase, input: SemedRecordInput, timestamp = now()) {
+function governanceActor(database: SemedLocalDatabase, actorUserId: string) { return database.semedUsers.find((user) => user.id === actorUserId) ?? null; }
+
+export function canPerformLocalGovernanceAction(database: SemedLocalDatabase, actorUserId: string, moduleKey: SemedModuleKey, action: SemedGovernanceAction) {
+  const actor = governanceActor(database, actorUserId);
+  if (!actor) return false;
+  if (action === "auditar") return canReadLocalModule(database, actor, moduleKey);
+  if (action === "aprovar") return actor.profile === "Administrador";
+  if (action === "cancelar") return actor.profile === "Administrador" || (actor.profile === "Contadora Municipal" && moduleKey === "financeiro");
+  return canWriteLocalModule(database, actor, moduleKey);
+}
+
+function governanceAudit(database: SemedLocalDatabase, entityType: SemedGovernanceEntity, entityId: string, action: SemedGovernanceAction, actorUserId: string, changedFields: string[], summary: string, correlationId: string, timestamp = now()) {
+  database.semedGovernanceAuditLog.unshift({ id: localId("governance"), entityType, entityId, action, actorUserId, changedFields, summary, correlationId, createdAt: timestamp });
+}
+
+function resolveRecordId(database: SemedLocalDatabase, reference: string, preferredId = "") {
+  if (preferredId && database.semedRecords.some((record) => record.id === preferredId)) return preferredId;
+  const normalized = upper(reference);
+  return database.semedRecords.find((record) => record.number === normalized)?.id ?? "";
+}
+
+function resolveDocumentId(database: SemedLocalDatabase, reference: string, preferredId = "") {
+  if (preferredId && database.semedDocuments.some((document) => document.id === preferredId)) return preferredId;
+  const normalized = upper(reference);
+  return database.semedDocuments.find((document) => document.number === normalized)?.id ?? "";
+}
+
+export function createLocalRecord(database: SemedLocalDatabase, input: SemedRecordInput, timestamp = now(), actorUserId = "system") {
   const row = { id: localId("record"), ...normalizeRecord(input), createdAt: timestamp, updatedAt: timestamp };
   database.semedRecords.push(row);
+  governanceAudit(database, "Contrato", row.id, "preparar", actorUserId, ["registro"], "Contrato ou processo demonstrativo criado.", row.id, timestamp);
   return row;
 }
 
-export function updateLocalRecord(database: SemedLocalDatabase, id: string, input: SemedRecordInput, timestamp = now()) {
+export function updateLocalRecord(database: SemedLocalDatabase, id: string, input: SemedRecordInput, timestamp = now(), actorUserId = "system") {
   const index = database.semedRecords.findIndex((record) => record.id === id);
   if (index < 0) return null;
   const current = database.semedRecords[index];
   const updated = { id, ...normalizeRecord(input), createdAt: current.createdAt, updatedAt: timestamp };
   database.semedRecords[index] = updated;
+  governanceAudit(database, "Contrato", id, "revisar", actorUserId, ["registro"], "Contrato ou processo demonstrativo revisado.", id, timestamp);
   return updated;
 }
 
-export function deleteLocalRecord(database: SemedLocalDatabase, id: string) {
+export function deleteLocalRecord(database: SemedLocalDatabase, id: string, actorUserId = "system", timestamp = now()) {
   const exists = database.semedRecords.some((record) => record.id === id);
   if (!exists) return false;
   database.semedRecords = database.semedRecords.filter((record) => record.id !== id);
   database.semedRecordPayments = database.semedRecordPayments.filter((payment) => payment.recordId !== id);
+  governanceAudit(database, "Contrato", id, "cancelar", actorUserId, ["status"], "Contrato ou processo demonstrativo removido com confirmação.", id, timestamp);
   return true;
 }
 
-export function createLocalPayment(database: SemedLocalDatabase, input: SemedRecordPaymentInput, timestamp = now()) {
+export function createLocalPayment(database: SemedLocalDatabase, input: SemedRecordPaymentInput, timestamp = now(), actorUserId = "system") {
   const record = database.semedRecords.find((candidate) => candidate.id === input.recordId);
   if (!record) return { error: "Registro não encontrado." };
   const financial = calculateFinancialPosition(record.amount, database.semedRecordPayments.filter((payment) => payment.recordId === input.recordId));
   const amount = Number(input.amount);
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Informe um valor de baixa válido." };
   if (amount > financial.balanceAmount) return { error: "O valor informado não pode superar o saldo demonstrativo do contrato." };
-  database.semedRecordPayments.push({ id: localId("payment"), recordId: input.recordId, paymentDate: input.paymentDate, amount, notes: upper(input.notes) || "BAIXA REGISTRADA NA SIMULAÇÃO.", createdAt: timestamp });
+  const documentId = resolveDocumentId(database, record.number, input.documentId);
+  const financeExecutionId = input.financeExecutionId && database.semedFinanceExecutions.some((execution) => execution.id === input.financeExecutionId) ? input.financeExecutionId : "";
+  const payment = { id: localId("payment"), recordId: input.recordId, documentId: documentId || undefined, financeExecutionId: financeExecutionId || undefined, actorUserId, paymentDate: input.paymentDate, amount, notes: upper(input.notes) || "BAIXA REGISTRADA NA SIMULAÇÃO.", createdAt: timestamp };
+  database.semedRecordPayments.push(payment);
   if (input.nextPaymentDueDate !== undefined) record.paymentDueDate = input.nextPaymentDueDate;
   record.updatedAt = timestamp;
+  governanceAudit(database, "Pagamento contratual", payment.id, "executar", actorUserId, ["valor", "baixa"], "Baixa contratual demonstrativa registrada.", record.id, timestamp);
   return { error: null };
 }
 
-export function deleteLocalPayment(database: SemedLocalDatabase, id: string, timestamp = now()) {
+export function deleteLocalPayment(database: SemedLocalDatabase, id: string, timestamp = now(), actorUserId = "system") {
   const payment = database.semedRecordPayments.find((item) => item.id === id);
   if (!payment) return false;
   database.semedRecordPayments = database.semedRecordPayments.filter((item) => item.id !== id);
   const record = database.semedRecords.find((item) => item.id === payment.recordId);
   if (record) record.updatedAt = timestamp;
+  governanceAudit(database, "Pagamento contratual", id, "cancelar", actorUserId, ["baixa"], "Baixa contratual demonstrativa removida.", payment.recordId, timestamp);
   return true;
 }
 
-export function createLocalDocument(database: SemedLocalDatabase, input: SemedDocumentInput, timestamp = now()) {
-  const document = { id: localId("document"), ...normalizeDocument(input), createdAt: timestamp, updatedAt: timestamp };
+export function createLocalDocument(database: SemedLocalDatabase, input: SemedDocumentInput, timestamp = now(), actorUserId = "system") {
+  const normalized = normalizeDocument(input);
+  const document = { id: localId("document"), ...normalized, relatedRecordId: resolveRecordId(database, normalized.relatedRecord, input.relatedRecordId) || undefined, createdAt: timestamp, updatedAt: timestamp };
   database.semedDocuments.push(document);
+  governanceAudit(database, "Documento", document.id, "preparar", actorUserId, ["documento"], "Documento demonstrativo criado.", document.relatedRecordId || document.id, timestamp);
   return document;
 }
 
-export function updateLocalDocument(database: SemedLocalDatabase, id: string, input: SemedDocumentInput, timestamp = now()) {
+export function updateLocalDocument(database: SemedLocalDatabase, id: string, input: SemedDocumentInput, timestamp = now(), actorUserId = "system") {
   const index = database.semedDocuments.findIndex((document) => document.id === id);
   if (index < 0) return null;
   const current = database.semedDocuments[index];
-  const document = { id, ...normalizeDocument(input), createdAt: current.createdAt, updatedAt: timestamp };
+  const normalized = normalizeDocument(input);
+  const document = { id, ...normalized, relatedRecordId: resolveRecordId(database, normalized.relatedRecord, input.relatedRecordId) || undefined, createdAt: current.createdAt, updatedAt: timestamp };
   database.semedDocuments[index] = document;
+  governanceAudit(database, "Documento", id, "revisar", actorUserId, ["documento"], "Documento demonstrativo revisado.", document.relatedRecordId || id, timestamp);
   return document;
 }
 
-export function deleteLocalDocument(database: SemedLocalDatabase, id: string) {
+export function deleteLocalDocument(database: SemedLocalDatabase, id: string, actorUserId = "system", timestamp = now()) {
   const exists = database.semedDocuments.some((document) => document.id === id);
   database.semedDocuments = database.semedDocuments.filter((document) => document.id !== id);
+  if (exists) governanceAudit(database, "Documento", id, "cancelar", actorUserId, ["documento"], "Documento demonstrativo removido com confirmação.", id, timestamp);
   return exists;
 }
 
-export function confirmLocalRecordDeletion(database: SemedLocalDatabase, id: string, confirmation: string) {
-  return requiresDeleteConfirmation(confirmation) ? deleteLocalRecord(database, id) : false;
+export function confirmLocalRecordDeletion(database: SemedLocalDatabase, id: string, confirmation: string, actorUserId = "system") {
+  return requiresDeleteConfirmation(confirmation) ? deleteLocalRecord(database, id, actorUserId) : false;
 }
 
-export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: string, confirmation: string) {
-  return requiresDeleteConfirmation(confirmation) ? deleteLocalDocument(database, id) : false;
+export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: string, confirmation: string, actorUserId = "system") {
+  return requiresDeleteConfirmation(confirmation) ? deleteLocalDocument(database, id, actorUserId) : false;
 }
 
 function roundNutrition(value: number) { return Math.round(value * 1000) / 1000; }
@@ -1326,12 +1383,19 @@ export function saveLocalFinanceRevenue(database: SemedLocalDatabase, input: Sem
 
 export function saveLocalFinanceExecution(database: SemedLocalDatabase, input: SemedFinanceExecutionInput, actorUserId: string, timestamp = now()) {
   if (!financeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar a execução financeira.", execution: null };
+  if (input.status === "Cancelado" && !canPerformLocalGovernanceAction(database, actorUserId, "financeiro", "cancelar")) return { error: "Usuário sem permissão para cancelar a execução financeira.", execution: null };
   if (!financeDate(input.executionDate) || !activeFinanceSource(database, input.sourceId) || !input.description.trim() || !input.classification.trim() || !input.documentReference.trim() || !financeValue(input.amount)) return { error: "Informe data, fonte, etapa, descrição, classificação, documento e valor.", execution: null };
   const current = input.id ? database.semedFinanceExecutions.find((execution) => execution.id === input.id) : null;
-  const execution: SemedFinanceExecution = { id: current?.id ?? localId("finance-execution"), executionDate: input.executionDate, sourceId: input.sourceId, stage: input.stage, description: input.description.trim(), classification: upper(input.classification), documentReference: upper(input.documentReference), amount: financeValue(input.amount), status: input.status, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  const documentReference = upper(input.documentReference);
+  const documentId = resolveDocumentId(database, documentReference, input.documentId);
+  const document = documentId ? database.semedDocuments.find((candidate) => candidate.id === documentId) : null;
+  const recordId = resolveRecordId(database, documentReference, input.recordId || document?.relatedRecordId || "");
+  const paymentId = input.paymentId && database.semedRecordPayments.some((payment) => payment.id === input.paymentId) ? input.paymentId : "";
+  const execution: SemedFinanceExecution = { id: current?.id ?? localId("finance-execution"), executionDate: input.executionDate, sourceId: input.sourceId, stage: input.stage, description: input.description.trim(), classification: upper(input.classification), documentReference, recordId: recordId || undefined, documentId: documentId || undefined, paymentId: paymentId || undefined, amount: financeValue(input.amount), status: input.status, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
   if (current) database.semedFinanceExecutions[database.semedFinanceExecutions.indexOf(current)] = execution;
   else database.semedFinanceExecutions.push(execution);
   financeAudit(database, execution.status === "Cancelado" ? "lancamento.cancelado" : "execucao.salva", execution.id, execution.status === "Cancelado" ? "Execução demonstrativa cancelada." : "Execução demonstrativa salva.", actorUserId, timestamp);
+  governanceAudit(database, "Execução financeira", execution.id, execution.status === "Cancelado" ? "cancelar" : current ? "revisar" : "executar", actorUserId, ["execução", "status"], execution.status === "Cancelado" ? "Execução financeira demonstrativa cancelada." : "Execução financeira demonstrativa salva.", execution.recordId || execution.documentId || execution.id, timestamp);
   return { error: null, execution };
 }
 
@@ -1450,9 +1514,10 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 		    semedFinanceRevenues: nutritionDefaults.semedFinanceRevenues,
 		    semedFinanceExecutions: nutritionDefaults.semedFinanceExecutions,
 		    semedFinanceAuditLog: nutritionDefaults.semedFinanceAuditLog,
-		    semedInstitutionSettings: nutritionDefaults.semedInstitutionSettings,
-		    semedInstitutionSettingsAuditLog: nutritionDefaults.semedInstitutionSettingsAuditLog,
-		  };
+			    semedInstitutionSettings: nutritionDefaults.semedInstitutionSettings,
+			    semedInstitutionSettingsAuditLog: nutritionDefaults.semedInstitutionSettingsAuditLog,
+			    semedGovernanceAuditLog: nutritionDefaults.semedGovernanceAuditLog,
+			  };
 	}
 
 function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabasePreV7): SemedLocalDatabase {
@@ -1500,9 +1565,10 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 		    semedFinanceRevenues: Array.isArray(database.semedFinanceRevenues) ? database.semedFinanceRevenues : nutritionDefaults.semedFinanceRevenues,
 		    semedFinanceExecutions: Array.isArray(database.semedFinanceExecutions) ? database.semedFinanceExecutions : nutritionDefaults.semedFinanceExecutions,
 		    semedFinanceAuditLog: Array.isArray(database.semedFinanceAuditLog) ? database.semedFinanceAuditLog : nutritionDefaults.semedFinanceAuditLog,
-		    semedInstitutionSettings: current.semedInstitutionSettings ? { ...nutritionDefaults.semedInstitutionSettings, ...current.semedInstitutionSettings } : nutritionDefaults.semedInstitutionSettings,
-		    semedInstitutionSettingsAuditLog: Array.isArray(current.semedInstitutionSettingsAuditLog) ? current.semedInstitutionSettingsAuditLog : nutritionDefaults.semedInstitutionSettingsAuditLog,
-		  };
+			    semedInstitutionSettings: current.semedInstitutionSettings ? { ...nutritionDefaults.semedInstitutionSettings, ...current.semedInstitutionSettings } : nutritionDefaults.semedInstitutionSettings,
+			    semedInstitutionSettingsAuditLog: Array.isArray(current.semedInstitutionSettingsAuditLog) ? current.semedInstitutionSettingsAuditLog : nutritionDefaults.semedInstitutionSettingsAuditLog,
+			    semedGovernanceAuditLog: Array.isArray(current.semedGovernanceAuditLog) ? current.semedGovernanceAuditLog : nutritionDefaults.semedGovernanceAuditLog,
+			  };
 	}
 
 function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
@@ -1609,10 +1675,11 @@ export function useSigaLocalRepository() {
     schoolUnits: database.semedSchoolUnits, educaNuclei: database.semedEducaNuclei,
     financeSources: database.semedFinanceSources, financeRules: database.semedFinanceRules,
     financePlanningEntries: database.semedFinancePlanningEntries, financeRevenues: database.semedFinanceRevenues,
-    financeExecutions: database.semedFinanceExecutions, financeAuditLog: database.semedFinanceAuditLog,
+    financeExecutions: database.semedFinanceExecutions, financeAuditLog: database.semedFinanceAuditLog, governanceAuditLog: database.semedGovernanceAuditLog,
     institutionSettings: database.semedInstitutionSettings, institutionSettingsAuditLog: database.semedInstitutionSettingsAuditLog,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
+    canGovernanceAction(userId: string, moduleKey: SemedModuleKey, action: SemedGovernanceAction) { return canPerformLocalGovernanceAction(databaseRef.current, userId, moduleKey, action); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
     completeFirstAccess(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
     changePassword(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
@@ -1622,14 +1689,14 @@ export function useSigaLocalRepository() {
     setUserActive(userId: string, active: boolean, actorUserId: string) { return mutate((draft) => setLocalUserActive(draft, userId, active, actorUserId)); },
     issueProvisionalPassword(userId: string, actorUserId: string) { return mutate((draft) => issueLocalProvisionalPassword(draft, userId, actorUserId)); },
     terminateUserSessions(userId: string, actorUserId: string) { return mutate((draft) => terminateLocalUserSessions(draft, userId, actorUserId)); },
-    createRecord(input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalRecord(draft, input)) : null; },
-    updateRecord(id: string, input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => updateLocalRecord(draft, id, input)) : null; },
-    deleteRecord(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation)) : false; },
-    createPayment(input: SemedRecordPaymentInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalPayment(draft, input)) : { error: "Usuário sem permissão para alterar contratos." }; },
-    deletePayment(id: string, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => deleteLocalPayment(draft, id)) : false; },
-    createDocument(input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => createLocalDocument(draft, input)) : null; },
-    updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => updateLocalDocument(draft, id, input)) : null; },
-    deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)) : false; },
+    createRecord(input: SemedRecordInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "contratos", "preparar") ? mutate((draft) => createLocalRecord(draft, input, now(), actorUserId)) : null; },
+    updateRecord(id: string, input: SemedRecordInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "contratos", "revisar") ? mutate((draft) => updateLocalRecord(draft, id, input, now(), actorUserId)) : null; },
+    deleteRecord(id: string, actorUserId: string, confirmation = "EXCLUIR") { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "contratos", "cancelar") ? mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation, actorUserId)) : false; },
+    createPayment(input: SemedRecordPaymentInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "contratos", "executar") ? mutate((draft) => createLocalPayment(draft, input, now(), actorUserId)) : { error: "Usuário sem permissão para executar baixa contratual." }; },
+    deletePayment(id: string, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "contratos", "cancelar") ? mutate((draft) => deleteLocalPayment(draft, id, now(), actorUserId)) : false; },
+    createDocument(input: SemedDocumentInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "preparar") ? mutate((draft) => createLocalDocument(draft, input, now(), actorUserId)) : null; },
+    updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "revisar") ? mutate((draft) => updateLocalDocument(draft, id, input, now(), actorUserId)) : null; },
+    deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "cancelar") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation, actorUserId)) : false; },
     saveNutritionWeeklyPlan(input: SemedNutritionWeeklyInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionWeeklyPlan(draft, input, actorUserId)); },
     archiveNutritionWeeklyPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionWeeklyPlan(draft, planId, actorUserId)); },
     saveNutritionAnnualPlan(input: SemedNutritionAnnualInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionAnnualPlan(draft, input, actorUserId)); },
