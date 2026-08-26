@@ -289,9 +289,9 @@
 
 - [x] Revisar o estado Git e confirmar que não há credenciais, dados externos ou arquivos temporários na atualização.
 - [x] Confirmar testes, checagem de tipos e build da versão validada antes do envio.
-- [ ] Criar commit descritivo e enviar Unidades Escolares, Educa Paço, migração v5, testes e documentação ao repositório autorizado.
-- [ ] Confirmar o hash remoto da publicação ao usuário.
-- [ ] Recomendar a revogação da credencial exposta após a confirmação do envio.
+- [x] Criar commit descritivo e enviar Unidades Escolares, Educa Paço, migração v5, testes e documentação ao repositório autorizado.
+- [x] Confirmar o hash remoto da publicação ao usuário.
+- [x] Recomendar a revogação da credencial exposta após a confirmação do envio.
 
 ## Verificação de autorização GitHub
 
@@ -302,4 +302,4 @@
 ## Retomada autorizada da publicação
 
 - [x] Verificar a nova autorização de escrita da integração GitHub.
-- [ ] Enviar o commit preparado de Unidades Escolares e Educa Paço ao repositório autorizado.
+- [x] Enviar o commit preparado de Unidades Escolares e Educa Paço ao repositório autorizado.
