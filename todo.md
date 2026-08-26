@@ -611,3 +611,16 @@
 - [x] Aplicar Montserrat e Inter com tamanhos, pesos, contraste e espaçamento específicos à Gestão, sem alterar textos, dados ou ações.
 - [x] Validar tarefas, filtros e agenda em desktop e mobile, com regressão tipográfica, TypeScript e build.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a correção específica.
+
+## Relatório solicitado — alterações após o último diálogo
+
+- [x] Consolidar alterações de código, validações executadas, checkpoints e limitações visuais ainda observadas.
+- [x] Gerar e entregar arquivo `.txt` objetivo, sem expor credenciais ou informações externas.
+
+## Correção estrutural orientada — causa raiz da tipografia em Gestão
+
+- [x] Confirmar os seletores reais e os valores fixos de `siga-pages.css` usados por tarefas, abas, cabeçalho e agenda de Gestão.
+- [x] Reescrever diretamente essas regras-base para usar os tokens globais de fonte e escala, sem novas camadas genéricas de sobreposição.
+- [x] Reforçar o teste para verificar tokens nas regras reais de Gestão, não apenas sua presença em algum arquivo.
+- [x] Validar a Gestão em sessão autenticada com captura posterior à alteração antes de salvar qualquer checkpoint visual.
+- [x] Documentar o resultado ou o bloqueio de validação e apresentar a próxima ação sem afirmar uma correção visual não comprovada.

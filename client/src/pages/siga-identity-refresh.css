@@ -479,7 +479,6 @@
   letter-spacing: -.028em;
 }
 .siga-shell :is(
-  .siga-task-row strong,
   .siga-hr-server-main strong,
   .siga-hr-payslip-list strong,
   .siga-nutrition-list .summary strong,
@@ -524,8 +523,7 @@
   .siga-inline-note,
   .siga-nutrition-hero p,
   .siga-fleet-hero p,
-  .schools-educa-heading p,
-  .siga-management-page p
+  .schools-educa-heading p
 ) {
   color: #617782;
   font-size: var(--siga-text-body);
@@ -567,7 +565,6 @@
   text-transform: none;
 }
 .siga-shell :is(
-  .siga-task-row small,
   .siga-hr-audit-list small,
   .siga-hr-server-main small,
   .siga-nutrition-list small,
@@ -648,7 +645,6 @@
   .siga-week-day p,
   .siga-home-monthly-deadline small,
   .siga-home-monthly-deadline p,
-  .siga-task-row small,
   .siga-hr-audit-list small,
   .siga-hr-server-main small,
   .siga-nutrition-list small,
@@ -669,8 +665,7 @@
   .siga-inline-note,
   .siga-nutrition-hero p,
   .siga-fleet-hero p,
-  .schools-educa-heading p,
-  .siga-management-page p
+  .schools-educa-heading p
 ) {
   color: #506873;
   font-family: var(--siga-font-caption) !important;

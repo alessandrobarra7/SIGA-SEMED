@@ -72,12 +72,42 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain("sem atingir o login congelado");
   });
 
-  it("eleva a hierarquia da Gestão para títulos, filtros, tarefas e agenda", () => {
-    const managementStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-management-complement.css"), "utf8");
+  it("liga as regras efetivas de Gestão aos tokens globais no arquivo-base", () => {
+    const pagesStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-pages.css"), "utf8");
+    const complementStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-management-complement.css"), "utf8");
 
-    expect(managementStyles).toContain("Gestão: escala própria");
-    expect(managementStyles).toContain(".siga-management-page .siga-task-row > div > strong");
-    expect(managementStyles).toContain("font-size: 1.08rem !important;");
-    expect(managementStyles).toContain(".siga-management-page .siga-context-tabs button");
+    const rule = (selector: string) => {
+      const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = pagesStyles.match(new RegExp(`(?:^|\\n)\\s*${escapedSelector}\\s*\\{([^}]*)\\}`));
+      expect(match, `Regra-base ausente: ${selector}`).not.toBeNull();
+      return match![1];
+    };
+
+    const expectTokenRule = (selector: string, fontToken: string, sizeToken: string) => {
+      const cssRule = rule(selector);
+      expect(cssRule).toContain(`font-family: ${fontToken}`);
+      expect(cssRule).toContain(`font-size: ${sizeToken}`);
+      expect(cssRule).not.toMatch(/Source Serif 4|Manrope|font:\s|font-size:\s*[^;]*(?:px|rem)/);
+    };
+
+    expectTokenRule(".siga-page-heading h1", "var(--siga-font-display)", "var(--siga-text-page)");
+    expectTokenRule(".siga-context-tabs button", "var(--siga-font-body)", "var(--siga-text-label)");
+    expectTokenRule(".siga-task-row strong", "var(--siga-font-display)", "var(--siga-text-card)");
+    expectTokenRule(".siga-task-row small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(".siga-task-row em", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(".siga-governance-side-card h2", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(".siga-deadline-row strong", "var(--siga-font-display)", "var(--siga-text-card)");
+    expectTokenRule(".siga-deadline-row small", "var(--siga-font-body)", "var(--siga-text-meta)");
+
+    const mobileTaskTitle = rule(".siga-management-page .siga-task-row strong");
+    expect(mobileTaskTitle).toContain("white-space: normal");
+    expect(mobileTaskTitle).toContain("overflow: visible");
+
+    expect(indexStyles).toContain("--siga-text-page:");
+    expect(indexStyles).toContain("--siga-text-section:");
+    expect(indexStyles).toContain("--siga-text-label:");
+    expect(indexStyles).toContain("--siga-text-meta:");
+    expect(complementStyles).not.toContain("Gestão: escala própria");
+    expect(complementStyles).not.toContain(".siga-shell .siga-management-page");
   });
 });
