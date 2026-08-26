@@ -222,4 +222,4 @@
 - [x] Validar desktop, mobile, TypeScript e build, preservando a identidade visual aprovada.
 - [x] Conectar dias letivos e ofertas aos cálculos mensais de necessidade, cobertura e compra/contratação do planejamento anual.
 - [x] Cobrir por regressão o efeito dos dias letivos nos resultados anuais e revalidar a interface anual.
-- [ ] Salvar checkpoint e apresentar o módulo Nutrição funcional no preview.
+- [x] Salvar checkpoint e apresentar o módulo Nutrição funcional no preview.
