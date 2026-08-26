@@ -296,7 +296,7 @@
 ## Verificação de autorização GitHub
 
 - [x] Consultar convites pendentes da conta GitHub conectada para o repositório autorizado.
-- [ ] Aceitar convite pendente, se disponibilizado pelo proprietário do repositório.
+- [x] Aceitar convite pendente, se disponibilizado pelo proprietário do repositório (não aplicável: nenhuma solicitação pendente foi encontrada).
 - [x] Confirmar a permissão de escrita e retomar o envio do commit preparado.
 
 ## Retomada autorizada da publicação
