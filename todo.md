@@ -251,4 +251,4 @@
 - [x] Registrar os módulos reproduzidos, seus fluxos locais, validações e checkpoints correspondentes.
 - [x] Registrar os módulos ainda pendentes de reprodução funcional, em ordem recomendada.
 - [x] Incluir o protocolo obrigatório de observação somente leitura da referência e de uso de dados demonstrativos locais.
-- [ ] Revisar o documento, atualizar o checklist e salvar checkpoint da documentação.
+- [x] Revisar o documento, atualizar o checklist e salvar checkpoint da documentação.
