@@ -110,4 +110,40 @@ describe("tipografia institucional do shell", () => {
     expect(complementStyles).not.toContain("Gestão: escala própria");
     expect(complementStyles).not.toContain(".siga-shell .siga-management-page");
   });
+
+  it("liga as regras efetivas da página Início aos tokens globais nos arquivos-base", () => {
+    const pagesStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-pages.css"), "utf8");
+    const homeStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-identity-refresh.css"), "utf8");
+    const complementStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-management-complement.css"), "utf8");
+
+    const ruleFrom = (styles: string, selector: string) => {
+      const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = styles.match(new RegExp(`(?:^|[\\n}])\\s*${escapedSelector}\\s*\\{([^}]*)\\}`));
+      expect(match, `Regra-base ausente: ${selector}`).not.toBeNull();
+      return match![1];
+    };
+
+    const expectTokenRule = (styles: string, selector: string, fontToken: string, sizeToken: string) => {
+      const cssRule = ruleFrom(styles, selector);
+      expect(cssRule).toContain(`font-family: ${fontToken}`);
+      expect(cssRule).toContain(`font-size: ${sizeToken}`);
+      expect(cssRule).not.toMatch(/Source Serif 4|Manrope|font:\s|font-size:\s*[^;]*(?:px|rem)/);
+    };
+
+    expectTokenRule(pagesStyles, ".siga-home-heading h1", "var(--siga-font-display)", "var(--siga-text-page)");
+    expectTokenRule(pagesStyles, ".siga-card-heading h2", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(pagesStyles, ".siga-week-day small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(pagesStyles, ".siga-week-day strong", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(pagesStyles, ".siga-week-day span", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(pagesStyles, ".siga-home-stat small", "var(--siga-font-body)", "var(--siga-text-meta)");
+
+    expectTokenRule(homeStyles, ".siga-home-editorial-intro h1", "var(--siga-font-display)", "var(--siga-text-page)");
+    expectTokenRule(homeStyles, ".siga-editorial-metric strong", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(homeStyles, ".siga-editorial-metric small", "var(--siga-font-body)", "var(--siga-text-meta)");
+    expectTokenRule(homeStyles, ".siga-home-quick-actions > div:last-child button", "var(--siga-font-body)", "var(--siga-text-label)");
+
+    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines h3", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines strong", "var(--siga-font-display)", "var(--siga-text-card)");
+    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines small", "var(--siga-font-body)", "var(--siga-text-meta)");
+  });
 });

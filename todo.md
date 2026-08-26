@@ -630,3 +630,11 @@
 - [x] Revisar os arquivos pendentes e excluir documentos externos, capturas, credenciais e utilitários temporários do envio.
 - [x] Criar commit da correção estrutural de Gestão, da regressão e da documentação relacionada.
 - [x] Enviar a atualização à branch principal do repositório autorizado e confirmar o hash remoto.
+
+## Correção estrutural orientada — tipografia da página Início
+
+- [x] Confirmar os seletores efetivos de Início que ainda usam fontes ou escalas rígidas, incluindo cabeçalho, indicadores, agenda, acesso rápido e legendas.
+- [x] Reescrever diretamente no CSS-base os estilos de Início com tokens de Montserrat ExtraBold e Inter, sem sobreposição adicional.
+- [x] Estender a regressão tipográfica para inspecionar os seletores reais da página Início e impedir fontes legadas ou escalas rígidas.
+- [x] Validar o painel Início em sessão autenticada, em desktop e mobile, após a alteração e sem modificar a tela de login.
+- [x] Documentar o resultado comprovado e atualizar o checkpoint somente após a validação específica de Início.
