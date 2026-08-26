@@ -29,7 +29,7 @@ describe("Unidades Escolares e Educa Paço locais", () => {
     const legacy = { ...current, schemaVersion: 4 } as unknown as Record<string, unknown>;
     delete legacy.semedSchoolUnits; delete legacy.semedEducaNuclei;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(7);
+    expect(restored.schemaVersion).toBe(8);
     expect(restored.semedUsers).toHaveLength(current.semedUsers.length);
     expect(restored.semedStockItems).toHaveLength(current.semedStockItems.length);
     expect(restored.semedHrServers).toHaveLength(current.semedHrServers.length);

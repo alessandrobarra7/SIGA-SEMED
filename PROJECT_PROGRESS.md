@@ -22,11 +22,11 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início e menu lateral na ordem observada. |
-| Persistência local | Concluída: armazenamento v7 para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado e Configurações institucionais. |
+| Persistência local | Concluída: armazenamento v8 para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 75 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 79 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
@@ -47,7 +47,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Financeiro ampliado | Visão geral, Planejamento, Receitas, Execução, Fontes e regras e Relatórios; inclui filtros por exercício/fonte, fontes, metas, cancelamento auditável, indicadores, CSV e impressão local. | Migração v6, permissões administrativas, 68 testes totais, desktop, mobile, TypeScript e build. |
 | Configurações institucionais | Identificação, exercício, comunicações, segurança e auditoria local; parâmetros demonstrativos persistidos, regras de limites e salvamento restrito ao Administrador. | Migração v7, proteção administrativa, 71 testes totais, desktop, mobile, TypeScript e build. |
 | Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
-| Base mínima de governança | Matriz de preparar/revisar/aprovar/executar/cancelar/auditar; referências opcionais entre contratos, documentos, baixas e execução financeira; trilha transversal somente leitura. | Segregação de cancelamento, integridade referencial, auditoria, 75 testes, TypeScript e build. |
+| Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios demonstrativos; cálculo de abastecimento, estados operacionais, referências de governança e auditoria transversal. | Migração v8, segregação de cancelamento/resolução, 79 testes totais, desktop, mobile, TypeScript e build. |
 
 > Os dados exibidos em todos os módulos concluídos são **demonstrativos e locais**. Eles não representam cadastros, saldos, contratos, pessoas ou documentos da referência externa.
 
@@ -57,8 +57,7 @@ A navegação e a estrutura dos itens abaixo já foram mapeadas na referência, 
 
 | Prioridade sugerida | Setor | Escopo a reproduzir a partir da referência |
 |---:|---|---|
-| 1 | Frota | Cadastro de veículos, abastecimento, manutenção, ocorrências e relatórios, com permissões e histórico local. |
-| 2 | Gestão complementar | Expandir aprovações, anexos e relatórios somente após nova observação direta da referência quando houver dúvida de fluxo. |
+| 1 | Gestão complementar | Expandir aprovações, anexos e relatórios somente após nova observação direta da referência quando houver dúvida de fluxo. |
 
 ## 5. Protocolo obrigatório para cada novo setor
 
@@ -85,6 +84,7 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`settings_reference_observation.md`](./settings_reference_observation.md) | Registro de que a referência possui apenas configuração pessoal de senha e dos limites para o módulo institucional novo autorizado. |
 | [`governance_baseline_design.md`](./governance_baseline_design.md) | Matriz de ações, referências estruturadas e escopo da auditoria transversal local. |
 | [`governance_data_flow_analysis.md`](./governance_data_flow_analysis.md) | Diagnóstico técnico de perfis, setores, dependências e prioridades que fundamentou a governança. |
+| [`fleet_reference_observation.md`](./fleet_reference_observation.md) | Campos, controles, regras de permissão e limites de reprodução local do módulo Frota. |
 | [`visual_identity_refresh.md`](./visual_identity_refresh.md) | Diretrizes e limites funcionais da identidade visual clara, azul e verde autorizada pelo usuário. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 

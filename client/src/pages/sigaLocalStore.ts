@@ -17,7 +17,7 @@ export type SemedLoginType = "matricula" | "cpf";
 
 export const SEMED_GOVERNANCE_ACTIONS = ["preparar", "revisar", "aprovar", "executar", "cancelar", "auditar"] as const;
 export type SemedGovernanceAction = (typeof SEMED_GOVERNANCE_ACTIONS)[number];
-export type SemedGovernanceEntity = "Contrato" | "Documento" | "Pagamento contratual" | "Execução financeira";
+export type SemedGovernanceEntity = "Contrato" | "Documento" | "Pagamento contratual" | "Execução financeira" | "Veículo" | "Abastecimento" | "Manutenção de frota" | "Ocorrência de frota";
 export type SemedGovernanceAudit = {
   id: string; entityType: SemedGovernanceEntity; entityId: string; action: SemedGovernanceAction;
   actorUserId: string; changedFields: string[]; summary: string; correlationId: string; createdAt: string;
@@ -321,6 +321,36 @@ export type SemedFinanceExecutionInput = Omit<SemedFinanceExecution, "id" | "cre
 export type SemedFinanceAudit = { id: string; action: SemedFinanceAuditAction; targetId: string; summary: string; actorUserId: string; createdAt: string };
 export type SemedFinanceSummary = { planned: number; revenues: number; committed: number; settled: number; paid: number; availability: number };
 
+export type SemedFleetVehicleStatus = "Ativo" | "Em manutenção" | "Inativo";
+export type SemedFleetFuelStatus = "Registrado" | "Conferido" | "Cancelado";
+export type SemedFleetMaintenanceType = "Preventiva" | "Corretiva";
+export type SemedFleetMaintenanceStatus = "Agendada" | "Concluída" | "Cancelada";
+export type SemedFleetOccurrenceType = "Acidente" | "Avaria" | "Infração" | "Outro";
+export type SemedFleetOccurrenceStatus = "Aberta" | "Em apuração" | "Resolvida";
+
+export type SemedFleetVehicle = {
+  id: string; code: string; patrimony: string; plate: string; model: string; category: string; status: SemedFleetVehicleStatus;
+  odometerKm: number; capacity: number; responsibleUserId: string; costCenter: string; recordId?: string; documentId?: string; sourceId?: string;
+  createdAt: string; updatedAt: string;
+};
+export type SemedFleetVehicleInput = Omit<SemedFleetVehicle, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFleetFuel = {
+  id: string; vehicleId: string; fuelDate: string; odometerKm: number; liters: number; unitPrice: number; totalAmount: number; supplier: string;
+  responsibleUserId: string; documentReference: string; recordId?: string; documentId?: string; sourceId?: string; status: SemedFleetFuelStatus; createdAt: string; updatedAt: string;
+};
+export type SemedFleetFuelInput = Omit<SemedFleetFuel, "id" | "totalAmount" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFleetMaintenance = {
+  id: string; vehicleId: string; maintenanceDate: string; odometerKm: number; type: SemedFleetMaintenanceType; supplier: string; cost: number;
+  nextDate: string; nextOdometerKm: number; description: string; responsibleUserId: string; recordId?: string; documentId?: string; sourceId?: string;
+  status: SemedFleetMaintenanceStatus; createdAt: string; updatedAt: string;
+};
+export type SemedFleetMaintenanceInput = Omit<SemedFleetMaintenance, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFleetOccurrence = {
+  id: string; vehicleId: string; occurrenceDate: string; type: SemedFleetOccurrenceType; status: SemedFleetOccurrenceStatus; location: string;
+  responsibleUserId: string; description: string; resolution: string; recordId?: string; documentId?: string; createdAt: string; updatedAt: string;
+};
+export type SemedFleetOccurrenceInput = Omit<SemedFleetOccurrence, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
 export type SemedInstitutionSettings = {
   id: string; institutionName: string; acronym: string; municipality: string; referenceYear: number; timezone: string;
   notificationsEnabled: boolean; deadlineAlertDays: number; sessionDays: number; minimumPasswordLength: number; maintenanceMessage: string; updatedAt: string; updatedBy: string;
@@ -329,7 +359,7 @@ export type SemedInstitutionSettingsInput = Omit<SemedInstitutionSettings, "id" 
 export type SemedInstitutionSettingsAudit = { id: string; action: "configuracoes.salvas"; changedFields: string[]; summary: string; actorUserId: string; createdAt: string };
 
 export type SemedLocalDatabase = {
-  schemaVersion: 7;
+  schemaVersion: 8;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -362,6 +392,10 @@ export type SemedLocalDatabase = {
   semedFinanceRevenues: SemedFinanceRevenue[];
   semedFinanceExecutions: SemedFinanceExecution[];
   semedFinanceAuditLog: SemedFinanceAudit[];
+  semedFleetVehicles: SemedFleetVehicle[];
+  semedFleetFuelLogs: SemedFleetFuel[];
+  semedFleetMaintenances: SemedFleetMaintenance[];
+  semedFleetOccurrences: SemedFleetOccurrence[];
   semedInstitutionSettings: SemedInstitutionSettings;
   semedInstitutionSettingsAuditLog: SemedInstitutionSettingsAudit[];
   semedGovernanceAuditLog: SemedGovernanceAudit[];
@@ -632,7 +666,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = now();
   return {
-    schemaVersion: 7,
+    schemaVersion: 8,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -766,6 +800,19 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "finance-execution-3", executionDate: "2026-02-18", sourceId: "finance-source-mde", stage: "Apropriação legal", description: "Apropriação demonstrativa", classification: "MDE_25", documentReference: "DOC-DEMO-003", amount: 1800, status: "Ativo", createdAt, updatedAt: createdAt },
     ],
     semedFinanceAuditLog: [],
+    semedFleetVehicles: [
+      { id: "fleet-vehicle-1", code: "FRO-DEMO-001", patrimony: "PAT-DEMO-001", plate: "DEMO-001", model: "Veículo utilitário demonstrativo", category: "Serviço administrativo", status: "Ativo", odometerKm: 18420, capacity: 5, responsibleUserId: "u-tecnico1", costCenter: "Transporte escolar demonstrativo", recordId: "r44", documentId: "d041", sourceId: "finance-source-mde", createdAt, updatedAt: createdAt },
+      { id: "fleet-vehicle-2", code: "FRO-DEMO-002", patrimony: "PAT-DEMO-002", plate: "DEMO-002", model: "Veículo de apoio demonstrativo", category: "Apoio pedagógico", status: "Em manutenção", odometerKm: 26380, capacity: 8, responsibleUserId: "u-tecnico2", costCenter: "Apoio às unidades demonstrativas", sourceId: "finance-source-fundeb", createdAt, updatedAt: createdAt },
+    ],
+    semedFleetFuelLogs: [
+      { id: "fleet-fuel-1", vehicleId: "fleet-vehicle-1", fuelDate: "2026-08-12", odometerKm: 18340, liters: 32, unitPrice: 5.4, totalAmount: 172.8, supplier: "Fornecedor demonstrativo", responsibleUserId: "u-tecnico1", documentReference: "NF-DEMO-FRO-001", sourceId: "finance-source-mde", status: "Conferido", createdAt, updatedAt: createdAt },
+    ],
+    semedFleetMaintenances: [
+      { id: "fleet-maintenance-1", vehicleId: "fleet-vehicle-2", maintenanceDate: "2026-08-20", odometerKm: 26380, type: "Preventiva", supplier: "Oficina demonstrativa", cost: 640, nextDate: "2027-02-20", nextOdometerKm: 31380, description: "Revisão demonstrativa programada.", responsibleUserId: "u-tecnico2", sourceId: "finance-source-fundeb", status: "Agendada", createdAt, updatedAt: createdAt },
+    ],
+    semedFleetOccurrences: [
+      { id: "fleet-occurrence-1", vehicleId: "fleet-vehicle-2", occurrenceDate: "2026-08-19", type: "Avaria", status: "Em apuração", location: "Setor demonstrativo", responsibleUserId: "u-tecnico2", description: "Registro demonstrativo de verificação mecânica.", resolution: "", createdAt, updatedAt: createdAt },
+    ],
     semedInstitutionSettings: {
       id: "institution-settings-demo", institutionName: "Secretaria Municipal de Educação Demonstrativa", acronym: "SEMED", municipality: "Município demonstrativo", referenceYear: 2026, timezone: "America/Fortaleza",
       notificationsEnabled: true, deadlineAlertDays: 15, sessionDays: 7, minimumPasswordLength: 8, maintenanceMessage: "", updatedAt: createdAt, updatedBy: "u-admin",
@@ -997,6 +1044,66 @@ export function weeklyNutritionProductAnalysis(database: SemedLocalDatabase, pla
     const level = remaining < 0 ? "critical" : available > 0 && remaining / available <= 0.1 ? "warning" : "good";
     return { product, item, otherPlanned, available, projected, remaining, level } as const;
   });
+}
+
+function canManageFleetAction(database: SemedLocalDatabase, actorUserId: string, action: SemedGovernanceAction) {
+  return canPerformLocalGovernanceAction(database, actorUserId, "frota", action);
+}
+
+export function saveLocalFleetVehicle(database: SemedLocalDatabase, input: SemedFleetVehicleInput, actorUserId: string, timestamp = now()) {
+  const existing = input.id ? database.semedFleetVehicles.find((vehicle) => vehicle.id === input.id) : null;
+  const action: SemedGovernanceAction = existing ? "revisar" : "preparar";
+  if (!canManageFleetAction(database, actorUserId, action)) return { error: "Usuário sem permissão para alterar veículos da frota.", vehicle: null };
+  const code = upper(input.code); const patrimony = upper(input.patrimony); const plate = upper(input.plate);
+  if (!code || !patrimony || !plate || !input.model.trim() || !input.category.trim()) return { error: "Preencha código, patrimônio, identificação, modelo e categoria do veículo.", vehicle: null };
+  if (input.odometerKm < 0 || input.capacity < 1) return { error: "Informe quilometragem e capacidade válidas.", vehicle: null };
+  if (database.semedFleetVehicles.some((vehicle) => vehicle.id !== input.id && (vehicle.code === code || vehicle.patrimony === patrimony || vehicle.plate === plate))) return { error: "Código, patrimônio ou identificação já utilizados em outro veículo.", vehicle: null };
+  const vehicle: SemedFleetVehicle = { id: existing?.id ?? localId("fleet-vehicle"), ...input, code, patrimony, plate, model: input.model.trim(), category: input.category.trim(), costCenter: input.costCenter.trim(), responsibleUserId: input.responsibleUserId, createdAt: existing?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (existing) database.semedFleetVehicles[database.semedFleetVehicles.indexOf(existing)] = vehicle; else database.semedFleetVehicles.push(vehicle);
+  governanceAudit(database, "Veículo", vehicle.id, action, actorUserId, existing ? ["cadastro", "situação", "quilometragem"] : ["cadastro"], `${existing ? "Veículo demonstrativo atualizado" : "Veículo demonstrativo cadastrado"}.`, vehicle.id, timestamp);
+  return { error: null, vehicle };
+}
+
+export function saveLocalFleetFuel(database: SemedLocalDatabase, input: SemedFleetFuelInput, actorUserId: string, timestamp = now()) {
+  const existing = input.id ? database.semedFleetFuelLogs.find((item) => item.id === input.id) : null;
+  const action: SemedGovernanceAction = input.status === "Cancelado" ? "cancelar" : existing ? "revisar" : "preparar";
+  if (!canManageFleetAction(database, actorUserId, action)) return { error: "Usuário sem permissão para registrar ou cancelar abastecimentos.", fuel: null };
+  const vehicle = database.semedFleetVehicles.find((item) => item.id === input.vehicleId && item.status !== "Inativo");
+  if (!vehicle) return { error: "Selecione um veículo ativo ou em manutenção.", fuel: null };
+  if (!input.fuelDate || input.odometerKm < 0 || input.liters <= 0 || input.unitPrice <= 0 || !input.supplier.trim()) return { error: "Informe data, quilometragem, litros, valor unitário e fornecedor válidos.", fuel: null };
+  const totalAmount = Math.round(input.liters * input.unitPrice * 100) / 100;
+  const fuel: SemedFleetFuel = { id: existing?.id ?? localId("fleet-fuel"), ...input, supplier: input.supplier.trim(), documentReference: upper(input.documentReference), totalAmount, createdAt: existing?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (existing) database.semedFleetFuelLogs[database.semedFleetFuelLogs.indexOf(existing)] = fuel; else database.semedFleetFuelLogs.push(fuel);
+  vehicle.odometerKm = Math.max(vehicle.odometerKm, fuel.odometerKm); vehicle.updatedAt = timestamp;
+  governanceAudit(database, "Abastecimento", fuel.id, action, actorUserId, ["veículo", "quilometragem", "litros", "valor", "situação"], `Abastecimento demonstrativo ${fuel.status.toLowerCase()}.`, vehicle.id, timestamp);
+  return { error: null, fuel };
+}
+
+export function saveLocalFleetMaintenance(database: SemedLocalDatabase, input: SemedFleetMaintenanceInput, actorUserId: string, timestamp = now()) {
+  const existing = input.id ? database.semedFleetMaintenances.find((item) => item.id === input.id) : null;
+  const action: SemedGovernanceAction = input.status === "Cancelada" ? "cancelar" : existing ? "revisar" : "preparar";
+  if (!canManageFleetAction(database, actorUserId, action)) return { error: "Usuário sem permissão para registrar ou cancelar manutenções.", maintenance: null };
+  const vehicle = database.semedFleetVehicles.find((item) => item.id === input.vehicleId);
+  if (!vehicle) return { error: "Selecione um veículo cadastrado.", maintenance: null };
+  if (!input.maintenanceDate || input.odometerKm < 0 || input.cost < 0 || input.nextOdometerKm < input.odometerKm || !input.supplier.trim() || !input.description.trim()) return { error: "Preencha os dados de manutenção e os próximos marcos corretamente.", maintenance: null };
+  const maintenance: SemedFleetMaintenance = { id: existing?.id ?? localId("fleet-maintenance"), ...input, supplier: input.supplier.trim(), description: input.description.trim(), createdAt: existing?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (existing) database.semedFleetMaintenances[database.semedFleetMaintenances.indexOf(existing)] = maintenance; else database.semedFleetMaintenances.push(maintenance);
+  if (maintenance.status === "Agendada") vehicle.status = "Em manutenção"; if (maintenance.status === "Concluída" && vehicle.status === "Em manutenção") vehicle.status = "Ativo";
+  vehicle.odometerKm = Math.max(vehicle.odometerKm, maintenance.odometerKm); vehicle.updatedAt = timestamp;
+  governanceAudit(database, "Manutenção de frota", maintenance.id, action, actorUserId, ["veículo", "tipo", "custo", "situação"], `Manutenção demonstrativa ${maintenance.status.toLowerCase()}.`, vehicle.id, timestamp);
+  return { error: null, maintenance };
+}
+
+export function saveLocalFleetOccurrence(database: SemedLocalDatabase, input: SemedFleetOccurrenceInput, actorUserId: string, timestamp = now()) {
+  const existing = input.id ? database.semedFleetOccurrences.find((item) => item.id === input.id) : null;
+  const action: SemedGovernanceAction = input.status === "Resolvida" ? "aprovar" : existing ? "revisar" : "preparar";
+  if (!canManageFleetAction(database, actorUserId, action)) return { error: "Usuário sem permissão para registrar ou resolver ocorrências.", occurrence: null };
+  if (!database.semedFleetVehicles.some((item) => item.id === input.vehicleId)) return { error: "Selecione um veículo cadastrado.", occurrence: null };
+  if (!input.occurrenceDate || !input.location.trim() || !input.description.trim() || (input.status === "Resolvida" && !input.resolution.trim())) return { error: "Preencha data, local, descrição e a resolução quando aplicável.", occurrence: null };
+  const occurrence: SemedFleetOccurrence = { id: existing?.id ?? localId("fleet-occurrence"), ...input, location: input.location.trim(), description: input.description.trim(), resolution: input.resolution.trim(), createdAt: existing?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (existing) database.semedFleetOccurrences[database.semedFleetOccurrences.indexOf(existing)] = occurrence; else database.semedFleetOccurrences.push(occurrence);
+  governanceAudit(database, "Ocorrência de frota", occurrence.id, action, actorUserId, ["veículo", "tipo", "situação", "resolução"], `Ocorrência demonstrativa ${occurrence.status.toLowerCase()}.`, occurrence.vehicleId, timestamp);
+  return { error: null, occurrence };
 }
 
 export function saveLocalNutritionWeeklyPlan(database: SemedLocalDatabase, input: SemedNutritionWeeklyInput, actorUserId: string, timestamp = now()) {
@@ -1451,8 +1558,9 @@ export function saveLocalInstitutionSettings(database: SemedLocalDatabase, input
 }
 
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: number };
-type SemedLocalDatabaseV6 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: 6 };
+type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences"> & { schemaVersion: number };
+type SemedLocalDatabaseV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences"> & { schemaVersion: 7 };
+type SemedLocalDatabaseV6 = Omit<SemedLocalDatabaseV7, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: 6 };
 type SemedLocalDatabaseV5 = Omit<SemedLocalDatabaseV6, "schemaVersion" | "semedFinanceSources" | "semedFinanceRules" | "semedFinancePlanningEntries" | "semedFinanceRevenues" | "semedFinanceExecutions" | "semedFinanceAuditLog"> & { schemaVersion: 5 };
 type SemedLocalDatabaseV4 = Omit<SemedLocalDatabaseV5, "schemaVersion" | "semedSchoolUnits" | "semedEducaNuclei"> & { schemaVersion: 4 };
 type SemedLocalDatabaseV3 = Omit<SemedLocalDatabaseV4, "schemaVersion" | "semedHrServers" | "semedHrFinancialRecords" | "semedHrAttendancePeriods" | "semedHrAuditLog"> & { schemaVersion: 3 };
@@ -1485,8 +1593,8 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
 	const nutritionDefaults = createLocalSemedDatabase();
 		return {
 			...database,
-		    schemaVersion: 7,
-	semedUsers: migratedUsers,
+			    schemaVersion: 8,
+		semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
     semedStockItems: nutritionDefaults.semedStockItems,
@@ -1517,16 +1625,20 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			    semedInstitutionSettings: nutritionDefaults.semedInstitutionSettings,
 			    semedInstitutionSettingsAuditLog: nutritionDefaults.semedInstitutionSettingsAuditLog,
 			    semedGovernanceAuditLog: nutritionDefaults.semedGovernanceAuditLog,
+			    semedFleetVehicles: nutritionDefaults.semedFleetVehicles,
+			    semedFleetFuelLogs: nutritionDefaults.semedFleetFuelLogs,
+			    semedFleetMaintenances: nutritionDefaults.semedFleetMaintenances,
+			    semedFleetOccurrences: nutritionDefaults.semedFleetOccurrences,
 			  };
 	}
 
-function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabasePreV7): SemedLocalDatabase {
+function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
 		const nutritionDefaults = createLocalSemedDatabase();
 		const current = database as Partial<SemedLocalDatabase>;
 		return {
 			...database,
-		    schemaVersion: 7,
-	semedUsers: database.semedUsers.map((user) => ({
+			    schemaVersion: 8,
+		semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
       profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
@@ -1568,6 +1680,10 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			    semedInstitutionSettings: current.semedInstitutionSettings ? { ...nutritionDefaults.semedInstitutionSettings, ...current.semedInstitutionSettings } : nutritionDefaults.semedInstitutionSettings,
 			    semedInstitutionSettingsAuditLog: Array.isArray(current.semedInstitutionSettingsAuditLog) ? current.semedInstitutionSettingsAuditLog : nutritionDefaults.semedInstitutionSettingsAuditLog,
 			    semedGovernanceAuditLog: Array.isArray(current.semedGovernanceAuditLog) ? current.semedGovernanceAuditLog : nutritionDefaults.semedGovernanceAuditLog,
+			    semedFleetVehicles: Array.isArray(current.semedFleetVehicles) ? current.semedFleetVehicles : nutritionDefaults.semedFleetVehicles,
+			    semedFleetFuelLogs: Array.isArray(current.semedFleetFuelLogs) ? current.semedFleetFuelLogs : nutritionDefaults.semedFleetFuelLogs,
+			    semedFleetMaintenances: Array.isArray(current.semedFleetMaintenances) ? current.semedFleetMaintenances : nutritionDefaults.semedFleetMaintenances,
+			    semedFleetOccurrences: Array.isArray(current.semedFleetOccurrences) ? current.semedFleetOccurrences : nutritionDefaults.semedFleetOccurrences,
 			  };
 	}
 
@@ -1611,16 +1727,21 @@ function migrateInstitutionSettingsDatabase(database: SemedLocalDatabaseV6): Sem
   return normalizeCurrentDatabase(database);
 }
 
+function migrateFleetDatabase(database: SemedLocalDatabaseV7): SemedLocalDatabase {
+  return normalizeCurrentDatabase(database);
+}
+
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
     if (parsed.schemaVersion === 4) return migrateSchoolsEducaDatabase(parsed);
     if (parsed.schemaVersion === 5) return migrateFinancialDatabase(parsed);
     if (parsed.schemaVersion === 6) return migrateInstitutionSettingsDatabase(parsed);
-    if (parsed.schemaVersion === 7) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 7) return migrateFleetDatabase(parsed);
+    if (parsed.schemaVersion === 8) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1676,6 +1797,8 @@ export function useSigaLocalRepository() {
     financeSources: database.semedFinanceSources, financeRules: database.semedFinanceRules,
     financePlanningEntries: database.semedFinancePlanningEntries, financeRevenues: database.semedFinanceRevenues,
     financeExecutions: database.semedFinanceExecutions, financeAuditLog: database.semedFinanceAuditLog, governanceAuditLog: database.semedGovernanceAuditLog,
+    fleetVehicles: database.semedFleetVehicles, fleetFuelLogs: database.semedFleetFuelLogs,
+    fleetMaintenances: database.semedFleetMaintenances, fleetOccurrences: database.semedFleetOccurrences,
     institutionSettings: database.semedInstitutionSettings, institutionSettingsAuditLog: database.semedInstitutionSettingsAuditLog,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
@@ -1720,6 +1843,10 @@ export function useSigaLocalRepository() {
     saveFinancePlanningEntry(input: SemedFinancePlanningInput, actorUserId: string) { return mutate((draft) => saveLocalFinancePlanningEntry(draft, input, actorUserId)); },
     saveFinanceRevenue(input: SemedFinanceRevenueInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRevenue(draft, input, actorUserId)); },
     saveFinanceExecution(input: SemedFinanceExecutionInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceExecution(draft, input, actorUserId)); },
+    saveFleetVehicle(input: SemedFleetVehicleInput, actorUserId: string) { return mutate((draft) => saveLocalFleetVehicle(draft, input, actorUserId)); },
+    saveFleetFuel(input: SemedFleetFuelInput, actorUserId: string) { return mutate((draft) => saveLocalFleetFuel(draft, input, actorUserId)); },
+    saveFleetMaintenance(input: SemedFleetMaintenanceInput, actorUserId: string) { return mutate((draft) => saveLocalFleetMaintenance(draft, input, actorUserId)); },
+    saveFleetOccurrence(input: SemedFleetOccurrenceInput, actorUserId: string) { return mutate((draft) => saveLocalFleetOccurrence(draft, input, actorUserId)); },
     saveInstitutionSettings(input: SemedInstitutionSettingsInput, actorUserId: string) { return mutate((draft) => saveLocalInstitutionSettings(draft, input, actorUserId)); },
     financeSummary(referenceYear: number, sourceId = "") { return financeSummary(databaseRef.current, referenceYear, sourceId); },
     financeRuleIndicators(referenceYear: number) { return financeRuleIndicators(databaseRef.current, referenceYear); },

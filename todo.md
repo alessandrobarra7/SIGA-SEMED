@@ -398,10 +398,10 @@
 
 - [x] Observar em modo somente leitura veículos, abastecimento, manutenção, ocorrências, filtros, indicadores e relatórios na referência.
 - [x] Registrar campos, regras, permissões e sequência operacional sem copiar placas, motoristas, valores, documentos ou identificadores reais.
-- [ ] Modelar veículos, movimentações, manutenções, ocorrências e relatórios demonstrativos no armazenamento local, sem D1 ou serviços externos.
-- [ ] Implementar Frota na identidade visual atual, sem alterar login, navegação, permissões ou fluxos existentes.
-- [ ] Cobrir permissões, persistência, validações e regressão com testes; validar desktop, mobile, TypeScript e build.
-- [ ] Documentar a entrega, salvar checkpoint e apresentar o módulo funcional no preview.
+- [x] Modelar veículos, movimentações, manutenções, ocorrências e relatórios demonstrativos no armazenamento local, sem D1 ou serviços externos.
+- [x] Implementar Frota na identidade visual atual, sem alterar login, navegação, permissões ou fluxos existentes.
+- [x] Cobrir permissões, persistência, validações e regressão com testes; validar desktop, mobile, TypeScript e build.
+- [x] Documentar a entrega, salvar checkpoint e apresentar o módulo funcional no preview.
 
 ## Análise autorizada — perfis, setores e governança de dados
 
