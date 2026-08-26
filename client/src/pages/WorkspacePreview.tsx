@@ -4,6 +4,8 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ClipboardCheck,
   Clock3,
   Download,
@@ -211,11 +213,16 @@ function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
 function HomeDashboard({ records, documents, tasks = [], approvals = [], canReadGovernance = false, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; canReadGovernance?: boolean; onViewChange: (view: ShellView) => void }) {
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
+  const [deadlineMonth, setDeadlineMonth] = useState(() => tasks.find((task) => task.dueDate)?.dueDate.slice(0, 7) ?? new Date().toISOString().slice(0, 7));
   const dueRecords = records.filter((record) => recordAlert(record) !== "Em dia").length;
   const dueDocuments = documents.filter((document) => documentAlert(document) !== "Em dia").length;
   const openManagementTasks = tasks.filter((task) => !["Concluída", "Cancelada"].includes(task.status)).length;
   const pendingManagementApprovals = approvals.filter((approval) => approval.status === "Pendente").length;
   const openAlerts = dueRecords + dueDocuments + (canReadGovernance ? openManagementTasks + pendingManagementApprovals : 0);
+  const monthlyManagementDeadlines = useMemo(() => tasks.filter((task) => task.dueDate.startsWith(deadlineMonth) && !["Concluída", "Cancelada"].includes(task.status)).slice().sort((first, second) => first.dueDate.localeCompare(second.dueDate)), [deadlineMonth, tasks]);
+  const deadlineMonthLabel = new Date(`${deadlineMonth}-01T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+  function shiftDeadlineMonth(offset: number) { const value = new Date(`${deadlineMonth}-01T12:00:00`); value.setMonth(value.getMonth() + offset); setDeadlineMonth(`${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}`); }
 
   function saveNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -253,6 +260,7 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
       <section className="siga-agenda-card" aria-labelledby="agenda-title">
         <div className="siga-card-heading"><div><p>Acompanhamento da semana</p><h2 id="agenda-title">Agenda institucional</h2></div><button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><CalendarDays size={15} aria-hidden="true" />Ver calendário</button></div>
         <div className="siga-week-grid">{agendaDays.map((item) => <article key={item.day} className={`siga-week-day ${item.tone}`}><small>{item.day}</small><strong>{item.date}</strong>{item.items.map((agendaItem) => <span key={agendaItem}>{agendaItem}</span>)}</article>)}</div>
+        {canReadGovernance ? <section className="siga-home-monthly-deadlines" aria-label="Visão mensal de prazos de Gestão"><header><div><p>Prazos de Gestão</p><h3>{deadlineMonthLabel}</h3></div><div><button type="button" aria-label="Mês anterior" onClick={() => shiftDeadlineMonth(-1)}><ChevronLeft size={15} aria-hidden="true" /></button><button type="button" aria-label="Próximo mês" onClick={() => shiftDeadlineMonth(1)}><ChevronRight size={15} aria-hidden="true" /></button></div></header>{monthlyManagementDeadlines.length ? <div>{monthlyManagementDeadlines.map((task) => <button type="button" key={task.id} onClick={() => onViewChange("governance")}><time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit" })}</time><span><strong>{task.title}</strong><small>{task.area} · {task.priority}</small></span></button>)}</div> : <p>Nenhum prazo aberto de Gestão neste mês.</p>}</section> : null}
       </section>
 
       <section className="siga-home-quick-actions" aria-labelledby="quick-actions-title">
@@ -321,7 +329,7 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
       {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
       {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
       {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} canReadGovernance={repository.canRead(user.id, "gestao")} onViewChange={changeView} /> : null}
-      {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} records={repository.records} documents={repository.documents} auditLog={repository.governanceAuditLog} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onNotify={setNotice} /> : null}
+      {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} approvalComments={repository.managementApprovalComments} records={repository.records} documents={repository.documents} auditLog={repository.governanceAuditLog} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onSaveApprovalComment={(approvalId, content) => repository.addManagementApprovalComment(approvalId, content, user.id).error} onNotify={setNotice} /> : null}
       {activeView === "masters" ? <MastersPage readOnly={!repository.canWrite(user.id, "cadastros_gerais")} /> : null}
       {activeView === "finance" ? <SemedFinancePage sources={repository.financeSources} rules={repository.financeRules} planningEntries={repository.financePlanningEntries} revenues={repository.financeRevenues} executions={repository.financeExecutions} contractCount={repository.records.length} hrRecordCount={repository.hrFinancialRecords.length} canWrite={repository.canWrite(user.id, "financeiro")} canManageRules={user.profile === "Administrador" && repository.canWrite(user.id, "financeiro")} onSaveSource={(input) => repository.saveFinanceSource(input, user.id)} onSaveRule={(input) => repository.saveFinanceRule(input, user.id)} onSavePlanning={(input) => repository.saveFinancePlanningEntry(input, user.id)} onSaveRevenue={(input) => repository.saveFinanceRevenue(input, user.id)} onSaveExecution={(input) => repository.saveFinanceExecution(input, user.id)} onNotify={setNotice} /> : null}
       {activeView === "users" ? <SemedUsersPage currentUser={user} users={repository.users} permissions={repository.userPermissions} auditLog={repository.userAuditLog} onCreate={(input) => repository.createUser(input, user.id)} onUpdate={(userId, input) => repository.updateUser(userId, input, user.id)} onSetActive={(userId, active) => repository.setUserActive(userId, active, user.id)} onIssuePassword={(userId) => repository.issueProvisionalPassword(userId, user.id)} onTerminateSessions={(userId) => repository.terminateUserSessions(userId, user.id)} onNotify={setNotice} /> : null}

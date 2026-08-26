@@ -42,7 +42,7 @@ describe("recursos humanos local compatível com a referência observada", () =>
     const legacy = { ...database, schemaVersion: 3 } as unknown as Record<string, unknown>;
     delete legacy.semedHrServers; delete legacy.semedHrFinancialRecords; delete legacy.semedHrAttendancePeriods; delete legacy.semedHrAuditLog;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(9);
+    expect(restored.schemaVersion).toBe(10);
     expect(restored.semedStockItems.length).toBeGreaterThan(0);
     expect(restored.semedHrServers.length).toBeGreaterThan(0);
     expect(restored.semedNutritionAnnualPlans.length).toBeGreaterThan(0);

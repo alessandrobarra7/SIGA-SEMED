@@ -4,22 +4,24 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GovernancePage } from "../client/src/pages/SemedManagementPages";
 import WorkspacePreview from "../client/src/pages/WorkspacePreview";
-import { createLocalSemedDatabase, hydrateLocalDatabase, saveLocalManagementApproval, saveLocalManagementAttachment, saveLocalManagementTask } from "../client/src/pages/sigaLocalStore";
+import { addLocalManagementApprovalComment, createLocalSemedDatabase, hydrateLocalDatabase, saveLocalManagementApproval, saveLocalManagementAttachment, saveLocalManagementTask } from "../client/src/pages/sigaLocalStore";
 
 afterEach(() => cleanup());
 
 describe("Gestão complementar local", () => {
-  it("migra a base v8 para v9 preservando contratos e adicionando os coletores de Gestão", () => {
+  it("migra a base v8 para v10 preservando contratos e adicionando os coletores de Gestão", () => {
     const current = createLocalSemedDatabase();
     const legacy = { ...current, schemaVersion: 8 } as Record<string, unknown>;
     delete legacy.semedManagementTasks;
     delete legacy.semedManagementAttachments;
     delete legacy.semedManagementApprovals;
+    delete legacy.semedManagementApprovalComments;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(9);
+    expect(restored.schemaVersion).toBe(10);
     expect(restored.semedRecords).toHaveLength(current.semedRecords.length);
     expect(restored.semedManagementTasks.length).toBeGreaterThan(0);
     expect(restored.semedManagementApprovals.length).toBeGreaterThan(0);
+    expect(restored.semedManagementApprovalComments).toEqual([]);
   });
 
   it("persiste tarefas e anexos com auditoria e segrega a decisão de aprovação", () => {
@@ -39,6 +41,20 @@ describe("Gestão complementar local", () => {
     expect(approved.approval?.status).toBe("Aprovada");
     expect(database.semedGovernanceAuditLog.some((entry) => entry.entityType === "Tarefa de gestão" && entry.action === "executar")).toBe(true);
     expect(database.semedGovernanceAuditLog.some((entry) => entry.entityType === "Solicitação de aprovação" && entry.action === "aprovar")).toBe(true);
+  });
+
+  it("persiste comentários somente entre solicitante e decisor de uma devolução", () => {
+    const database = createLocalSemedDatabase();
+    database.semedUserPermissions.push({ id: "permission-u-tecnico1-gestao-comment", userId: "u-tecnico1", moduleKey: "gestao", granted: true, grantedBy: "u-admin", grantedAt: "2026-08-26T12:00:00.000Z" });
+    const requested = saveLocalManagementApproval(database, { title: "Solicitação devolvida", area: "Gestão", summary: "Revisão local de dados.", recordId: "", documentId: "d041", status: "Pendente", returnReason: "" }, "u-tecnico1");
+    const returned = saveLocalManagementApproval(database, { ...requested.approval!, status: "Devolvida", returnReason: "Completar o contexto demonstrativo." }, "u-admin");
+    const comment = addLocalManagementApprovalComment(database, returned.approval!.id, "Ajuste registrado para nova análise.", "u-tecnico1");
+    expect(comment.error).toBeNull();
+    expect(database.semedManagementApprovalComments).toHaveLength(1);
+    expect(database.semedGovernanceAuditLog.some((entry) => entry.changedFields.includes("solicitacao.comentario"))).toBe(true);
+    database.semedUserPermissions.push({ id: "permission-u-tecnico2-gestao-comment", userId: "u-tecnico2", moduleKey: "gestao", granted: true, grantedBy: "u-admin", grantedAt: "2026-08-26T12:00:00.000Z" });
+    const blocked = addLocalManagementApprovalComment(database, returned.approval!.id, "Tentativa sem vínculo.", "u-tecnico2");
+    expect(blocked.error).toContain("Somente solicitante e decisor");
   });
 
   it("expõe criação de tarefa e decisão administrativa no painel", () => {
@@ -68,6 +84,8 @@ describe("Gestão complementar local", () => {
     const { container } = render(<GovernancePage onNavigate={vi.fn()} users={database.semedUsers} tasks={tasks} attachments={[]} approvals={[approval]} records={database.semedRecords as never} documents={database.semedDocuments} auditLog={auditLog} canApprove={true} onSaveTask={vi.fn(() => null)} onSaveAttachment={vi.fn(() => null)} onSaveApproval={vi.fn(() => null)} />);
     fireEvent.change(screen.getByLabelText("Responsável"), { target: { value: "u-tecnico1" } });
     fireEvent.change(screen.getByLabelText("Prazo final"), { target: { value: "2026-09-30" } });
+    fireEvent.change(screen.getByLabelText("Situação"), { target: { value: "Programada" } });
+    fireEvent.change(screen.getByLabelText("Prioridade"), { target: { value: "Média" } });
     expect(screen.getAllByText("Tarefa da técnica").length).toBeGreaterThan(0);
     expect(container.querySelector(".siga-task-list")?.textContent).not.toContain("Tarefa administrativa");
     fireEvent.click(screen.getByRole("tab", { name: "Aprovações" }));
@@ -75,12 +93,16 @@ describe("Gestão complementar local", () => {
     expect(screen.getByText("Solicitação local aprovada: teste de histórico.")).toBeTruthy();
   });
 
-  it("leva indicadores permitidos de Gestão ao painel Início", () => {
+  it("leva indicadores e visão mensal permitidos de Gestão ao painel Início", () => {
     window.localStorage.clear();
     const database = createLocalSemedDatabase();
     render(<WorkspacePreview user={{ ...database.semedUsers[0], mustChangePassword: false }} onLogout={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Ir para o painel" }));
     expect(screen.getByText("Tarefas em aberto")).toBeTruthy();
     expect(screen.getByText("Aprovações aguardando")).toBeTruthy();
+    expect(screen.getByText("Prazos de Gestão")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Próximo mês" }));
+    fireEvent.click(screen.getByRole("button", { name: "Próximo mês" }));
+    expect(screen.getByText("Nenhum prazo aberto de Gestão neste mês.")).toBeTruthy();
   });
 });

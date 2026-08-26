@@ -38,7 +38,7 @@ describe("Financeiro ampliado local", () => {
     const legacy = { ...current, schemaVersion: 5 } as unknown as Record<string, unknown>;
     delete legacy.semedFinanceSources; delete legacy.semedFinanceRules; delete legacy.semedFinancePlanningEntries; delete legacy.semedFinanceRevenues; delete legacy.semedFinanceExecutions; delete legacy.semedFinanceAuditLog;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(9);
+    expect(restored.schemaVersion).toBe(10);
     expect(restored.semedUsers).toHaveLength(current.semedUsers.length);
     expect(restored.semedSchoolUnits.length).toBeGreaterThan(0);
     expect(restored.semedFinanceSources.length).toBeGreaterThan(0);

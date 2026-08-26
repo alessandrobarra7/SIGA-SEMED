@@ -481,3 +481,13 @@
 - [x] Integrar indicadores demonstrativos de Gestão ao painel Início, respeitando a leitura permitida ao perfil atual.
 - [x] Cobrir os aprimoramentos com testes e validar desktop, mobile, TypeScript e build sem modificar o login congelado.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a nova versão publicada.
+
+## Aprimoramentos autorizados — Gestão, devoluções e visão mensal
+
+- [x] Mapear os fluxos, modelos locais e permissões necessários para filtros de status/prioridade, comentários de devolução e visão mensal de prazos.
+- [x] Definir filtros combináveis; comentários restritos a solicitante e decisor em solicitações devolvidas; e visão mensal limitada aos prazos de Gestão legíveis pelo perfil.
+- [x] Implementar filtros de tarefas por status e prioridade, mantendo a combinação com os filtros atuais.
+- [x] Persistir comentários internos exclusivamente locais nas devoluções, com autoria, data/hora e auditoria.
+- [x] Adicionar uma visão mensal demonstrativa de prazos no painel Início, respeitando a leitura de Gestão do perfil atual.
+- [x] Cobrir persistência, permissões e regressões; validar desktop, mobile, TypeScript e build sem alterar o login congelado.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a versão publicada.
