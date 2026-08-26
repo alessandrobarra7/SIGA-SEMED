@@ -8,8 +8,8 @@ const shellStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-ide
 
 describe("tipografia institucional do shell", () => {
   it("carrega famílias tipográficas para o ambiente e mantém a regra visual escopada ao shell", () => {
-    expect(indexHtml).toContain("family=Public+Sans");
-    expect(indexHtml).toContain("family=Sora");
+    expect(indexHtml).toContain("family=IBM+Plex+Sans");
+    expect(indexHtml).toContain("family=IBM+Plex+Serif");
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
     expect(shellStyles).toContain('font-family: var(--siga-font-display) !important;');
@@ -19,6 +19,7 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain(".siga-nav-item");
     expect(shellStyles).toContain(".siga-nav-submenu button");
     expect(shellStyles).toContain("text-transform: uppercase;");
+    expect(shellStyles).toContain("text-transform: none;");
     expect(shellStyles).toContain("/* Tipografia institucional do ambiente autenticado — o login permanece intocado. */");
   });
 });

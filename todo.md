@@ -544,3 +544,10 @@
 - [x] Definir tipografia institucional para títulos, dados, rótulos e navegação, com caixa alta reservada a contextos de leitura rápida.
 - [x] Aplicar fontes, pesos, espaçamentos e caixa alta ao ambiente autenticado sem alterar textos, rotas, permissões ou ações.
 - [x] Validar contraste, responsividade, testes, TypeScript e build; documentar e salvar checkpoint da atualização visual.
+
+## Ajuste autorizado — nova tipografia institucional interna
+
+- [x] Substituir a combinação tipográfica atual por uma alternativa mais sóbria, legível e adequada a painel administrativo.
+- [x] Reduzir a caixa alta a rótulos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase nos demais contextos.
+- [x] Validar no preview, em desktop e mobile, os testes, TypeScript e build sem alterar a tela de login congelada.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a nova alternativa visual.
