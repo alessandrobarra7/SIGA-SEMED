@@ -22,11 +22,11 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada e buscador global com navegação por resultados permitidos. |
-| Persistência local | Concluída: armazenamento v8 para contratos, documentos, usuários, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
+| Persistência local | Concluída: armazenamento v9 para contratos, documentos, usuários, Gestão complementar, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 81 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 84 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
@@ -35,7 +35,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 |---|---|---|
 | Login e primeiro acesso | Matrícula/CPF, senha local, validação, alteração obrigatória de senha no primeiro acesso e encerramento de sessão. | Desktop, mobile e regressões de acesso. |
 | Shell e Início | Boas-vindas, agenda local, prazos, anotações, indicadores e navegação lateral expansível. | Desktop e mobile. |
-| Gestão | Tarefas, alertas, relatórios locais, anexos e aprovações demonstrativas. | Navegação e regressões de componentes. |
+| Gestão | Tarefas persistentes com prazo, prioridade, responsável e contexto; alertas derivados de tarefas, contratos e documentos; relatórios CSV locais; metadados de anexos; solicitações de aprovação com decisão segregada e devolução fundamentada. | Migração v9, permissões, auditoria transversal, 84 testes totais, validação manual desktop e revisão móvel. |
 | Cadastros | Escolas, núcleos, prédios administrativos e biblioteca, com filtros e criação local demonstrativa. | Desktop, mobile, testes e build. |
 | Contratos e Documentos | Fluxos de registros, filtros, documentos, parcelas, baixas, histórico e exclusão confirmada. | Operações locais e persistência. |
 | Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, persistência, desktop e mobile. |
@@ -58,7 +58,7 @@ A navegação e a estrutura dos itens abaixo já foram mapeadas na referência, 
 
 | Prioridade sugerida | Setor | Escopo a reproduzir a partir da referência |
 |---:|---|---|
-| 1 | Gestão complementar | Expandir aprovações, anexos e relatórios somente após nova observação direta da referência quando houver dúvida de fluxo. |
+| — | Nenhuma pendência imediata | A Gestão complementar foi consolidada localmente com base nas cinco abas já observadas e na autorização do usuário; novos detalhes do sistema de referência continuarão condicionados a observação somente leitura. |
 
 ## 5. Protocolo obrigatório para cada novo setor
 

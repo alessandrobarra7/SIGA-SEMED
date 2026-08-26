@@ -17,7 +17,7 @@ export type SemedLoginType = "matricula" | "cpf";
 
 export const SEMED_GOVERNANCE_ACTIONS = ["preparar", "revisar", "aprovar", "executar", "cancelar", "auditar"] as const;
 export type SemedGovernanceAction = (typeof SEMED_GOVERNANCE_ACTIONS)[number];
-export type SemedGovernanceEntity = "Contrato" | "Documento" | "Pagamento contratual" | "Execução financeira" | "Veículo" | "Abastecimento" | "Manutenção de frota" | "Ocorrência de frota";
+export type SemedGovernanceEntity = "Contrato" | "Documento" | "Pagamento contratual" | "Execução financeira" | "Veículo" | "Abastecimento" | "Manutenção de frota" | "Ocorrência de frota" | "Tarefa de gestão" | "Anexo administrativo" | "Solicitação de aprovação";
 export type SemedGovernanceAudit = {
   id: string; entityType: SemedGovernanceEntity; entityId: string; action: SemedGovernanceAction;
   actorUserId: string; changedFields: string[]; summary: string; correlationId: string; createdAt: string;
@@ -197,6 +197,28 @@ export type SemedDocument = {
 
 export type SemedDocumentInput = Omit<SemedDocument, "id" | "createdAt" | "updatedAt">;
 
+export const SEMED_MANAGEMENT_TASK_STATUSES = ["Programada", "Em andamento", "Aguardando", "Concluída", "Cancelada"] as const;
+export type SemedManagementTaskStatus = (typeof SEMED_MANAGEMENT_TASK_STATUSES)[number];
+export type SemedManagementPriority = "Baixa" | "Média" | "Alta";
+export type SemedManagementTask = {
+  id: string; title: string; area: string; dueDate: string; priority: SemedManagementPriority; status: SemedManagementTaskStatus;
+  assigneeUserId: string; summary: string; recordId: string; documentId: string; createdBy: string; createdAt: string; updatedAt: string;
+};
+export type SemedManagementTaskInput = Omit<SemedManagementTask, "id" | "createdBy" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedManagementAttachment = {
+  id: string; name: string; area: string; context: string; type: string; recordId: string; documentId: string; summary: string; createdBy: string; createdAt: string; updatedAt: string;
+};
+export type SemedManagementAttachmentInput = Omit<SemedManagementAttachment, "id" | "createdBy" | "createdAt" | "updatedAt"> & { id?: string };
+
+export const SEMED_MANAGEMENT_APPROVAL_STATUSES = ["Pendente", "Aprovada", "Devolvida"] as const;
+export type SemedManagementApprovalStatus = (typeof SEMED_MANAGEMENT_APPROVAL_STATUSES)[number];
+export type SemedManagementApproval = {
+  id: string; title: string; area: string; summary: string; recordId: string; documentId: string; requestedByUserId: string;
+  status: SemedManagementApprovalStatus; returnReason: string; decidedByUserId: string; decidedAt: string; createdAt: string; updatedAt: string;
+};
+export type SemedManagementApprovalInput = Omit<SemedManagementApproval, "id" | "requestedByUserId" | "decidedByUserId" | "decidedAt" | "createdAt" | "updatedAt"> & { id?: string };
+
 export const SEMED_NUTRITION_MODALITIES = ["Creche", "Pré-Escola", "Ensino Fundamental", "EJA"] as const;
 export type SemedNutritionModality = (typeof SEMED_NUTRITION_MODALITIES)[number];
 export const SEMED_NUTRITION_WEEKLY_STATUSES = ["Em análise", "Ajustado", "Aprovado para guia", "Arquivado"] as const;
@@ -359,7 +381,7 @@ export type SemedInstitutionSettingsInput = Omit<SemedInstitutionSettings, "id" 
 export type SemedInstitutionSettingsAudit = { id: string; action: "configuracoes.salvas"; changedFields: string[]; summary: string; actorUserId: string; createdAt: string };
 
 export type SemedLocalDatabase = {
-  schemaVersion: 8;
+  schemaVersion: 9;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -367,6 +389,9 @@ export type SemedLocalDatabase = {
   semedRecords: Omit<SemedRecord, "payments" | "paidAmount" | "balanceAmount">[];
   semedRecordPayments: SemedRecordPayment[];
   semedDocuments: SemedDocument[];
+  semedManagementTasks: SemedManagementTask[];
+  semedManagementAttachments: SemedManagementAttachment[];
+  semedManagementApprovals: SemedManagementApproval[];
   semedNutritionSchools: SemedNutritionSchool[];
   semedNutritionContracts: SemedNutritionContract[];
   semedNutritionWeeklyPlans: SemedNutritionWeeklyPlan[];
@@ -666,7 +691,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = now();
   return {
-    schemaVersion: 8,
+    schemaVersion: 9,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -686,6 +711,20 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "d694", kind: "Ofício", number: "694/2026", templateKey: "Solicitação ao RH Central", subject: "SOLICITAÇÃO AO RH CENTRAL", destination: "RH CENTRAL", recipient: "COORDENAÇÃO DE PESSOAL", relatedRecord: "PROCESSO 189/2026", responsible: "GABSAAF/SEMED", documentDate: "2026-08-22", dueDate: "2026-08-26", status: "Aguardando resposta", summary: "SOLICITA-SE PROVIDÊNCIAS QUANTO À ATUALIZAÇÃO DOS DADOS FUNCIONAIS INFORMADOS.", notes: "AGUARDAR RETORNO PARA JUNTADA AO PROCESSO.", createdAt, updatedAt: createdAt },
       { id: "d238", kind: "Memorando", number: "238/2026", templateKey: "Abertura de processo administrativo", subject: "SOLICITAÇÃO DE ABERTURA DE PROCESSO ADMINISTRATIVO PARA FINS DE PAGAMENTO", destination: "SECRETÁRIO MUNICIPAL DE EDUCAÇÃO | SEMED", recipient: "GABINETE", relatedRecord: "CONTRATO 012/2026", responsible: "COORDENAÇÃO ADMINISTRATIVA", documentDate: "2026-08-20", dueDate: "2026-08-21", status: "Aguardando resposta", summary: "SOLICITA-SE ABERTURA DE PROCESSO ADMINISTRATIVO PARA PAGAMENTO.", notes: "VERIFICAR DOCUMENTAÇÃO FISCAL.", createdAt, updatedAt: createdAt },
       { id: "d041", kind: "Despacho", number: "041/2026", templateKey: "Pagamento de nota fiscal", subject: "SOLICITAÇÃO DE PAGAMENTO REFERENTE À NOTA FISCAL", destination: "GABSAAF/SEMED", recipient: "SETOR FINANCEIRO", relatedRecord: "CONTRATO 027/2026", responsible: "FISCAL DO CONTRATO", documentDate: "2026-08-22", dueDate: "2026-08-29", status: "Em elaboração", summary: "ENCAMINHA-SE PARA ANÁLISE E PAGAMENTO DA NOTA FISCAL.", notes: "ANEXAR ATESTO DE RECEBIMENTO.", createdAt, updatedAt: createdAt },
+    ],
+    semedManagementTasks: [
+      { id: "management-task-1", title: "Revisar prazos de contratos", area: "Contratos", dueDate: "2026-08-27", priority: "Alta", status: "Em andamento", assigneeUserId: "u-tecnico1", summary: "Revisar os vínculos demonstrativos antes do fechamento semanal.", recordId: "r44", documentId: "", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+      { id: "management-task-2", title: "Conferir pendências documentais", area: "Documentos", dueDate: "2026-08-29", priority: "Média", status: "Aguardando", assigneeUserId: "u-tecnico2", summary: "Acompanhar respostas e documentos pendentes no contexto local.", recordId: "", documentId: "d694", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+      { id: "management-task-3", title: "Atualizar acompanhamento de unidades", area: "Cadastros", dueDate: "2026-09-02", priority: "Baixa", status: "Programada", assigneeUserId: "u-tecnico1", summary: "Preparar a revisão demonstrativa de cadastros institucionais.", recordId: "", documentId: "", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+    ],
+    semedManagementAttachments: [
+      { id: "management-attachment-1", name: "Plano de acompanhamento semanal", area: "Gestão", context: "Rotina administrativa", type: "Registro local", recordId: "", documentId: "", summary: "Metadado demonstrativo para consulta local.", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+      { id: "management-attachment-2", name: "Síntese de contratos ativos", area: "Contratos", context: "Acompanhamento", type: "Relatório local", recordId: "r12", documentId: "", summary: "Referência local para o acompanhamento administrativo.", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+      { id: "management-attachment-3", name: "Checklist de documentos", area: "Documentos", context: "Controle", type: "Modelo local", recordId: "", documentId: "d041", summary: "Modelo demonstrativo sem arquivo externo associado.", createdBy: "u-admin", createdAt, updatedAt: createdAt },
+    ],
+    semedManagementApprovals: [
+      { id: "management-approval-1", title: "Conferência de documento", area: "Documentos", summary: "Solicitação demonstrativa de conferência antes do encaminhamento local.", recordId: "", documentId: "d041", requestedByUserId: "u-tecnico1", status: "Pendente", returnReason: "", decidedByUserId: "", decidedAt: "", createdAt, updatedAt: createdAt },
+      { id: "management-approval-2", title: "Validação de atualização cadastral", area: "Cadastros", summary: "Solicitação demonstrativa de validação de atualização institucional.", recordId: "", documentId: "", requestedByUserId: "u-tecnico2", status: "Pendente", returnReason: "", decidedByUserId: "", decidedAt: "", createdAt, updatedAt: createdAt },
     ],
     semedNutritionSchools: [
       { id: "nutrition-school-1", name: "Unidade Escolar Demonstrativa Norte", inep: "DEMO0001" },
@@ -908,6 +947,80 @@ export function canPerformLocalGovernanceAction(database: SemedLocalDatabase, ac
 
 function governanceAudit(database: SemedLocalDatabase, entityType: SemedGovernanceEntity, entityId: string, action: SemedGovernanceAction, actorUserId: string, changedFields: string[], summary: string, correlationId: string, timestamp = now()) {
   database.semedGovernanceAuditLog.unshift({ id: localId("governance"), entityType, entityId, action, actorUserId, changedFields, summary, correlationId, createdAt: timestamp });
+}
+
+function activeManagementUser(database: SemedLocalDatabase, userId: string) {
+  return database.semedUsers.find((user) => user.id === userId && user.active) ?? null;
+}
+
+function isManagementTaskStatus(value: string): value is SemedManagementTaskStatus {
+  return (SEMED_MANAGEMENT_TASK_STATUSES as readonly string[]).includes(value);
+}
+
+function isManagementApprovalStatus(value: string): value is SemedManagementApprovalStatus {
+  return (SEMED_MANAGEMENT_APPROVAL_STATUSES as readonly string[]).includes(value);
+}
+
+function managementTaskAction(input: SemedManagementTaskInput, current: SemedManagementTask | undefined): SemedGovernanceAction {
+  if (!current) return "preparar";
+  if (input.status === "Concluída") return "executar";
+  if (input.status === "Cancelada") return "cancelar";
+  return "revisar";
+}
+
+export function saveLocalManagementTask(database: SemedLocalDatabase, input: SemedManagementTaskInput, actorUserId: string, timestamp = now()) {
+  const current = input.id ? database.semedManagementTasks.find((task) => task.id === input.id) : undefined;
+  const action = managementTaskAction(input, current);
+  if (!canPerformLocalGovernanceAction(database, actorUserId, "gestao", action)) return { error: "Usuário sem permissão para alterar tarefas de Gestão.", task: null };
+  if (!input.title.trim() || !input.area.trim() || !input.dueDate || !input.summary.trim() || !isManagementTaskStatus(input.status)) return { error: "Informe título, área, prazo, situação e resumo da tarefa.", task: null };
+  if (!activeManagementUser(database, input.assigneeUserId)) return { error: "Selecione um responsável ativo para a tarefa.", task: null };
+  if (input.recordId && !database.semedRecords.some((record) => record.id === input.recordId)) return { error: "O vínculo de contrato ou processo não foi encontrado.", task: null };
+  if (input.documentId && !database.semedDocuments.some((document) => document.id === input.documentId)) return { error: "O vínculo documental não foi encontrado.", task: null };
+  const task: SemedManagementTask = {
+    id: current?.id ?? localId("management-task"), title: input.title.trim(), area: input.area.trim(), dueDate: input.dueDate,
+    priority: input.priority, status: input.status, assigneeUserId: input.assigneeUserId, summary: input.summary.trim(),
+    recordId: input.recordId, documentId: input.documentId, createdBy: current?.createdBy ?? actorUserId, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) Object.assign(current, task); else database.semedManagementTasks.unshift(task);
+  governanceAudit(database, "Tarefa de gestão", task.id, action, actorUserId, [current ? "tarefa.atualizada" : "tarefa.criada", `situacao.${task.status}`], `Tarefa local ${current ? "atualizada" : "criada"}: ${task.title}.`, task.recordId || task.documentId || task.id, timestamp);
+  return { error: null, task };
+}
+
+export function saveLocalManagementAttachment(database: SemedLocalDatabase, input: SemedManagementAttachmentInput, actorUserId: string, timestamp = now()) {
+  const current = input.id ? database.semedManagementAttachments.find((attachment) => attachment.id === input.id) : undefined;
+  const action: SemedGovernanceAction = current ? "revisar" : "preparar";
+  if (!canPerformLocalGovernanceAction(database, actorUserId, "gestao", action)) return { error: "Usuário sem permissão para alterar anexos de Gestão.", attachment: null };
+  if (!input.name.trim() || !input.area.trim() || !input.context.trim() || !input.type.trim() || !input.summary.trim()) return { error: "Informe nome, área, contexto, tipo e resumo do anexo.", attachment: null };
+  if (input.recordId && !database.semedRecords.some((record) => record.id === input.recordId)) return { error: "O vínculo de contrato ou processo não foi encontrado.", attachment: null };
+  if (input.documentId && !database.semedDocuments.some((document) => document.id === input.documentId)) return { error: "O vínculo documental não foi encontrado.", attachment: null };
+  const attachment: SemedManagementAttachment = {
+    id: current?.id ?? localId("management-attachment"), name: input.name.trim(), area: input.area.trim(), context: input.context.trim(), type: input.type.trim(),
+    recordId: input.recordId, documentId: input.documentId, summary: input.summary.trim(), createdBy: current?.createdBy ?? actorUserId, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) Object.assign(current, attachment); else database.semedManagementAttachments.unshift(attachment);
+  governanceAudit(database, "Anexo administrativo", attachment.id, action, actorUserId, [current ? "anexo.atualizado" : "anexo.registrado"], `Metadado de anexo local ${current ? "atualizado" : "registrado"}: ${attachment.name}.`, attachment.recordId || attachment.documentId || attachment.id, timestamp);
+  return { error: null, attachment };
+}
+
+export function saveLocalManagementApproval(database: SemedLocalDatabase, input: SemedManagementApprovalInput, actorUserId: string, timestamp = now()) {
+  const current = input.id ? database.semedManagementApprovals.find((approval) => approval.id === input.id) : undefined;
+  if (!input.title.trim() || !input.area.trim() || !input.summary.trim() || !isManagementApprovalStatus(input.status)) return { error: "Informe título, área, resumo e situação da solicitação.", approval: null };
+  if (!current && input.status !== "Pendente") return { error: "Uma nova solicitação deve iniciar como pendente.", approval: null };
+  const decision = Boolean(current) && input.status !== "Pendente";
+  const action: SemedGovernanceAction = decision ? "aprovar" : current ? "revisar" : "preparar";
+  if (decision && current?.requestedByUserId === actorUserId) return { error: "A solicitação deve ser decidida por pessoa diferente de quem a registrou.", approval: null };
+  if (!canPerformLocalGovernanceAction(database, actorUserId, "gestao", action)) return { error: "Usuário sem permissão para registrar essa decisão de Gestão.", approval: null };
+  if (input.status === "Devolvida" && !input.returnReason.trim()) return { error: "Informe o motivo da devolução da solicitação.", approval: null };
+  if (input.recordId && !database.semedRecords.some((record) => record.id === input.recordId)) return { error: "O vínculo de contrato ou processo não foi encontrado.", approval: null };
+  if (input.documentId && !database.semedDocuments.some((document) => document.id === input.documentId)) return { error: "O vínculo documental não foi encontrado.", approval: null };
+  const approval: SemedManagementApproval = {
+    id: current?.id ?? localId("management-approval"), title: input.title.trim(), area: input.area.trim(), summary: input.summary.trim(), recordId: input.recordId, documentId: input.documentId,
+    requestedByUserId: current?.requestedByUserId ?? actorUserId, status: input.status, returnReason: input.status === "Devolvida" ? input.returnReason.trim() : "",
+    decidedByUserId: decision ? actorUserId : current?.decidedByUserId ?? "", decidedAt: decision ? timestamp : current?.decidedAt ?? "", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) Object.assign(current, approval); else database.semedManagementApprovals.unshift(approval);
+  governanceAudit(database, "Solicitação de aprovação", approval.id, action, actorUserId, [current ? `solicitacao.${approval.status.toLocaleLowerCase("pt-BR")}` : "solicitacao.criada"], `Solicitação local ${approval.status.toLocaleLowerCase("pt-BR")}: ${approval.title}.`, approval.recordId || approval.documentId || approval.id, timestamp);
+  return { error: null, approval };
 }
 
 function resolveRecordId(database: SemedLocalDatabase, reference: string, preferredId = "") {
@@ -1558,8 +1671,9 @@ export function saveLocalInstitutionSettings(database: SemedLocalDatabase, input
 }
 
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences"> & { schemaVersion: number };
-type SemedLocalDatabaseV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences"> & { schemaVersion: 7 };
+type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals"> & { schemaVersion: number };
+type SemedLocalDatabaseV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals"> & { schemaVersion: 7 };
+type SemedLocalDatabaseV8 = Omit<SemedLocalDatabase, "schemaVersion" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals"> & { schemaVersion: 8 };
 type SemedLocalDatabaseV6 = Omit<SemedLocalDatabaseV7, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: 6 };
 type SemedLocalDatabaseV5 = Omit<SemedLocalDatabaseV6, "schemaVersion" | "semedFinanceSources" | "semedFinanceRules" | "semedFinancePlanningEntries" | "semedFinanceRevenues" | "semedFinanceExecutions" | "semedFinanceAuditLog"> & { schemaVersion: 5 };
 type SemedLocalDatabaseV4 = Omit<SemedLocalDatabaseV5, "schemaVersion" | "semedSchoolUnits" | "semedEducaNuclei"> & { schemaVersion: 4 };
@@ -1593,7 +1707,7 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
 	const nutritionDefaults = createLocalSemedDatabase();
 		return {
 			...database,
-			    schemaVersion: 8,
+			    schemaVersion: 9,
 		semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
@@ -1629,15 +1743,18 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			    semedFleetFuelLogs: nutritionDefaults.semedFleetFuelLogs,
 			    semedFleetMaintenances: nutritionDefaults.semedFleetMaintenances,
 			    semedFleetOccurrences: nutritionDefaults.semedFleetOccurrences,
+			    semedManagementTasks: nutritionDefaults.semedManagementTasks,
+			    semedManagementAttachments: nutritionDefaults.semedManagementAttachments,
+			    semedManagementApprovals: nutritionDefaults.semedManagementApprovals,
 			  };
 	}
 
-function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
+function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
 		const nutritionDefaults = createLocalSemedDatabase();
 		const current = database as Partial<SemedLocalDatabase>;
 		return {
 			...database,
-			    schemaVersion: 8,
+			    schemaVersion: 9,
 		semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -1684,6 +1801,9 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			    semedFleetFuelLogs: Array.isArray(current.semedFleetFuelLogs) ? current.semedFleetFuelLogs : nutritionDefaults.semedFleetFuelLogs,
 			    semedFleetMaintenances: Array.isArray(current.semedFleetMaintenances) ? current.semedFleetMaintenances : nutritionDefaults.semedFleetMaintenances,
 			    semedFleetOccurrences: Array.isArray(current.semedFleetOccurrences) ? current.semedFleetOccurrences : nutritionDefaults.semedFleetOccurrences,
+			    semedManagementTasks: Array.isArray(current.semedManagementTasks) ? current.semedManagementTasks : nutritionDefaults.semedManagementTasks,
+			    semedManagementAttachments: Array.isArray(current.semedManagementAttachments) ? current.semedManagementAttachments : nutritionDefaults.semedManagementAttachments,
+			    semedManagementApprovals: Array.isArray(current.semedManagementApprovals) ? current.semedManagementApprovals : nutritionDefaults.semedManagementApprovals,
 			  };
 	}
 
@@ -1731,9 +1851,13 @@ function migrateFleetDatabase(database: SemedLocalDatabaseV7): SemedLocalDatabas
   return normalizeCurrentDatabase(database);
 }
 
+function migrateManagementDatabase(database: SemedLocalDatabaseV8): SemedLocalDatabase {
+  return normalizeCurrentDatabase(database);
+}
+
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
@@ -1741,7 +1865,8 @@ export function hydrateLocalDatabase(serialized: string) {
     if (parsed.schemaVersion === 5) return migrateFinancialDatabase(parsed);
     if (parsed.schemaVersion === 6) return migrateInstitutionSettingsDatabase(parsed);
     if (parsed.schemaVersion === 7) return migrateFleetDatabase(parsed);
-    if (parsed.schemaVersion === 8) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 8) return migrateManagementDatabase(parsed);
+    if (parsed.schemaVersion === 9) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1785,6 +1910,7 @@ export function useSigaLocalRepository() {
   };
   return {
     records, documents, users: database.semedUsers, userPermissions: database.semedUserPermissions, userAuditLog: database.semedUserAuditLog,
+    managementTasks: database.semedManagementTasks, managementAttachments: database.semedManagementAttachments, managementApprovals: database.semedManagementApprovals,
     nutritionSchools: database.semedNutritionSchools, nutritionContracts: database.semedNutritionContracts,
     nutritionWeeklyPlans: database.semedNutritionWeeklyPlans, nutritionStages: database.semedNutritionStages,
     nutritionCatalog: database.semedNutritionCatalog, nutritionAnnualPlans: database.semedNutritionAnnualPlans,
@@ -1820,6 +1946,9 @@ export function useSigaLocalRepository() {
     createDocument(input: SemedDocumentInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "preparar") ? mutate((draft) => createLocalDocument(draft, input, now(), actorUserId)) : null; },
     updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "revisar") ? mutate((draft) => updateLocalDocument(draft, id, input, now(), actorUserId)) : null; },
     deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return canPerformLocalGovernanceAction(databaseRef.current, actorUserId, "documentos", "cancelar") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation, actorUserId)) : false; },
+    saveManagementTask(input: SemedManagementTaskInput, actorUserId: string) { return mutate((draft) => saveLocalManagementTask(draft, input, actorUserId)); },
+    saveManagementAttachment(input: SemedManagementAttachmentInput, actorUserId: string) { return mutate((draft) => saveLocalManagementAttachment(draft, input, actorUserId)); },
+    saveManagementApproval(input: SemedManagementApprovalInput, actorUserId: string) { return mutate((draft) => saveLocalManagementApproval(draft, input, actorUserId)); },
     saveNutritionWeeklyPlan(input: SemedNutritionWeeklyInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionWeeklyPlan(draft, input, actorUserId)); },
     archiveNutritionWeeklyPlan(planId: string, actorUserId: string) { return mutate((draft) => archiveLocalNutritionWeeklyPlan(draft, planId, actorUserId)); },
     saveNutritionAnnualPlan(input: SemedNutritionAnnualInput, actorUserId: string) { return mutate((draft) => saveLocalNutritionAnnualPlan(draft, input, actorUserId)); },

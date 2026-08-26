@@ -75,7 +75,7 @@ describe("base mínima de governança local", () => {
     delete legacy.semedGovernanceAuditLog;
 
     const hydrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(hydrated.schemaVersion).toBe(8);
+    expect(hydrated.schemaVersion).toBe(9);
     expect(hydrated.semedGovernanceAuditLog).toEqual([]);
     expect(hydrated.semedRecords).toHaveLength(current.semedRecords.length);
     expect(hydrated.semedDocuments).toHaveLength(current.semedDocuments.length);

@@ -458,3 +458,16 @@
 - [x] Comparar a barra lateral no preview e na versão publicada para identificar a regra visual divergente.
 - [x] Corrigir posicionamento, altura e responsividade da barra lateral sem alterar login, rotas, submenus ou fluxos.
 - [x] Validar a correção nos dois ambientes e salvar um novo checkpoint publicado.
+
+## Ampliação autorizada — Gestão complementar
+
+- [x] Mapear as operações atuais de tarefas, alertas, relatórios, anexos e aprovações, incluindo permissões e dados locais usados.
+- [x] Definir os fluxos complementares prioritários e seus estados demonstrativos sem alterar os módulos existentes.
+- [x] Implementar operações locais e trilhas de auditoria compatíveis com as permissões atuais.
+- [x] Cobrir os novos fluxos com testes e validar desktop, mobile, TypeScript e build, preservando o login congelado.
+- [x] Atualizar a documentação, salvar checkpoint e apresentar a ampliação concluída.
+- [x] Persistir tarefas com criação, edição, conclusão e vínculo contextual local.
+- [x] Derivar alertas da Gestão a partir de tarefas, contratos e documentos sem expor dados externos.
+- [x] Criar solicitações de aprovação, com decisão segregada, devolução fundamentada e auditoria local.
+- [x] Registrar metadados de anexos locais vinculados a contextos existentes, sem upload ou transmissão de arquivos.
+- [x] Preparar relatórios gerenciais locais com recorte por área e exportação CSV apenas no navegador.

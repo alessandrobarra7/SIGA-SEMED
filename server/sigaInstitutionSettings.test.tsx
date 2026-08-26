@@ -18,7 +18,7 @@ describe("Configurações institucionais locais", () => {
     delete legacy.semedInstitutionSettings;
     delete legacy.semedInstitutionSettingsAuditLog;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(8);
+    expect(restored.schemaVersion).toBe(9);
     expect(restored.semedFinanceSources).toHaveLength(current.semedFinanceSources.length);
     expect(restored.semedSchoolUnits).toHaveLength(current.semedSchoolUnits.length);
     expect(restored.semedInstitutionSettings.acronym).toBe("SEMED");

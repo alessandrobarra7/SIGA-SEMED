@@ -1,0 +1,23 @@
+.siga-management-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 15px; border: 1px solid #cde0d4; border-radius: 9px; padding: 14px; background: #f3faf5; }
+.siga-management-form.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.siga-management-form label { display: grid; gap: 5px; color: #496f5d; font-size: 9px; font-weight: 800; }
+.siga-management-form label.wide { grid-column: 1 / -1; }
+.siga-management-form :is(input, select, textarea) { width: 100%; min-height: 35px; border: 1px solid #cfdfd5; border-radius: 6px; padding: 8px 9px; outline: 0; background: #fff; color: #314d5b; font: 650 10px Manrope, sans-serif; resize: vertical; }
+.siga-management-form :is(input, select, textarea):focus { border-color: #25815b; box-shadow: 0 0 0 3px rgba(37, 129, 91, .1); }
+.siga-management-form footer { display: flex; grid-column: 1 / -1; justify-content: flex-end; gap: 8px; }
+.siga-management-form button, .siga-return-form button { min-height: 34px; border: 1px solid #c6d8cd; border-radius: 6px; padding: 0 11px; background: #fff; color: #487166; cursor: pointer; font: 800 9px Manrope, sans-serif; }
+.siga-management-form button[type="submit"], .siga-return-form button[type="submit"] { border-color: #1e8057; background: #237f59; color: #fff; }
+.siga-row-action { display: grid; width: 29px; height: 29px; flex: 0 0 auto; place-items: center; border: 1px solid #cddde1; border-radius: 6px; background: #fff; color: #3d746f; cursor: pointer; }
+.siga-row-action.labeled { display: inline-flex; width: auto; height: 30px; gap: 5px; padding: 0 8px; color: #267950; font: 800 9px Manrope, sans-serif; }
+.siga-task-row .siga-row-action { margin-left: 3px; }
+.siga-approval-list article { flex-wrap: wrap; }
+.siga-return-form { display: flex; width: 100%; gap: 7px; }
+.siga-return-form input { min-width: 0; flex: 1; height: 34px; border: 1px solid #e2c9c2; border-radius: 6px; padding: 0 9px; outline: 0; color: #664a45; font: 650 10px Manrope, sans-serif; }
+.siga-return-form input:focus { border-color: #b76153; box-shadow: 0 0 0 3px rgba(183, 97, 83, .1); }
+@media (max-width: 620px) {
+  .siga-management-form, .siga-management-form.compact { grid-template-columns: 1fr; }
+  .siga-management-form label.wide { grid-column: auto; }
+  .siga-management-form footer, .siga-return-form { flex-direction: column; }
+  .siga-management-form footer button, .siga-return-form button { width: 100%; }
+  .siga-task-row .siga-row-action { margin-left: auto; }
+}
