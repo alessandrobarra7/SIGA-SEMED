@@ -287,8 +287,26 @@ export type SemedEducaNucleus = {
 };
 export type SemedEducaNucleusInput = Omit<SemedEducaNucleus, "id" | "createdAt" | "updatedAt"> & { id?: string };
 
+export type SemedFinanceEntryStatus = "Ativo" | "Cancelado";
+export type SemedFinanceRevenueType = "Repasse" | "Rendimento" | "Saldo reprogramado" | "Contrapartida";
+export type SemedFinanceExecutionStage = "Empenhado" | "Liquidado" | "Pago" | "Apropriação legal";
+export type SemedFinanceAuditAction = "fonte.salva" | "regra.salva" | "planejamento.salvo" | "receita.salva" | "execucao.salva" | "lancamento.cancelado";
+
+export type SemedFinanceSource = { id: string; code: string; name: string; category: string; openingBalance: number; active: boolean; createdAt: string; updatedAt: string };
+export type SemedFinanceSourceInput = Omit<SemedFinanceSource, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFinanceRule = { id: string; code: string; name: string; targetPercentage: number; description: string; referenceYear: number; active: boolean; createdAt: string; updatedAt: string };
+export type SemedFinanceRuleInput = Omit<SemedFinanceRule, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFinancePlanningEntry = { id: string; referenceMonth: string; sourceId: string; program: string; description: string; expenseNature: string; plannedAmount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string };
+export type SemedFinancePlanningInput = Omit<SemedFinancePlanningEntry, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFinanceRevenue = { id: string; receiptDate: string; sourceId: string; component: string; type: SemedFinanceRevenueType; reference: string; amount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string };
+export type SemedFinanceRevenueInput = Omit<SemedFinanceRevenue, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFinanceExecution = { id: string; executionDate: string; sourceId: string; stage: SemedFinanceExecutionStage; description: string; classification: string; documentReference: string; amount: number; status: SemedFinanceEntryStatus; createdAt: string; updatedAt: string };
+export type SemedFinanceExecutionInput = Omit<SemedFinanceExecution, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedFinanceAudit = { id: string; action: SemedFinanceAuditAction; targetId: string; summary: string; actorUserId: string; createdAt: string };
+export type SemedFinanceSummary = { planned: number; revenues: number; committed: number; settled: number; paid: number; availability: number };
+
 export type SemedLocalDatabase = {
-  schemaVersion: 5;
+  schemaVersion: 6;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -315,6 +333,12 @@ export type SemedLocalDatabase = {
   semedHrAuditLog: SemedHrAudit[];
   semedSchoolUnits: SemedSchoolUnit[];
   semedEducaNuclei: SemedEducaNucleus[];
+  semedFinanceSources: SemedFinanceSource[];
+  semedFinanceRules: SemedFinanceRule[];
+  semedFinancePlanningEntries: SemedFinancePlanningEntry[];
+  semedFinanceRevenues: SemedFinanceRevenue[];
+  semedFinanceExecutions: SemedFinanceExecution[];
+  semedFinanceAuditLog: SemedFinanceAudit[];
 };
 
 const STORAGE_KEY = "siga-semed-local-schema-v1";
@@ -582,7 +606,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = now();
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     semedUsers: localUsers.map((user) => ({ ...user })),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -689,6 +713,33 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
       { id: "educa-nucleus-1", code: "EP-DEMO-001", name: "Núcleo Demonstrativo de Aprendizagem", classification: "Pedagógico", status: "Ativo", roomCount: 4, capacityPerShift: 90, activities: ["Reforço demonstrativo", "Leitura"], sportModalities: [], address: "Endereço demonstrativo do núcleo 01", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: true, createdAt, updatedAt: createdAt },
       { id: "educa-nucleus-2", code: "EP-DEMO-002", name: "Núcleo Demonstrativo de Esporte", classification: "Esportivo", status: "Ativo", roomCount: 2, capacityPerShift: 70, activities: ["Atividade corporal"], sportModalities: ["Modalidade demonstrativa"], address: "Endereço demonstrativo do núcleo 02", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: false, createdAt, updatedAt: createdAt },
     ],
+    semedFinanceSources: [
+      { id: "finance-source-fundeb", code: "FUNDEB", name: "Fonte demonstrativa de educação básica", category: "Fundo", openingBalance: 3200, active: true, createdAt, updatedAt: createdAt },
+      { id: "finance-source-mde", code: "MDE", name: "Fonte demonstrativa de manutenção do ensino", category: "Recursos próprios", openingBalance: 1800, active: true, createdAt, updatedAt: createdAt },
+      { id: "finance-source-pnae", code: "PNAE", name: "Fonte demonstrativa de alimentação escolar", category: "Programa", openingBalance: 900, active: true, createdAt, updatedAt: createdAt },
+      { id: "finance-source-par", code: "PAR", name: "Fonte demonstrativa de ações articuladas", category: "Convênio", openingBalance: 600, active: true, createdAt, updatedAt: createdAt },
+    ],
+    semedFinanceRules: [
+      { id: "finance-rule-fundeb", code: "FUNDEB_70", name: "Meta demonstrativa de profissionais da educação", targetPercentage: 70, description: "Parâmetro demonstrativo por exercício.", referenceYear: 2026, active: true, createdAt, updatedAt: createdAt },
+      { id: "finance-rule-mde", code: "MDE_25", name: "Meta demonstrativa de manutenção do ensino", targetPercentage: 25, description: "Parâmetro demonstrativo por exercício.", referenceYear: 2026, active: true, createdAt, updatedAt: createdAt },
+      { id: "finance-rule-pnae", code: "PNAE_AF", name: "Meta demonstrativa de agricultura familiar", targetPercentage: 30, description: "Parâmetro demonstrativo por exercício.", referenceYear: 2026, active: true, createdAt, updatedAt: createdAt },
+    ],
+    semedFinancePlanningEntries: [
+      { id: "finance-plan-1", referenceMonth: "2026-01", sourceId: "finance-source-fundeb", program: "Programa demonstrativo", description: "Planejamento de pessoal demonstrativo", expenseNature: "Pessoal e encargos", plannedAmount: 8400, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-plan-2", referenceMonth: "2026-02", sourceId: "finance-source-mde", program: "Programa demonstrativo", description: "Manutenção escolar demonstrativa", expenseNature: "Custeio", plannedAmount: 3600, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-plan-3", referenceMonth: "2026-03", sourceId: "finance-source-pnae", program: "Programa demonstrativo", description: "Aquisição alimentar demonstrativa", expenseNature: "Material de consumo", plannedAmount: 2900, status: "Ativo", createdAt, updatedAt: createdAt },
+    ],
+    semedFinanceRevenues: [
+      { id: "finance-revenue-1", receiptDate: "2026-01-05", sourceId: "finance-source-fundeb", component: "Repasse demonstrativo", type: "Repasse", reference: "Receita local 01/2026", amount: 12000, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-revenue-2", receiptDate: "2026-02-05", sourceId: "finance-source-mde", component: "Transferência demonstrativa", type: "Repasse", reference: "Receita local 02/2026", amount: 6400, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-revenue-3", receiptDate: "2026-03-05", sourceId: "finance-source-pnae", component: "Rendimento demonstrativo", type: "Rendimento", reference: "Receita local 03/2026", amount: 4100, status: "Ativo", createdAt, updatedAt: createdAt },
+    ],
+    semedFinanceExecutions: [
+      { id: "finance-execution-1", executionDate: "2026-01-12", sourceId: "finance-source-fundeb", stage: "Empenhado", description: "Empenho demonstrativo", classification: "FUNDEB_70", documentReference: "DOC-DEMO-001", amount: 5600, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-execution-2", executionDate: "2026-01-20", sourceId: "finance-source-fundeb", stage: "Pago", description: "Pagamento demonstrativo", classification: "FUNDEB_70", documentReference: "DOC-DEMO-002", amount: 4200, status: "Ativo", createdAt, updatedAt: createdAt },
+      { id: "finance-execution-3", executionDate: "2026-02-18", sourceId: "finance-source-mde", stage: "Apropriação legal", description: "Apropriação demonstrativa", classification: "MDE_25", documentReference: "DOC-DEMO-003", amount: 1800, status: "Ativo", createdAt, updatedAt: createdAt },
+    ],
+    semedFinanceAuditLog: [],
   };
 }
 
@@ -1192,8 +1243,112 @@ export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: Semed
   return { error: null, nucleus };
 }
 
+function financeValue(value: unknown) { return Math.round(nonNegative(value) * 100) / 100; }
+function financeMonth(value: string) { return /^\d{4}-(0[1-9]|1[0-2])$/.test(value); }
+function financeDate(value: string) { return /^\d{4}-\d{2}-\d{2}$/.test(value); }
+function financeAudit(database: SemedLocalDatabase, action: SemedFinanceAuditAction, targetId: string, summary: string, actorUserId: string, timestamp = now()) {
+  const entry: SemedFinanceAudit = { id: localId("finance-audit"), action, targetId, summary: summary.trim(), actorUserId, createdAt: timestamp };
+  database.semedFinanceAuditLog.unshift(entry);
+  return entry;
+}
+function financeWriter(database: SemedLocalDatabase, actorUserId: string) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  return actor && canWriteLocalModule(database, actor, "financeiro") ? actor : null;
+}
+function financeAdministrator(database: SemedLocalDatabase, actorUserId: string) {
+  const actor = financeWriter(database, actorUserId);
+  return actor?.profile === "Administrador" ? actor : null;
+}
+function activeFinanceSource(database: SemedLocalDatabase, sourceId: string) { return database.semedFinanceSources.find((source) => source.id === sourceId && source.active); }
+
+export function saveLocalFinanceSource(database: SemedLocalDatabase, input: SemedFinanceSourceInput, actorUserId: string, timestamp = now()) {
+  if (!financeAdministrator(database, actorUserId)) return { error: "Somente Administrador pode alterar fontes de recursos.", source: null };
+  const code = upper(input.code); const name = input.name.trim();
+  if (!code || !name || !input.category.trim()) return { error: "Informe código, nome e categoria da fonte.", source: null };
+  if (database.semedFinanceSources.some((source) => source.id !== input.id && upper(source.code) === code)) return { error: "Já existe uma fonte demonstrativa com este código.", source: null };
+  const current = input.id ? database.semedFinanceSources.find((source) => source.id === input.id) : null;
+  const source: SemedFinanceSource = { id: current?.id ?? localId("finance-source"), code, name, category: input.category.trim(), openingBalance: financeValue(input.openingBalance), active: Boolean(input.active), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedFinanceSources[database.semedFinanceSources.indexOf(current)] = source;
+  else database.semedFinanceSources.push(source);
+  financeAudit(database, "fonte.salva", source.id, current ? "Fonte demonstrativa atualizada." : "Fonte demonstrativa cadastrada.", actorUserId, timestamp);
+  return { error: null, source };
+}
+
+export function saveLocalFinanceRule(database: SemedLocalDatabase, input: SemedFinanceRuleInput, actorUserId: string, timestamp = now()) {
+  if (!financeAdministrator(database, actorUserId)) return { error: "Somente Administrador pode alterar regras do exercício.", rule: null };
+  const code = upper(input.code); const name = input.name.trim(); const referenceYear = Math.round(nonNegative(input.referenceYear)); const targetPercentage = financeValue(input.targetPercentage);
+  if (!code || !name || !referenceYear || targetPercentage > 100) return { error: "Informe código, regra, exercício e percentual entre 0 e 100.", rule: null };
+  if (database.semedFinanceRules.some((rule) => rule.id !== input.id && rule.referenceYear === referenceYear && upper(rule.code) === code)) return { error: "Já existe uma regra demonstrativa com este código no exercício.", rule: null };
+  const current = input.id ? database.semedFinanceRules.find((rule) => rule.id === input.id) : null;
+  const rule: SemedFinanceRule = { id: current?.id ?? localId("finance-rule"), code, name, targetPercentage, description: input.description.trim(), referenceYear, active: Boolean(input.active), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedFinanceRules[database.semedFinanceRules.indexOf(current)] = rule;
+  else database.semedFinanceRules.push(rule);
+  financeAudit(database, "regra.salva", rule.id, current ? "Regra demonstrativa atualizada." : "Regra demonstrativa cadastrada.", actorUserId, timestamp);
+  return { error: null, rule };
+}
+
+export function saveLocalFinancePlanningEntry(database: SemedLocalDatabase, input: SemedFinancePlanningInput, actorUserId: string, timestamp = now()) {
+  if (!financeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar o planejamento financeiro.", entry: null };
+  if (!financeMonth(input.referenceMonth) || !activeFinanceSource(database, input.sourceId) || !input.program.trim() || !input.description.trim() || !input.expenseNature.trim() || !financeValue(input.plannedAmount)) return { error: "Informe competência, fonte, programa, descrição, natureza e valor planejado.", entry: null };
+  const current = input.id ? database.semedFinancePlanningEntries.find((entry) => entry.id === input.id) : null;
+  const entry: SemedFinancePlanningEntry = { id: current?.id ?? localId("finance-plan"), referenceMonth: input.referenceMonth, sourceId: input.sourceId, program: input.program.trim(), description: input.description.trim(), expenseNature: input.expenseNature.trim(), plannedAmount: financeValue(input.plannedAmount), status: input.status, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedFinancePlanningEntries[database.semedFinancePlanningEntries.indexOf(current)] = entry;
+  else database.semedFinancePlanningEntries.push(entry);
+  financeAudit(database, entry.status === "Cancelado" ? "lancamento.cancelado" : "planejamento.salvo", entry.id, entry.status === "Cancelado" ? "Planejamento demonstrativo cancelado." : "Planejamento demonstrativo salvo.", actorUserId, timestamp);
+  return { error: null, entry };
+}
+
+export function saveLocalFinanceRevenue(database: SemedLocalDatabase, input: SemedFinanceRevenueInput, actorUserId: string, timestamp = now()) {
+  if (!financeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar receitas.", revenue: null };
+  if (!financeDate(input.receiptDate) || !activeFinanceSource(database, input.sourceId) || !input.component.trim() || !input.reference.trim() || !financeValue(input.amount)) return { error: "Informe data, fonte, componente, referência e valor da receita.", revenue: null };
+  const current = input.id ? database.semedFinanceRevenues.find((revenue) => revenue.id === input.id) : null;
+  const revenue: SemedFinanceRevenue = { id: current?.id ?? localId("finance-revenue"), receiptDate: input.receiptDate, sourceId: input.sourceId, component: input.component.trim(), type: input.type, reference: input.reference.trim(), amount: financeValue(input.amount), status: input.status, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedFinanceRevenues[database.semedFinanceRevenues.indexOf(current)] = revenue;
+  else database.semedFinanceRevenues.push(revenue);
+  financeAudit(database, revenue.status === "Cancelado" ? "lancamento.cancelado" : "receita.salva", revenue.id, revenue.status === "Cancelado" ? "Receita demonstrativa cancelada." : "Receita demonstrativa salva.", actorUserId, timestamp);
+  return { error: null, revenue };
+}
+
+export function saveLocalFinanceExecution(database: SemedLocalDatabase, input: SemedFinanceExecutionInput, actorUserId: string, timestamp = now()) {
+  if (!financeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar a execução financeira.", execution: null };
+  if (!financeDate(input.executionDate) || !activeFinanceSource(database, input.sourceId) || !input.description.trim() || !input.classification.trim() || !input.documentReference.trim() || !financeValue(input.amount)) return { error: "Informe data, fonte, etapa, descrição, classificação, documento e valor.", execution: null };
+  const current = input.id ? database.semedFinanceExecutions.find((execution) => execution.id === input.id) : null;
+  const execution: SemedFinanceExecution = { id: current?.id ?? localId("finance-execution"), executionDate: input.executionDate, sourceId: input.sourceId, stage: input.stage, description: input.description.trim(), classification: upper(input.classification), documentReference: upper(input.documentReference), amount: financeValue(input.amount), status: input.status, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedFinanceExecutions[database.semedFinanceExecutions.indexOf(current)] = execution;
+  else database.semedFinanceExecutions.push(execution);
+  financeAudit(database, execution.status === "Cancelado" ? "lancamento.cancelado" : "execucao.salva", execution.id, execution.status === "Cancelado" ? "Execução demonstrativa cancelada." : "Execução demonstrativa salva.", actorUserId, timestamp);
+  return { error: null, execution };
+}
+
+export function financeSummary(database: SemedLocalDatabase, referenceYear: number, sourceId = ""): SemedFinanceSummary {
+  const hasSource = (candidate: { sourceId: string }) => !sourceId || candidate.sourceId === sourceId;
+  const inYear = (date: string) => date.startsWith(`${referenceYear}-`);
+  const active = <T extends { status: SemedFinanceEntryStatus }>(items: T[]) => items.filter((item) => item.status === "Ativo");
+  const sum = (values: number[]) => financeValue(values.reduce((total, value) => total + financeValue(value), 0));
+  const planned = sum(active(database.semedFinancePlanningEntries).filter((entry) => hasSource(entry) && inYear(entry.referenceMonth)).map((entry) => entry.plannedAmount));
+  const revenues = sum(active(database.semedFinanceRevenues).filter((entry) => hasSource(entry) && inYear(entry.receiptDate)).map((entry) => entry.amount));
+  const committed = sum(active(database.semedFinanceExecutions).filter((entry) => hasSource(entry) && inYear(entry.executionDate) && entry.stage === "Empenhado").map((entry) => entry.amount));
+  const settled = sum(active(database.semedFinanceExecutions).filter((entry) => hasSource(entry) && inYear(entry.executionDate) && entry.stage === "Liquidado").map((entry) => entry.amount));
+  const paid = sum(active(database.semedFinanceExecutions).filter((entry) => hasSource(entry) && inYear(entry.executionDate) && entry.stage === "Pago").map((entry) => entry.amount));
+  const opening = sum(database.semedFinanceSources.filter((source) => !sourceId || source.id === sourceId).map((source) => source.openingBalance));
+  return { planned, revenues, committed, settled, paid, availability: financeValue(opening + revenues - paid) };
+}
+
+export function financeRuleIndicators(database: SemedLocalDatabase, referenceYear: number) {
+  const activeExecutions = database.semedFinanceExecutions.filter((entry) => entry.status === "Ativo" && entry.executionDate.startsWith(`${referenceYear}-`) && entry.stage === "Apropriação legal");
+  return database.semedFinanceRules.filter((rule) => rule.active && rule.referenceYear === referenceYear).map((rule) => {
+    const sourceCode = rule.code.split("_")[0];
+    const sourceIds = database.semedFinanceSources.filter((source) => source.code === sourceCode).map((source) => source.id);
+    const base = financeSummary(database, referenceYear, sourceIds[0] ?? "").revenues;
+    const applied = financeValue(activeExecutions.filter((entry) => entry.classification === rule.code).reduce((total, entry) => total + entry.amount, 0));
+    const percentage = base ? financeValue(applied * 100 / base) : 0;
+    return { rule, applied, percentage, meetsTarget: percentage >= rule.targetPercentage };
+  });
+}
+
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type SemedLocalDatabaseV4 = Omit<SemedLocalDatabase, "schemaVersion" | "semedSchoolUnits" | "semedEducaNuclei"> & { schemaVersion: 4 };
+type SemedLocalDatabaseV5 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFinanceSources" | "semedFinanceRules" | "semedFinancePlanningEntries" | "semedFinanceRevenues" | "semedFinanceExecutions" | "semedFinanceAuditLog"> & { schemaVersion: 5 };
+type SemedLocalDatabaseV4 = Omit<SemedLocalDatabaseV5, "schemaVersion" | "semedSchoolUnits" | "semedEducaNuclei"> & { schemaVersion: 4 };
 type SemedLocalDatabaseV3 = Omit<SemedLocalDatabaseV4, "schemaVersion" | "semedHrServers" | "semedHrFinancialRecords" | "semedHrAttendancePeriods" | "semedHrAuditLog"> & { schemaVersion: 3 };
 type SemedLocalDatabaseV2 = Omit<SemedLocalDatabaseV3, "schemaVersion" | "semedStockItems" | "semedStockMovements" | "semedStockAudits" | "semedSchoolStocks" | "semedSchoolStockCounts" | "semedSchoolStockMovements" | "semedKitOrders"> & { schemaVersion: 2 };
 type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
@@ -1223,8 +1378,8 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
   const migratedAt = now();
 	const nutritionDefaults = createLocalSemedDatabase();
 	return {
-	...database,
-	    schemaVersion: 5,
+		...database,
+		    schemaVersion: 6,
 semedUsers: migratedUsers,
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
@@ -1238,23 +1393,29 @@ semedKitOrders: nutritionDefaults.semedKitOrders,
     semedHrServers: nutritionDefaults.semedHrServers,
     semedHrFinancialRecords: nutritionDefaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: nutritionDefaults.semedHrAttendancePeriods,
-    semedHrAuditLog: nutritionDefaults.semedHrAuditLog,
-    semedSchoolUnits: nutritionDefaults.semedSchoolUnits,
-    semedEducaNuclei: nutritionDefaults.semedEducaNuclei,
+	    semedHrAuditLog: nutritionDefaults.semedHrAuditLog,
+	    semedSchoolUnits: nutritionDefaults.semedSchoolUnits,
+	    semedEducaNuclei: nutritionDefaults.semedEducaNuclei,
 semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
-    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
-    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
-    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
-  };
+	    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+	    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+	    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
+	    semedFinanceSources: nutritionDefaults.semedFinanceSources,
+	    semedFinanceRules: nutritionDefaults.semedFinanceRules,
+	    semedFinancePlanningEntries: nutritionDefaults.semedFinancePlanningEntries,
+	    semedFinanceRevenues: nutritionDefaults.semedFinanceRevenues,
+	    semedFinanceExecutions: nutritionDefaults.semedFinanceExecutions,
+	    semedFinanceAuditLog: nutritionDefaults.semedFinanceAuditLog,
+	  };
 }
 
 function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatabase {
 	const nutritionDefaults = createLocalSemedDatabase();
 	return {
-	...database,
-	    schemaVersion: 5,
+		...database,
+		    schemaVersion: 6,
 semedUsers: database.semedUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -1280,65 +1441,68 @@ semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders
     semedHrFinancialRecords: Array.isArray(database.semedHrFinancialRecords) ? database.semedHrFinancialRecords : nutritionDefaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: Array.isArray(database.semedHrAttendancePeriods) ? database.semedHrAttendancePeriods : nutritionDefaults.semedHrAttendancePeriods,
     semedHrAuditLog: Array.isArray(database.semedHrAuditLog) ? database.semedHrAuditLog : nutritionDefaults.semedHrAuditLog,
-    semedSchoolUnits: Array.isArray(database.semedSchoolUnits) ? database.semedSchoolUnits : nutritionDefaults.semedSchoolUnits,
-    semedEducaNuclei: Array.isArray(database.semedEducaNuclei) ? database.semedEducaNuclei : nutritionDefaults.semedEducaNuclei,
+	    semedSchoolUnits: Array.isArray(database.semedSchoolUnits) ? database.semedSchoolUnits : nutritionDefaults.semedSchoolUnits,
+	    semedEducaNuclei: Array.isArray(database.semedEducaNuclei) ? database.semedEducaNuclei : nutritionDefaults.semedEducaNuclei,
 semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
     semedNutritionWeeklyPlans: Array.isArray(database.semedNutritionWeeklyPlans) ? database.semedNutritionWeeklyPlans : nutritionDefaults.semedNutritionWeeklyPlans,
-    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
-    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
-    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
-  };
+	    semedNutritionStages: Array.isArray(database.semedNutritionStages) ? database.semedNutritionStages : nutritionDefaults.semedNutritionStages,
+	    semedNutritionCatalog: Array.isArray(database.semedNutritionCatalog) ? database.semedNutritionCatalog : nutritionDefaults.semedNutritionCatalog,
+	    semedNutritionAnnualPlans: Array.isArray(database.semedNutritionAnnualPlans) ? database.semedNutritionAnnualPlans : nutritionDefaults.semedNutritionAnnualPlans,
+	    semedFinanceSources: Array.isArray(database.semedFinanceSources) ? database.semedFinanceSources : nutritionDefaults.semedFinanceSources,
+	    semedFinanceRules: Array.isArray(database.semedFinanceRules) ? database.semedFinanceRules : nutritionDefaults.semedFinanceRules,
+	    semedFinancePlanningEntries: Array.isArray(database.semedFinancePlanningEntries) ? database.semedFinancePlanningEntries : nutritionDefaults.semedFinancePlanningEntries,
+	    semedFinanceRevenues: Array.isArray(database.semedFinanceRevenues) ? database.semedFinanceRevenues : nutritionDefaults.semedFinanceRevenues,
+	    semedFinanceExecutions: Array.isArray(database.semedFinanceExecutions) ? database.semedFinanceExecutions : nutritionDefaults.semedFinanceExecutions,
+	    semedFinanceAuditLog: Array.isArray(database.semedFinanceAuditLog) ? database.semedFinanceAuditLog : nutritionDefaults.semedFinanceAuditLog,
+	  };
 }
 
 function migrateStockDatabase(database: SemedLocalDatabaseV2): SemedLocalDatabase {
-	const defaults = createLocalSemedDatabase();
-	return normalizeCurrentDatabase({
-	...database,
-	    schemaVersion: 5,
-semedStockItems: defaults.semedStockItems,
-    semedStockMovements: defaults.semedStockMovements,
-    semedStockAudits: defaults.semedStockAudits,
-    semedSchoolStocks: defaults.semedSchoolStocks,
-semedSchoolStockCounts: defaults.semedSchoolStockCounts,
-semedSchoolStockMovements: defaults.semedSchoolStockMovements,
-semedKitOrders: defaults.semedKitOrders,
-    semedHrServers: defaults.semedHrServers,
-    semedHrFinancialRecords: defaults.semedHrFinancialRecords,
-    semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
-    semedHrAuditLog: defaults.semedHrAuditLog,
-    semedSchoolUnits: defaults.semedSchoolUnits,
-    semedEducaNuclei: defaults.semedEducaNuclei,
-});
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({
+    ...database,
+    schemaVersion: 6,
+    semedStockItems: defaults.semedStockItems, semedStockMovements: defaults.semedStockMovements, semedStockAudits: defaults.semedStockAudits,
+    semedSchoolStocks: defaults.semedSchoolStocks, semedSchoolStockCounts: defaults.semedSchoolStockCounts, semedSchoolStockMovements: defaults.semedSchoolStockMovements, semedKitOrders: defaults.semedKitOrders,
+    semedHrServers: defaults.semedHrServers, semedHrFinancialRecords: defaults.semedHrFinancialRecords, semedHrAttendancePeriods: defaults.semedHrAttendancePeriods, semedHrAuditLog: defaults.semedHrAuditLog,
+    semedSchoolUnits: defaults.semedSchoolUnits, semedEducaNuclei: defaults.semedEducaNuclei,
+    semedFinanceSources: defaults.semedFinanceSources, semedFinanceRules: defaults.semedFinanceRules, semedFinancePlanningEntries: defaults.semedFinancePlanningEntries,
+    semedFinanceRevenues: defaults.semedFinanceRevenues, semedFinanceExecutions: defaults.semedFinanceExecutions, semedFinanceAuditLog: defaults.semedFinanceAuditLog,
+  });
 }
 
 function migrateHumanResourcesDatabase(database: SemedLocalDatabaseV3): SemedLocalDatabase {
   const defaults = createLocalSemedDatabase();
   return normalizeCurrentDatabase({
     ...database,
-    schemaVersion: 5,
-    semedHrServers: defaults.semedHrServers,
-    semedHrFinancialRecords: defaults.semedHrFinancialRecords,
-    semedHrAttendancePeriods: defaults.semedHrAttendancePeriods,
-    semedHrAuditLog: defaults.semedHrAuditLog,
-    semedSchoolUnits: defaults.semedSchoolUnits,
-    semedEducaNuclei: defaults.semedEducaNuclei,
+    schemaVersion: 6,
+    semedHrServers: defaults.semedHrServers, semedHrFinancialRecords: defaults.semedHrFinancialRecords, semedHrAttendancePeriods: defaults.semedHrAttendancePeriods, semedHrAuditLog: defaults.semedHrAuditLog,
+    semedSchoolUnits: defaults.semedSchoolUnits, semedEducaNuclei: defaults.semedEducaNuclei,
+    semedFinanceSources: defaults.semedFinanceSources, semedFinanceRules: defaults.semedFinanceRules, semedFinancePlanningEntries: defaults.semedFinancePlanningEntries,
+    semedFinanceRevenues: defaults.semedFinanceRevenues, semedFinanceExecutions: defaults.semedFinanceExecutions, semedFinanceAuditLog: defaults.semedFinanceAuditLog,
   });
 }
 
 function migrateSchoolsEducaDatabase(database: SemedLocalDatabaseV4): SemedLocalDatabase {
   const defaults = createLocalSemedDatabase();
-  return normalizeCurrentDatabase({ ...database, schemaVersion: 5, semedSchoolUnits: defaults.semedSchoolUnits, semedEducaNuclei: defaults.semedEducaNuclei });
+  return normalizeCurrentDatabase({ ...database, schemaVersion: 6, semedSchoolUnits: defaults.semedSchoolUnits, semedEducaNuclei: defaults.semedEducaNuclei, semedFinanceSources: defaults.semedFinanceSources, semedFinanceRules: defaults.semedFinanceRules, semedFinancePlanningEntries: defaults.semedFinancePlanningEntries, semedFinanceRevenues: defaults.semedFinanceRevenues, semedFinanceExecutions: defaults.semedFinanceExecutions, semedFinanceAuditLog: defaults.semedFinanceAuditLog });
+}
+
+function migrateFinancialDatabase(database: SemedLocalDatabaseV5): SemedLocalDatabase {
+  const defaults = createLocalSemedDatabase();
+  return normalizeCurrentDatabase({ ...database, schemaVersion: 6, semedFinanceSources: defaults.semedFinanceSources, semedFinanceRules: defaults.semedFinanceRules, semedFinancePlanningEntries: defaults.semedFinancePlanningEntries, semedFinanceRevenues: defaults.semedFinanceRevenues, semedFinanceExecutions: defaults.semedFinanceExecutions, semedFinanceAuditLog: defaults.semedFinanceAuditLog });
 }
 
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
     if (parsed.schemaVersion === 4) return migrateSchoolsEducaDatabase(parsed);
-    if (parsed.schemaVersion === 5) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 5) return migrateFinancialDatabase(parsed);
+    if (parsed.schemaVersion === 6) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1391,6 +1555,9 @@ export function useSigaLocalRepository() {
     hrServers: database.semedHrServers, hrFinancialRecords: database.semedHrFinancialRecords,
     hrAttendancePeriods: database.semedHrAttendancePeriods, hrAuditLog: database.semedHrAuditLog,
     schoolUnits: database.semedSchoolUnits, educaNuclei: database.semedEducaNuclei,
+    financeSources: database.semedFinanceSources, financeRules: database.semedFinanceRules,
+    financePlanningEntries: database.semedFinancePlanningEntries, financeRevenues: database.semedFinanceRevenues,
+    financeExecutions: database.semedFinanceExecutions, financeAuditLog: database.semedFinanceAuditLog,
     canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
     canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
     login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
@@ -1428,6 +1595,13 @@ export function useSigaLocalRepository() {
     saveHrAttendancePeriod(input: SemedHrAttendanceInput, actorUserId: string) { return mutate((draft) => saveLocalHrAttendancePeriod(draft, input, actorUserId)); },
     saveSchoolUnit(input: SemedSchoolUnitInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolUnit(draft, input, actorUserId)); },
     saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
+    saveFinanceSource(input: SemedFinanceSourceInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceSource(draft, input, actorUserId)); },
+    saveFinanceRule(input: SemedFinanceRuleInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRule(draft, input, actorUserId)); },
+    saveFinancePlanningEntry(input: SemedFinancePlanningInput, actorUserId: string) { return mutate((draft) => saveLocalFinancePlanningEntry(draft, input, actorUserId)); },
+    saveFinanceRevenue(input: SemedFinanceRevenueInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRevenue(draft, input, actorUserId)); },
+    saveFinanceExecution(input: SemedFinanceExecutionInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceExecution(draft, input, actorUserId)); },
+    financeSummary(referenceYear: number, sourceId = "") { return financeSummary(databaseRef.current, referenceYear, sourceId); },
+    financeRuleIndicators(referenceYear: number) { return financeRuleIndicators(databaseRef.current, referenceYear); },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

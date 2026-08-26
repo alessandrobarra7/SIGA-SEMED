@@ -37,12 +37,12 @@ function attendanceInput(serverId: string, overrides: Partial<SemedHrAttendanceI
 }
 
 describe("recursos humanos local compatível com a referência observada", () => {
-  it("migra uma base v3 para v5 preservando módulos existentes e criando coleções de RH", () => {
+  it("migra uma base v3 para v6 preservando módulos existentes e criando coleções de RH", () => {
     const database = createLocalSemedDatabase();
     const legacy = { ...database, schemaVersion: 3 } as unknown as Record<string, unknown>;
     delete legacy.semedHrServers; delete legacy.semedHrFinancialRecords; delete legacy.semedHrAttendancePeriods; delete legacy.semedHrAuditLog;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(5);
+    expect(restored.schemaVersion).toBe(6);
     expect(restored.semedStockItems.length).toBeGreaterThan(0);
     expect(restored.semedHrServers.length).toBeGreaterThan(0);
     expect(restored.semedNutritionAnnualPlans.length).toBeGreaterThan(0);

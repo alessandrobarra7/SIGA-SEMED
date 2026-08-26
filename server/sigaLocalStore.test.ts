@@ -4,7 +4,7 @@ import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecor
 describe("estrutura local compatível com o SIGA SEMED", () => {
   it("mantém as coleções estruturais e administrativas da referência", () => {
     const database = createLocalSemedDatabase();
-    expect(database).toMatchObject({ schemaVersion: 5 });
+    expect(database).toMatchObject({ schemaVersion: 6 });
     expect(database.semedUsers).toHaveLength(3);
     expect(database.semedUserPermissions.length).toBeGreaterThan(0);
     expect(database.semedUserAuditLog).toEqual([]);

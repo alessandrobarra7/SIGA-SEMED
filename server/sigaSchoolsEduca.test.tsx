@@ -24,12 +24,12 @@ function nucleusInput(overrides: Partial<SemedEducaNucleusInput> = {}): SemedEdu
 }
 
 describe("Unidades Escolares e Educa Paço locais", () => {
-  it("migra uma base v4 para v5 preservando os módulos existentes e inserindo as duas novas coleções", () => {
+  it("migra uma base v4 para v6 preservando os módulos existentes e inserindo as duas novas coleções", () => {
     const current = createLocalSemedDatabase();
     const legacy = { ...current, schemaVersion: 4 } as unknown as Record<string, unknown>;
     delete legacy.semedSchoolUnits; delete legacy.semedEducaNuclei;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(5);
+    expect(restored.schemaVersion).toBe(6);
     expect(restored.semedUsers).toHaveLength(current.semedUsers.length);
     expect(restored.semedStockItems).toHaveLength(current.semedStockItems.length);
     expect(restored.semedHrServers).toHaveLength(current.semedHrServers.length);

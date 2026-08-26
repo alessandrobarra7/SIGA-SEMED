@@ -303,3 +303,14 @@
 
 - [x] Verificar a nova autorização de escrita da integração GitHub.
 - [x] Enviar o commit preparado de Unidades Escolares e Educa Paço ao repositório autorizado.
+
+## Reprodução funcional autorizada — Financeiro ampliado
+
+- [x] Observar em modo somente leitura os submódulos financeiros, filtros, indicadores e estados da referência.
+- [x] Registrar campos, cálculos, permissões e sequência operacional sem copiar valores, processos, documentos ou identificadores reais.
+- [x] Modelar orçamento, receitas, execução, fontes e relatórios com dados demonstrativos no armazenamento local, sem D1.
+- [x] Implementar o Financeiro ampliado dentro da aparência oficial atual, sem placeholders ou funcionalidades futuras.
+- [x] Aplicar permissões financeiras, validações e cálculos locais coerentes com os fluxos observados.
+- [x] Cobrir o setor com testes de persistência, permissões, cálculos e regressão.
+- [x] Validar desktop, mobile, TypeScript e build preservando a identidade visual aprovada.
+- [x] Atualizar a documentação, salvar checkpoint e apresentar o setor funcional no preview.
