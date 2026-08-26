@@ -204,7 +204,7 @@
 - [x] Fazer o login local aceitar matrícula como identificador principal, preservando o desenho oficial da página de acesso.
 - [x] Restringir a administração de Usuários ao perfil Administrador e bloquear operações não autorizadas.
 - [x] Validar desktop, mobile, testes, TypeScript e build sem modificar a identidade visual aprovada.
-- [ ] Salvar checkpoint e apresentar a página Usuários funcional no preview.
+- [x] Salvar checkpoint e apresentar a página Usuários funcional no preview.
 - [x] Implementar e validar filtros funcionais por tipo de login e por permissão na página Usuários.
 - [x] Adicionar ao cadastro e à edição o fluxo explícito de acesso por CPF, com validação e testes.
 - [x] Bloquear a edição manual de permissões para perfis diferentes de Técnico e aplicar permissões automáticas no domínio local.
