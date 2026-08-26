@@ -49,6 +49,7 @@ describe("persistência do repositório local no navegador", () => {
     delete legacy.semedUserPermissions;
     delete legacy.semedUserAuditLog;
     legacy.semedUsers.forEach((user) => {
+      delete user.registration;
       delete user.profile;
       delete user.loginType;
       delete user.cpf;

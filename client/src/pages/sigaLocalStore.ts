@@ -64,6 +64,7 @@ export type SemedUserAuditAction =
 export type SemedLocalUser = {
   id: string;
   username: string;
+  registration: string;
   displayName: string;
   role: SemedUserProfile;
   profile: SemedUserProfile;
@@ -100,6 +101,23 @@ export type SemedLocalUserAudit = {
   summary: string;
   actorUserId: string;
   createdAt: string;
+};
+
+export type SemedLocalUserInput = {
+  displayName: string;
+  registration: string;
+  cpf: string;
+  profile: SemedUserProfile;
+  active: boolean;
+  schoolUnitId: string;
+  serverRegistrationId: string;
+  moduleKeys: SemedModuleKey[];
+};
+
+export type SemedLocalUserOperation = {
+  error: string | null;
+  user: SemedLocalUser | null;
+  provisionalPassword?: string;
 };
 
 /** Estrutura local compatível com semed_sessions; tokenHash é apenas um identificador simulado. */
@@ -183,6 +201,19 @@ function now() { return new Date().toISOString(); }
 function localId(prefix: string) { return `${prefix}-${crypto.randomUUID()}`; }
 function upper(value: string) { return value.trim().toLocaleUpperCase("pt-BR"); }
 function normalizeCpf(value: string) { return value.replace(/\D/g, ""); }
+function normalizeRegistration(value: string) { return value.trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, ""); }
+function provisionalPassword() { return `Siga-${crypto.randomUUID().replace(/-/g, "").slice(0, 10)}!`; }
+function localPasswordDigest(value: string) {
+  let hash = 2166136261;
+  for (const character of value) { hash ^= character.charCodeAt(0); hash = Math.imul(hash, 16777619); }
+  return `LOCAL:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+const DEFAULT_REGISTRATION_BY_USER_ID: Record<string, string> = {
+  "u-admin": "00000000-0",
+  "u-tecnico1": "00000001-9",
+  "u-tecnico2": "00000002-7",
+};
 
 const SCHOOL_READ_KEYS: SemedModuleKey[] = ["inicio", "unidades_escolares", "unidades.mapa", "unidades.uex", "unidades.turmas"];
 const LEGACY_TECHNICIAN_KEYS: SemedModuleKey[] = ["inicio", "contratos", "documentos"];
@@ -263,6 +294,133 @@ export function recordLocalUserAudit(database: SemedLocalDatabase, input: Omit<S
   return entry;
 }
 
+function validateLocalUserInput(database: SemedLocalDatabase, input: SemedLocalUserInput, currentUserId = "") {
+  const displayName = input.displayName.trim();
+  const registration = normalizeRegistration(input.registration);
+  const cpf = normalizeCpf(input.cpf);
+  const loginType = profileLoginType(input.profile);
+  if (!displayName) return "Informe o nome completo.";
+  if (loginType === "matricula" && !registration) return "Informe a matrícula do usuário.";
+  if (loginType === "cpf" && cpf.length !== 11) return "Informe um CPF com 11 dígitos para o perfil externo.";
+  if ((input.profile === "Gestor Escolar" || input.profile === "Secretário Escolar") && !input.schoolUnitId.trim()) return "Selecione a unidade escolar vinculada.";
+  if (registration && database.semedUsers.some((user) => user.id !== currentUserId && normalizeRegistration(user.registration || user.username) === registration)) return "Já existe um usuário com esta matrícula.";
+  if (cpf && database.semedUsers.some((user) => user.id !== currentUserId && normalizeCpf(user.cpf) === cpf)) return "Já existe um usuário com este CPF.";
+  return "";
+}
+
+function normalizedLocalUserInput(input: SemedLocalUserInput) {
+  const loginType = profileLoginType(input.profile);
+  const registration = loginType === "matricula" ? normalizeRegistration(input.registration) : "";
+  const cpf = normalizeCpf(input.cpf);
+  return {
+    displayName: input.displayName.trim(),
+    registration,
+    cpf,
+    profile: input.profile,
+    role: input.profile,
+    loginType,
+    schoolUnitId: input.profile === "Gestor Escolar" || input.profile === "Secretário Escolar" ? input.schoolUnitId.trim() : "",
+    serverRegistrationId: input.serverRegistrationId.trim(),
+  };
+}
+
+export function createLocalUser(database: SemedLocalDatabase, input: SemedLocalUserInput, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const error = validateLocalUserInput(database, input);
+  if (error) return { error, user: null };
+  const normalized = normalizedLocalUserInput(input);
+  const password = provisionalPassword();
+  const user: SemedLocalUser = {
+    id: localId("user"),
+    username: normalized.loginType === "cpf" ? normalized.cpf : normalized.registration,
+    registration: normalized.registration,
+    displayName: normalized.displayName,
+    role: normalized.role,
+    profile: normalized.profile,
+    loginType: normalized.loginType,
+    cpf: normalized.cpf,
+    schoolUnitId: normalized.schoolUnitId,
+    serverRegistrationId: normalized.serverRegistrationId,
+    passwordHash: localPasswordDigest(password),
+    passwordSalt: "",
+    passwordIterations: 100000,
+    mustChangePassword: true,
+    provisionalPasswordIssuedAt: timestamp,
+    active: input.active,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    lastLoginAt: "",
+    lastActivityAt: "",
+  };
+  database.semedUsers.push(user);
+  database.semedUserPermissions.push(...buildLocalUserPermissions(user.id, user.profile, actorUserId, timestamp, input.moduleKeys));
+  recordLocalUserAudit(database, { userId: user.id, action: "usuario.criado", changedFields: ["displayName", "registration", "profile", "active", "schoolUnitId", "serverRegistrationId", "permissions"], summary: `Usuário local criado com perfil ${user.profile}.`, actorUserId }, timestamp);
+  return { error: null, user, provisionalPassword: password };
+}
+
+export function updateLocalUser(database: SemedLocalDatabase, userId: string, input: SemedLocalUserInput, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return { error: "Usuário não encontrado.", user: null };
+  const error = validateLocalUserInput(database, input, userId);
+  if (error) return { error, user: null };
+  const normalized = normalizedLocalUserInput(input);
+  const wasActive = user.active;
+  Object.assign(user, normalized, { username: normalized.loginType === "cpf" ? normalized.cpf : normalized.registration, active: input.active, updatedAt: timestamp });
+  if (!user.active) database.semedSessions = database.semedSessions.filter((session) => session.userId !== user.id);
+  replaceLocalUserPermissions(database, user.id, user.profile, actorUserId, input.moduleKeys, timestamp);
+  recordLocalUserAudit(database, {
+    userId: user.id,
+    action: wasActive === user.active ? "usuario.editado" : user.active ? "usuario.ativado" : "usuario.desativado",
+    changedFields: ["displayName", "registration", "profile", "active", "schoolUnitId", "serverRegistrationId"],
+    summary: `Cadastro local atualizado com perfil ${user.profile}.`,
+    actorUserId,
+  }, timestamp);
+  return { error: null, user };
+}
+
+export function setLocalUserActive(database: SemedLocalDatabase, userId: string, active: boolean, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor) || (actorUserId === userId && !active)) return false;
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return false;
+  user.active = active;
+  user.updatedAt = timestamp;
+  if (!active) database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  recordLocalUserAudit(database, { userId, action: active ? "usuario.ativado" : "usuario.desativado", changedFields: ["active"], summary: `Usuário local ${active ? "ativado" : "desativado"}.`, actorUserId }, timestamp);
+  return true;
+}
+
+export function issueLocalProvisionalPassword(database: SemedLocalDatabase, userId: string, actorUserId: string, timestamp = now()): SemedLocalUserOperation {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return { error: "Usuário sem permissão para administrar acessos.", user: null };
+  const user = database.semedUsers.find((candidate) => candidate.id === userId);
+  if (!user) return { error: "Usuário não encontrado.", user: null };
+  const password = provisionalPassword();
+  user.mustChangePassword = true;
+  user.passwordHash = localPasswordDigest(password);
+  user.passwordSalt = "";
+  user.provisionalPasswordIssuedAt = timestamp;
+  user.updatedAt = timestamp;
+  database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  recordLocalUserAudit(database, { userId, action: "usuario.senha_provisoria", changedFields: ["mustChangePassword", "provisionalPasswordIssuedAt"], summary: "Nova senha provisória local emitida; o valor não foi registrado na auditoria.", actorUserId }, timestamp);
+  return { error: null, user, provisionalPassword: password };
+}
+
+export function terminateLocalUserSessions(database: SemedLocalDatabase, userId: string, actorUserId: string) {
+  const actor = database.semedUsers.find((candidate) => candidate.id === actorUserId);
+  if (!actor || !canManageLocalUsers(actor)) return 0;
+  const initial = database.semedSessions.length;
+  database.semedSessions = database.semedSessions.filter((session) => session.userId !== userId);
+  return initial - database.semedSessions.length;
+}
+
+export function listLocalUserAudit(database: SemedLocalDatabase, userId: string) {
+  return database.semedUserAuditLog.filter((entry) => entry.userId === userId).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
 export function replaceLocalUserPermissions(database: SemedLocalDatabase, userId: string, profile: SemedUserProfile, grantedBy: string, moduleKeys: SemedModuleKey[], timestamp = now()) {
   database.semedUserPermissions = database.semedUserPermissions.filter((permission) => permission.userId !== userId);
   const permissions = buildLocalUserPermissions(userId, profile, grantedBy, timestamp, moduleKeys);
@@ -294,9 +452,9 @@ function normalizeDocument(input: SemedDocumentInput) {
 }
 
 const localUsers: SemedLocalUser[] = [
-  { id: "u-admin", username: "admin", displayName: "Administrador", role: "Administrador", profile: "Administrador", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
-  { id: "u-tecnico1", username: "tecnico1", displayName: "Técnico SEMED 1", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
-  { id: "u-tecnico2", username: "tecnico2", displayName: "Técnico SEMED 2", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-admin", username: "admin", registration: "00000000-0", displayName: "Administrador", role: "Administrador", profile: "Administrador", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico1", username: "tecnico1", registration: "00000001-9", displayName: "Técnico SEMED 1", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
+  { id: "u-tecnico2", username: "tecnico2", registration: "00000002-7", displayName: "Técnico SEMED 2", role: "Técnico", profile: "Técnico", loginType: "matricula", cpf: "", schoolUnitId: "", serverRegistrationId: "", passwordHash: "", passwordSalt: "", passwordIterations: 100000, mustChangePassword: true, provisionalPasswordIssuedAt: "2026-01-01T12:00:00.000Z", active: true, createdAt: "2026-01-01T12:00:00.000Z", updatedAt: "2026-01-01T12:00:00.000Z", lastLoginAt: "", lastActivityAt: "" },
 ];
 
 export function createLocalSemedDatabase(): SemedLocalDatabase {
@@ -329,22 +487,23 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
 export function getLocalUserIdentity(username: string) {
   const cleanUsername = username.trim().toLowerCase() || "tecnico1";
   const cleanCpf = normalizeCpf(username);
-  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf));
+  const user = createLocalSemedDatabase().semedUsers.find((candidate) => candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf));
   return user
     ? { username: user.username, displayName: user.displayName, role: user.role }
     : { username: cleanUsername, displayName: cleanUsername, role: "Técnico" };
 }
 
-export type SemedLocalAccessUser = Pick<SemedLocalUser, "id" | "username" | "displayName" | "role" | "mustChangePassword">;
+export type SemedLocalAccessUser = Pick<SemedLocalUser, "id" | "username" | "registration" | "displayName" | "role" | "profile" | "loginType" | "mustChangePassword" | "active">;
 export type SemedLocalLogin = { user: SemedLocalAccessUser; session: SemedLocalSession };
 
 export function requiresDeleteConfirmation(value: string) { return value.trim().toLocaleUpperCase("pt-BR") === "EXCLUIR"; }
 
-export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now()): SemedLocalLogin | null {
+export function loginLocalUser(database: SemedLocalDatabase, username: string, timestamp = now(), password = ""): SemedLocalLogin | null {
   const cleanUsername = username.trim().toLowerCase();
   const cleanCpf = normalizeCpf(username);
-  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf)));
+  const user = database.semedUsers.find((candidate) => candidate.active && (candidate.username === cleanUsername || normalizeRegistration(candidate.registration) === cleanUsername || (candidate.loginType === "cpf" && candidate.cpf === cleanCpf)));
   if (!user) return null;
+  if (user.passwordHash.startsWith("LOCAL:") && localPasswordDigest(password) !== user.passwordHash) return null;
   const session: SemedLocalSession = {
     tokenHash: `local-session-${user.id}-${Date.parse(timestamp)}`,
     userId: user.id,
@@ -356,18 +515,18 @@ export function loginLocalUser(database: SemedLocalDatabase, username: string, t
   user.lastLoginAt = timestamp;
   user.lastActivityAt = timestamp;
   user.updatedAt = timestamp;
-  return { user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role, mustChangePassword: user.mustChangePassword }, session };
+  return { user: { id: user.id, username: user.username, registration: user.registration, displayName: user.displayName, role: user.role, profile: user.profile, loginType: user.loginType, mustChangePassword: user.mustChangePassword, active: user.active }, session };
 }
 
-export function completeLocalFirstAccess(database: SemedLocalDatabase, userId: string, timestamp = now()) {
+export function completeLocalFirstAccess(database: SemedLocalDatabase, userId: string, timestamp = now(), newPassword = "") {
   const user = database.semedUsers.find((candidate) => candidate.id === userId && candidate.active);
   if (!user) return null;
   user.mustChangePassword = false;
-  user.passwordHash = "LOCAL_SIMULATION_UPDATED";
+  user.passwordHash = newPassword ? localPasswordDigest(newPassword) : "LOCAL_SIMULATION_UPDATED";
   user.passwordSalt = "";
   user.passwordIterations = 100000;
   user.updatedAt = timestamp;
-  return { id: user.id, username: user.username, displayName: user.displayName, role: user.role, mustChangePassword: user.mustChangePassword } satisfies SemedLocalAccessUser;
+  return { id: user.id, username: user.username, registration: user.registration, displayName: user.displayName, role: user.role, profile: user.profile, loginType: user.loginType, mustChangePassword: user.mustChangePassword, active: user.active } satisfies SemedLocalAccessUser;
 }
 
 export function logoutLocalSession(database: SemedLocalDatabase, tokenHash: string) {
@@ -473,7 +632,7 @@ export function confirmLocalDocumentDeletion(database: SemedLocalDatabase, id: s
 }
 
 export function serializeLocalDatabase(database: SemedLocalDatabase) { return JSON.stringify(database); }
-type LegacySemedLocalUser = Omit<SemedLocalUser, "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
+type LegacySemedLocalUser = Omit<SemedLocalUser, "registration" | "profile" | "loginType" | "cpf" | "schoolUnitId" | "serverRegistrationId" | "provisionalPasswordIssuedAt" | "lastActivityAt" | "role"> & { role: string };
 type LegacySemedLocalDatabase = Omit<SemedLocalDatabase, "schemaVersion" | "semedUsers" | "semedUserPermissions" | "semedUserAuditLog"> & { schemaVersion: 1; semedUsers: LegacySemedLocalUser[] };
 
 function normalizeLegacyProfile(role: string): SemedUserProfile {
@@ -486,6 +645,7 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
     const profile = normalizeLegacyProfile(user.role);
     return {
       ...user,
+      registration: DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
       role: profile,
       profile,
       loginType: profileLoginType(profile),
@@ -512,6 +672,7 @@ function normalizeCurrentDatabase(database: SemedLocalDatabase): SemedLocalDatab
     schemaVersion: 2,
     semedUsers: database.semedUsers.map((user) => ({
       ...user,
+      registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
       profile: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
       role: isSemedUserProfile(user.profile) ? user.profile : normalizeLegacyProfile(user.role),
       loginType: user.loginType === "cpf" ? "cpf" : "matricula",
@@ -564,20 +725,35 @@ export function useSigaLocalRepository() {
   };
   const records = useMemo(() => listLocalRecords(database), [database]);
   const documents = useMemo(() => [...database.semedDocuments].sort((left, right) => (left.dueDate || "9999-12-31").localeCompare(right.dueDate || "9999-12-31") || right.updatedAt.localeCompare(left.updatedAt)), [database]);
+  const actorCanRead = (userId: string, moduleKey: SemedModuleKey) => {
+    const user = databaseRef.current.semedUsers.find((candidate) => candidate.id === userId);
+    return user ? canReadLocalModule(databaseRef.current, user, moduleKey) : false;
+  };
+  const actorCanWrite = (userId: string, moduleKey: SemedModuleKey) => {
+    const user = databaseRef.current.semedUsers.find((candidate) => candidate.id === userId);
+    return user ? canWriteLocalModule(databaseRef.current, user, moduleKey) : false;
+  };
   return {
     records, documents, users: database.semedUsers, userPermissions: database.semedUserPermissions, userAuditLog: database.semedUserAuditLog,
-    login(username: string) { return mutate((draft) => loginLocalUser(draft, username)); },
-    completeFirstAccess(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },
-    changePassword(userId: string) { return mutate((draft) => completeLocalFirstAccess(draft, userId)); },
+    canRead(userId: string, moduleKey: SemedModuleKey) { return actorCanRead(userId, moduleKey); },
+    canWrite(userId: string, moduleKey: SemedModuleKey) { return actorCanWrite(userId, moduleKey); },
+    login(username: string, password = "") { return mutate((draft) => loginLocalUser(draft, username, undefined, password)); },
+    completeFirstAccess(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
+    changePassword(userId: string, newPassword = "") { return mutate((draft) => completeLocalFirstAccess(draft, userId, undefined, newPassword)); },
     logout(tokenHash: string) { return mutate((draft) => logoutLocalSession(draft, tokenHash)); },
-    createRecord(input: SemedRecordInput) { return mutate((draft) => createLocalRecord(draft, input)); },
-    updateRecord(id: string, input: SemedRecordInput) { return mutate((draft) => updateLocalRecord(draft, id, input)); },
-    deleteRecord(id: string, confirmation = "EXCLUIR") { return mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation)); },
-    createPayment(input: SemedRecordPaymentInput) { return mutate((draft) => createLocalPayment(draft, input)); },
-    deletePayment(id: string) { return mutate((draft) => deleteLocalPayment(draft, id)); },
-    createDocument(input: SemedDocumentInput) { return mutate((draft) => createLocalDocument(draft, input)); },
-    updateDocument(id: string, input: SemedDocumentInput) { return mutate((draft) => updateLocalDocument(draft, id, input)); },
-    deleteDocument(id: string, confirmation = "EXCLUIR") { return mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)); },
+    createUser(input: SemedLocalUserInput, actorUserId: string) { return mutate((draft) => createLocalUser(draft, input, actorUserId)); },
+    updateUser(userId: string, input: SemedLocalUserInput, actorUserId: string) { return mutate((draft) => updateLocalUser(draft, userId, input, actorUserId)); },
+    setUserActive(userId: string, active: boolean, actorUserId: string) { return mutate((draft) => setLocalUserActive(draft, userId, active, actorUserId)); },
+    issueProvisionalPassword(userId: string, actorUserId: string) { return mutate((draft) => issueLocalProvisionalPassword(draft, userId, actorUserId)); },
+    terminateUserSessions(userId: string, actorUserId: string) { return mutate((draft) => terminateLocalUserSessions(draft, userId, actorUserId)); },
+    createRecord(input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalRecord(draft, input)) : null; },
+    updateRecord(id: string, input: SemedRecordInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => updateLocalRecord(draft, id, input)) : null; },
+    deleteRecord(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => confirmLocalRecordDeletion(draft, id, confirmation)) : false; },
+    createPayment(input: SemedRecordPaymentInput, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => createLocalPayment(draft, input)) : { error: "Usuário sem permissão para alterar contratos." }; },
+    deletePayment(id: string, actorUserId: string) { return actorCanWrite(actorUserId, "contratos") ? mutate((draft) => deleteLocalPayment(draft, id)) : false; },
+    createDocument(input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => createLocalDocument(draft, input)) : null; },
+    updateDocument(id: string, input: SemedDocumentInput, actorUserId: string) { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => updateLocalDocument(draft, id, input)) : null; },
+    deleteDocument(id: string, actorUserId: string, confirmation = "EXCLUIR") { return actorCanWrite(actorUserId, "documentos") ? mutate((draft) => confirmLocalDocumentDeletion(draft, id, confirmation)) : false; },
     resetSimulation() { const fresh = createLocalSemedDatabase(); databaseRef.current = fresh; saveLocalDatabase(fresh); setDatabase(fresh); },
   };
 }

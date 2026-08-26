@@ -8,7 +8,7 @@ import Home from "./pages/Home";
 import WorkspacePreview from "./pages/WorkspacePreview";
 
 function WorkspaceVisualReview() {
-  return <WorkspacePreview user={{ displayName: "Técnico SEMED 1", role: "Técnico" }} onLogout={() => undefined} />;
+  return <WorkspacePreview user={{ id: "u-tecnico1", username: "tecnico1", registration: "00000001-9", displayName: "Técnico SEMED 1", role: "Técnico", profile: "Técnico", loginType: "matricula", mustChangePassword: false, active: true }} onLogout={() => undefined} />;
 }
 
 function Router() {

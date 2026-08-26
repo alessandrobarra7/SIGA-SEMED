@@ -12,15 +12,15 @@ describe("hook useSigaLocalRepository", () => {
     let documentId = "";
 
     act(() => {
-      recordId = first.result.current.createRecord({ kind: "Processo", number: "401/2026", object: "Fluxo pelo hook", party: "Setor", department: "Administrativo", responsible: "Técnico", amount: 0, financialCategory: "Sem controle", paymentDueDate: "", startDate: "2026-08-25", endDate: "2026-09-25", status: "Em andamento", notes: "novo", alertDays: 30 }).id;
-      documentId = first.result.current.createDocument({ kind: "Ofício", number: "902/2026", templateKey: "teste", subject: "Documento pelo hook", destination: "Gabinete", recipient: "Gestão", relatedRecord: "Processo 401/2026", responsible: "Técnico", documentDate: "2026-08-25", dueDate: "2026-08-30", status: "Em elaboração", summary: "Resumo", notes: "Observação" }).id;
-      first.result.current.updateDocument(documentId, { kind: "Ofício", number: "902/2026", templateKey: "teste", subject: "Documento atualizado pelo hook", destination: "Gabinete", recipient: "Gestão", relatedRecord: "Processo 401/2026", responsible: "Técnico", documentDate: "2026-08-25", dueDate: "2026-08-30", status: "Em elaboração", summary: "Resumo", notes: "Observação" });
-      expect(first.result.current.createPayment({ recordId: "r12", paymentDate: "2026-08-25", amount: 100, notes: "Baixa pelo hook" })).toEqual({ error: null });
+      recordId = first.result.current.createRecord({ kind: "Processo", number: "401/2026", object: "Fluxo pelo hook", party: "Setor", department: "Administrativo", responsible: "Técnico", amount: 0, financialCategory: "Sem controle", paymentDueDate: "", startDate: "2026-08-25", endDate: "2026-09-25", status: "Em andamento", notes: "novo", alertDays: 30 }, "u-admin")!.id;
+      documentId = first.result.current.createDocument({ kind: "Ofício", number: "902/2026", templateKey: "teste", subject: "Documento pelo hook", destination: "Gabinete", recipient: "Gestão", relatedRecord: "Processo 401/2026", responsible: "Técnico", documentDate: "2026-08-25", dueDate: "2026-08-30", status: "Em elaboração", summary: "Resumo", notes: "Observação" }, "u-admin")!.id;
+      first.result.current.updateDocument(documentId, { kind: "Ofício", number: "902/2026", templateKey: "teste", subject: "Documento atualizado pelo hook", destination: "Gabinete", recipient: "Gestão", relatedRecord: "Processo 401/2026", responsible: "Técnico", documentDate: "2026-08-25", dueDate: "2026-08-30", status: "Em elaboração", summary: "Resumo", notes: "Observação" }, "u-admin");
+      expect(first.result.current.createPayment({ recordId: "r12", paymentDate: "2026-08-25", amount: 100, notes: "Baixa pelo hook" }, "u-admin")).toEqual({ error: null });
     });
 
-    act(() => { expect(first.result.current.deleteRecord(recordId, "remover")).toBe(false); });
+    act(() => { expect(first.result.current.deleteRecord(recordId, "u-admin", "remover")).toBe(false); });
     expect(first.result.current.records.some((record) => record.id === recordId)).toBe(true);
-    act(() => { expect(first.result.current.deleteRecord(recordId, "EXCLUIR")).toBe(true); });
+    act(() => { expect(first.result.current.deleteRecord(recordId, "u-admin", "EXCLUIR")).toBe(true); });
     first.unmount();
 
     const rehydrated = renderHook(() => useSigaLocalRepository());

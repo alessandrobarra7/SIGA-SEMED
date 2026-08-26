@@ -135,6 +135,7 @@ export default function SemedOperationalShell({
   onViewChange,
   onPassword,
   onLogout,
+  isViewAllowed,
   logo,
   children,
 }: {
@@ -143,6 +144,7 @@ export default function SemedOperationalShell({
   onViewChange: (view: ShellView) => void;
   onPassword: () => void;
   onLogout: () => void;
+  isViewAllowed?: (view: ShellView) => boolean;
   logo: string;
   children: React.ReactNode;
 }) {
@@ -168,12 +170,15 @@ export default function SemedOperationalShell({
             const Icon = item.icon;
             const selected = isSectionActive(item, activeView);
             const expanded = openGroup === item.id;
+            const allowed = isViewAllowed?.(item.id) ?? true;
             if (!item.children) {
               return (
                 <button
                   className={`siga-nav-item ${selected ? "active" : ""}`}
                   key={item.id}
                   type="button"
+                  data-restricted={!allowed || undefined}
+                  title={allowed ? item.label : `${item.label} · acesso restrito`}
                   onClick={() => chooseView(item.id)}
                 >
                   <Icon size={18} aria-hidden="true" />
@@ -186,6 +191,8 @@ export default function SemedOperationalShell({
                 <button
                   className={`siga-nav-item ${selected ? "active" : ""}`}
                   type="button"
+                  data-restricted={!allowed || undefined}
+                  title={allowed ? item.label : `${item.label} · acesso restrito`}
                   aria-expanded={expanded}
                   onClick={() => setOpenGroup((current) => (current === item.id ? null : item.id))}
                 >

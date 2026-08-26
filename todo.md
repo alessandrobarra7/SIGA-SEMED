@@ -191,3 +191,20 @@
 - [x] Cobrir perfis, permissões, auditoria, migração e compatibilidade regressiva com testes Vitest.
 - [x] Confirmar por comparação visual que nenhuma aparência do checkpoint `c8d87f2f` foi alterada.
 - [x] Salvar checkpoint do primeiro bloco funcional e apresentar o resultado.
+
+## Correção funcional — página Usuários e login por matrícula
+
+- [x] Substituir o placeholder de Usuários por uma página completa dentro da aparência oficial atual.
+- [x] Exibir indicadores, pesquisa instantânea e filtros por perfil, situação, tipo de login e permissão.
+- [x] Implementar cadastro local com nome, matrícula ou CPF, perfil, situação, unidade escolar, vínculo RH e permissões condicionais.
+- [x] Implementar edição, ativação/desativação, redefinição de senha provisória e encerramento de sessões locais.
+- [x] Aplicar validação de duplicidade de matrícula/CPF e obrigatoriedade de unidade para Gestor/Secretário Escolar.
+- [x] Aplicar perfis automáticos e permissões editáveis somente para Técnico.
+- [x] Implementar consulta do histórico local de auditoria por usuário.
+- [x] Fazer o login local aceitar matrícula como identificador principal, preservando o desenho oficial da página de acesso.
+- [x] Restringir a administração de Usuários ao perfil Administrador e bloquear operações não autorizadas.
+- [x] Validar desktop, mobile, testes, TypeScript e build sem modificar a identidade visual aprovada.
+- [ ] Salvar checkpoint e apresentar a página Usuários funcional no preview.
+- [x] Implementar e validar filtros funcionais por tipo de login e por permissão na página Usuários.
+- [x] Adicionar ao cadastro e à edição o fluxo explícito de acesso por CPF, com validação e testes.
+- [x] Bloquear a edição manual de permissões para perfis diferentes de Técnico e aplicar permissões automáticas no domínio local.

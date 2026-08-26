@@ -107,6 +107,7 @@ describe("perfis e permissões locais do SIGA SEMED", () => {
     delete legacy.semedUserPermissions;
     delete legacy.semedUserAuditLog;
     legacy.semedUsers.forEach((user) => {
+      delete user.registration;
       delete user.profile;
       delete user.loginType;
       delete user.cpf;
