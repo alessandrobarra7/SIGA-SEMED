@@ -4,13 +4,14 @@ import { describe, expect, it } from "vitest";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const indexHtml = readFileSync(resolve(projectRoot, "client/index.html"), "utf8");
+const indexStyles = readFileSync(resolve(projectRoot, "client/src/index.css"), "utf8");
 const shellStyles = readFileSync(resolve(projectRoot, "client/src/pages/siga-identity-refresh.css"), "utf8");
 
 describe("tipografia institucional do shell", () => {
-  it("carrega famílias tipográficas para o ambiente e mantém a regra visual escopada ao shell", () => {
-    expect(indexHtml).toContain("family=IBM+Plex+Sans");
-    expect(indexHtml).toContain("family=IBM+Plex+Serif");
-    expect(indexHtml).toContain("family=DM+Sans");
+  it("mantém Manrope e Source Serif 4 como tipografia institucional do ambiente", () => {
+    expect(indexStyles).toContain("family=Manrope");
+    expect(indexStyles).toContain("family=Source+Serif+4");
+    expect(indexHtml).not.toContain("IBM+Plex");
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
     expect(shellStyles).toContain('font-family: var(--siga-font-display) !important;');
@@ -34,10 +35,14 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain(".siga-fleet-status");
   });
 
-  it("atribui uma fonte específica e legível às legendas operacionais", () => {
-    expect(shellStyles).toContain('--siga-font-caption: "DM Sans", sans-serif;');
-    expect(shellStyles).toContain("Legendas operacionais: fonte própria, mais aberta e legível que o texto de corpo.");
-    expect(shellStyles).toContain(".siga-home-quick-actions button small");
-    expect(shellStyles).toContain(".siga-week-day p");
+  it("declara três níveis unificados de kicker com acento e escopo exclusivo do ambiente interno", () => {
+    expect(indexStyles).toContain("Sistema unificado de kickers do ambiente autenticado");
+    expect(indexStyles).toContain(".siga-shell .kicker--institutional");
+    expect(indexStyles).toContain(".siga-shell .kicker--section");
+    expect(indexStyles).toContain(".siga-shell .kicker--card");
+    expect(indexStyles).toContain(".siga-shell .kicker::before");
+    expect(indexStyles).toContain(".siga-shell .kicker--inverse");
+    expect(indexStyles).toContain(".siga-shell .siga-kicker:not(.kicker)");
+    expect(shellStyles).toContain('--siga-font-caption: "Manrope", sans-serif;');
   });
 });

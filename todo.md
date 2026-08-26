@@ -566,3 +566,11 @@
 - [x] Aplicar uma fonte de interface distinta, com tamanho, peso, contraste e espaçamento perceptivelmente melhores a essas legendas.
 - [x] Validar em preview desktop e mobile, cobrir regressão tipográfica, executar TypeScript e build sem alterar a tela de login.
 - [x] Atualizar documentação, salvar checkpoint e apresentar a correção visual.
+
+## Implementação autorizada — sistema unificado de kickers
+
+- [x] Mapear os usos de `.siga-kicker`, `access-*`, headings, filtros, detalhes, alertas e gatilhos de formulário em todas as telas afetadas.
+- [x] Definir kickers institucional, de seção e de card, incluindo variantes de cor, inverse, acento gráfico e regras mobile acessíveis.
+- [x] Consolidar as classes em `client/src/index.css` e aplicar a nova semântica sem alterar textos, ids, testids, rotas ou layout estrutural.
+- [x] Cobrir a hierarquia com regressão e validar Início, login, gestão/relatório e alertas/detalhes em desktop e mobile.
+- [x] Atualizar documentação, salvar checkpoint e apresentar o sistema publicado.

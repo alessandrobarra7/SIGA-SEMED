@@ -126,3 +126,82 @@ h1, h2, h3, p { margin-top: 0; }
 
 /* Barra institucional contida: identidade oficial e assinatura SIGA, sem lista de benefícios ou mensagens promocionais. */
 .login-essential-stage { border-radius: 4px; }.login-essential-stage .access-story-copy { margin-top: auto; margin-bottom: auto; }.login-essential-stage .access-story-copy > p:last-child, .login-essential-stage .access-guides, .login-essential-stage .access-footer { display: none; }.login-essential-stage .access-story h1 { font-size: clamp(3.4rem, 5.4vw, 5.75rem); }.login-essential-stage .access-eyebrow { max-width: 360px; line-height: 1.45; }.login-essential-stage .login-essential-card { background: rgba(255,254,250,.985); }
+
+/* Sistema unificado de kickers do ambiente autenticado. O login aprovado permanece fora deste escopo. */
+.siga-shell .kicker {
+  --kicker-color: var(--teal);
+  --kicker-accent: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: .48rem;
+  margin: 0 0 .48rem;
+  color: var(--kicker-color) !important;
+  font-family: "Manrope", sans-serif !important;
+  font-style: normal;
+  line-height: 1.25 !important;
+  text-transform: uppercase;
+}
+.siga-shell .kicker::before {
+  width: .42rem;
+  height: .42rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--kicker-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kicker-accent) 14%, transparent);
+  content: "";
+}
+.siga-shell .kicker--institutional {
+  --kicker-color: var(--navy);
+  --kicker-accent: var(--green);
+  font-size: .75rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .115em !important;
+}
+.siga-shell .kicker--section {
+  --kicker-color: var(--teal);
+  --kicker-accent: var(--teal);
+  font-size: .69rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .1em !important;
+}
+.siga-shell .kicker--card {
+  --kicker-color: #466473;
+  --kicker-accent: var(--green);
+  font-size: .625rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .075em !important;
+}
+.siga-shell .kicker--card::before { width: .3rem; height: .3rem; box-shadow: none; }
+.siga-shell .kicker--navy { --kicker-color: var(--navy); --kicker-accent: var(--navy); }
+.siga-shell .kicker--positive { --kicker-color: #28764a; --kicker-accent: var(--green); }
+.siga-shell .kicker--inverse { --kicker-color: rgba(244,255,250,.94); --kicker-accent: #a8ee9d; }
+.siga-shell .kicker--inverse::before { box-shadow: 0 0 0 3px rgba(168,238,157,.16); }
+.siga-shell .siga-kicker:not(.kicker) {
+  --kicker-color: var(--teal);
+  --kicker-accent: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+  margin: 0 0 .45rem;
+  color: var(--kicker-color) !important;
+  font-family: "Manrope", sans-serif !important;
+  font-size: .69rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .1em !important;
+  line-height: 1.25 !important;
+  text-transform: uppercase;
+}
+.siga-shell .siga-kicker:not(.kicker)::before {
+  width: .34rem;
+  height: .34rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--kicker-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kicker-accent) 14%, transparent);
+  content: "";
+}
+@media (max-width: 780px) {
+  .siga-shell .kicker--institutional { font-size: .7rem !important; }
+  .siga-shell .kicker--section { font-size: .66rem !important; }
+  .siga-shell .kicker--card { font-size: .625rem !important; }
+}

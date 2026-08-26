@@ -391,9 +391,9 @@
 
 /* Tipografia institucional do ambiente autenticado — o login permanece intocado. */
 .siga-shell {
-  --siga-font-body: "IBM Plex Sans", sans-serif;
-  --siga-font-display: "IBM Plex Serif", serif;
-  --siga-font-caption: "DM Sans", sans-serif;
+  --siga-font-body: "Manrope", sans-serif;
+  --siga-font-display: "Source Serif 4", serif;
+  --siga-font-caption: "Manrope", sans-serif;
   font-family: var(--siga-font-body);
 }
 .siga-shell :is(button, input, select, textarea) { font-family: inherit; }

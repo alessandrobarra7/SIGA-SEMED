@@ -185,7 +185,7 @@ function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
   return <section className="siga-welcome" aria-labelledby="welcome-title">
     <div className="siga-welcome-hero">
       <div>
-        <p className="siga-kicker">Painel institucional</p>
+        <p className="siga-kicker kicker kicker--institutional">Painel institucional</p>
         <h1 id="welcome-title">Olá, {firstName}.</h1>
         <p className="siga-welcome-copy">Este é o centro de acompanhamento do SIGA SEMED. Consulte o resumo da operação, navegue pelos módulos e mantenha os fluxos de trabalho organizados em uma única área.</p>
         <div className="siga-welcome-actions">
@@ -243,7 +243,7 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
   return <section className="siga-home siga-home-editorial" aria-labelledby="home-title">
     <header className="siga-home-editorial-intro">
       <div>
-        <p className="siga-kicker">Página inicial</p>
+        <p className="siga-kicker kicker kicker--institutional">Página inicial</p>
         <h1 id="home-title">Acompanhamento da semana</h1>
         <p>Visão local de agenda, prioridades e acesso rápido aos fluxos já disponíveis.</p>
       </div>
@@ -251,33 +251,33 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
     </header>
 
     <div className="siga-home-editorial-metrics">
-      <article className="siga-editorial-metric green"><span className="siga-home-stat-icon green"><ClipboardCheck size={22} aria-hidden="true" /></span><div><strong>{records.length}</strong><small>Registros locais</small><button type="button" onClick={() => onViewChange("records")}>Ver contratos <ArrowRight size={14} /></button></div></article>
-      <article className="siga-editorial-metric blue"><span className="siga-home-stat-icon navy"><ListChecks size={22} aria-hidden="true" /></span><div><strong>{canReadGovernance ? openManagementTasks : agendaDays.length}</strong><small>{canReadGovernance ? "Tarefas em aberto" : "Rotinas na semana"}</small><button type="button" onClick={() => onViewChange("governance")}>Ver gestão <ArrowRight size={14} /></button></div></article>
-      <article className="siga-editorial-metric pink"><span className="siga-home-stat-icon orange"><FileText size={22} aria-hidden="true" /></span><div><strong>{documents.length}</strong><small>Documentos locais</small><button type="button" onClick={() => onViewChange("documents")}>Ver documentos <ArrowRight size={14} /></button></div></article>
-      <article className="siga-editorial-metric orange"><span className="siga-home-stat-icon orange"><FileClock size={22} aria-hidden="true" /></span><div><strong>{openAlerts}</strong><small>Alertas em aberto</small><button type="button" onClick={() => onViewChange(canReadGovernance ? "governance" : "finance")}>{canReadGovernance ? "Ver gestão" : "Ver financeiro"} <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric green"><span className="siga-home-stat-icon green"><ClipboardCheck size={22} aria-hidden="true" /></span><div><strong>{records.length}</strong><small className="kicker kicker--card">Registros locais</small><button type="button" onClick={() => onViewChange("records")}>Ver contratos <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric blue"><span className="siga-home-stat-icon navy"><ListChecks size={22} aria-hidden="true" /></span><div><strong>{canReadGovernance ? openManagementTasks : agendaDays.length}</strong><small className="kicker kicker--card">{canReadGovernance ? "Tarefas em aberto" : "Rotinas na semana"}</small><button type="button" onClick={() => onViewChange("governance")}>Ver gestão <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric pink"><span className="siga-home-stat-icon orange"><FileText size={22} aria-hidden="true" /></span><div><strong>{documents.length}</strong><small className="kicker kicker--card">Documentos locais</small><button type="button" onClick={() => onViewChange("documents")}>Ver documentos <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric orange"><span className="siga-home-stat-icon orange"><FileClock size={22} aria-hidden="true" /></span><div><strong>{openAlerts}</strong><small className="kicker kicker--card">Alertas em aberto</small><button type="button" onClick={() => onViewChange(canReadGovernance ? "governance" : "finance")}>{canReadGovernance ? "Ver gestão" : "Ver financeiro"} <ArrowRight size={14} /></button></div></article>
     </div>
 
     <div className="siga-home-editorial-main-grid">
       <section className="siga-agenda-card" aria-labelledby="agenda-title">
-        <div className="siga-card-heading"><div><p>Acompanhamento da semana</p><h2 id="agenda-title">Agenda institucional</h2></div><button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><CalendarDays size={15} aria-hidden="true" />Ver calendário</button></div>
-        <div className="siga-week-grid">{agendaDays.map((item) => <article key={item.day} className={`siga-week-day ${item.tone}`}><small>{item.day}</small><strong>{item.date}</strong>{item.items.map((agendaItem) => <span key={agendaItem}>{agendaItem}</span>)}</article>)}</div>
-        {canReadGovernance ? <section className="siga-home-monthly-deadlines" aria-label="Visão mensal de prazos de Gestão"><header><div><p>Prazos de Gestão</p><h3>{deadlineMonthLabel}</h3></div><div><button type="button" aria-label="Mês anterior" onClick={() => shiftDeadlineMonth(-1)}><ChevronLeft size={15} aria-hidden="true" /></button><button type="button" aria-label="Próximo mês" onClick={() => shiftDeadlineMonth(1)}><ChevronRight size={15} aria-hidden="true" /></button></div></header>{monthlyManagementDeadlines.length ? <div>{monthlyManagementDeadlines.map((task) => <button type="button" key={task.id} onClick={() => onViewChange("governance")}><time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit" })}</time><span><strong>{task.title}</strong><small>{task.area} · {task.priority}</small></span></button>)}</div> : <p>Nenhum prazo aberto de Gestão neste mês.</p>}</section> : null}
+        <div className="siga-card-heading"><div><p className="kicker kicker--section">Acompanhamento da semana</p><h2 id="agenda-title">Agenda institucional</h2></div><button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><CalendarDays size={15} aria-hidden="true" />Ver calendário</button></div>
+        <div className="siga-week-grid">{agendaDays.map((item) => <article key={item.day} className={`siga-week-day ${item.tone}`}><small className="kicker kicker--card">{item.day}</small><strong>{item.date}</strong>{item.items.map((agendaItem) => <span key={agendaItem}>{agendaItem}</span>)}</article>)}</div>
+        {canReadGovernance ? <section className="siga-home-monthly-deadlines" aria-label="Visão mensal de prazos de Gestão"><header><div><p className="kicker kicker--section">Prazos de Gestão</p><h3>{deadlineMonthLabel}</h3></div><div><button type="button" aria-label="Mês anterior" onClick={() => shiftDeadlineMonth(-1)}><ChevronLeft size={15} aria-hidden="true" /></button><button type="button" aria-label="Próximo mês" onClick={() => shiftDeadlineMonth(1)}><ChevronRight size={15} aria-hidden="true" /></button></div></header>{monthlyManagementDeadlines.length ? <div>{monthlyManagementDeadlines.map((task) => <button type="button" key={task.id} onClick={() => onViewChange("governance")}><time dateTime={task.dueDate}>{new Date(`${task.dueDate}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit" })}</time><span><strong>{task.title}</strong><small className="kicker kicker--card">{task.area} · {task.priority}</small></span></button>)}</div> : <p>Nenhum prazo aberto de Gestão neste mês.</p>}</section> : null}
       </section>
 
       <section className="siga-home-quick-actions" aria-labelledby="quick-actions-title">
-        <div className="siga-card-heading"><div><p>Acesso rápido</p><h2 id="quick-actions-title">Ações rápidas</h2></div></div>
-        <div>{quickActions.map((action) => <button key={action.label} className={action.tone} type="button" onClick={() => onViewChange(action.view)}><span>{action.label}<small>{action.detail}</small></span><ArrowRight size={16} aria-hidden="true" /></button>)}</div>
+        <div className="siga-card-heading"><div><p className="kicker kicker--section">Acesso rápido</p><h2 id="quick-actions-title">Ações rápidas</h2></div></div>
+        <div>{quickActions.map((action) => <button key={action.label} className={action.tone} type="button" onClick={() => onViewChange(action.view)}><span>{action.label}<small className="kicker kicker--card">{action.detail}</small></span><ArrowRight size={16} aria-hidden="true" /></button>)}</div>
       </section>
     </div>
 
     <div className="siga-home-editorial-bottom-grid">
       <section className="siga-notes-card" aria-labelledby="notes-title">
-        <div className="siga-card-heading"><div><p>Mural de comunicados</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
+        <div className="siga-card-heading"><div><p className="kicker kicker--section">Mural de comunicados</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
         <form onSubmit={saveNote} className="siga-quick-note-form"><input aria-label="Nova anotação" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Registrar um lembrete local" /><button type="submit" aria-label="Adicionar anotação"><Plus size={16} aria-hidden="true" /></button></form>
         <div className="siga-quick-notes">{notes.length ? notes.map((item, index) => <p key={`${item}-${index}`}>{item}</p>) : <p className="empty">Nenhuma anotação criada nesta sessão.</p>}</div>
       </section>
       <section className="siga-home-pending" aria-label="Atividades pendentes">
-        <div className="siga-card-heading"><div><p>Atividades pendentes</p><h2>Prioridades locais</h2></div><button type="button" onClick={() => onViewChange("governance")}>Ver todas</button></div>
+        <div className="siga-card-heading"><div><p className="kicker kicker--section">Atividades pendentes</p><h2>Prioridades locais</h2></div><button type="button" onClick={() => onViewChange("governance")}>Ver todas</button></div>
         <div><span><FileText size={15} />Documentos para assinatura <b>{dueDocuments}</b></span><span><FileClock size={15} />Contratos para renovação <b>{dueRecords}</b></span>{canReadGovernance ? <><span><ClipboardCheck size={15} />Tarefas de Gestão <b>{openManagementTasks}</b></span><span><ListChecks size={15} />Aprovações aguardando <b>{pendingManagementApprovals}</b></span></> : <span><ClipboardCheck size={15} />Rotinas da semana <b>{agendaDays.length}</b></span>}</div>
       </section>
     </div>
@@ -287,7 +287,7 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
 function ModulePlaceholder({ view, onHome }: { view: ShellView; onHome: () => void }) {
   if (view.startsWith("stock-") || view === "finance" || view === "fleet") return null;
   const label = shellViewLabel(view);
-  return <section className="siga-module-placeholder"><div className="siga-placeholder-mark"><ClipboardCheck size={22} aria-hidden="true" /></div><p className="siga-kicker">Módulo mapeado</p><h1>{label}</h1><p>O shell, a navegação e a posição deste módulo já foram reproduzidos. A composição interna será incorporada no próximo grupo, preservando filtros, abas e fluxos observados na referência.</p><button type="button" onClick={onHome}>Voltar ao Início</button></section>;
+  return <section className="siga-module-placeholder"><div className="siga-placeholder-mark"><ClipboardCheck size={22} aria-hidden="true" /></div><p className="siga-kicker kicker kicker--institutional">Módulo mapeado</p><h1>{label}</h1><p>O shell, a navegação e a posição deste módulo já foram reproduzidos. A composição interna será incorporada no próximo grupo, preservando filtros, abas e fluxos observados na referência.</p><button type="button" onClick={onHome}>Voltar ao Início</button></section>;
 }
 
 export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: { user: User; onLogout: () => void; onPasswordChanged?: () => void }) {
