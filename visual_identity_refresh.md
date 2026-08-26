@@ -17,3 +17,6 @@ As referências fornecidas definem uma interface institucional mais clara, acolh
 
 > O redesenho altera somente aparência, linguagem tipográfica, ícones decorativos, cores, sombras, superfícies e responsividade. Os handlers de login, primeiro acesso, navegação, permissões, armazenamento local, filtros, cálculos, cadastros, edição, cancelamento, relatórios e exportações permanecem inalterados.
 
+## Refinamento editorial interno
+
+A referência interna posterior consolidou uma composição com **barra lateral branca**, cabeçalho arejado, painel inicial em blocos de indicadores, agenda semanal, atalhos rápidos e uso discreto de imagem municipal. Esta linguagem foi aplicada exclusivamente após a autenticação. A página de login foi aprovada pelo usuário e está **congelada**: não pode receber novas alterações visuais ou funcionais sem nova autorização expressa.

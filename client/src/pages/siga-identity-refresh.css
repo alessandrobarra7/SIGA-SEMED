@@ -205,3 +205,175 @@
 :is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero, .siga-hr-toolbar, .siga-hr-action-bar, .schools-educa-form) { border-color: #e1ece7 !important; border-radius: 16px !important; box-shadow: 0 10px 24px rgba(17,79,66,.055) !important; }
 :is(.siga-finance-hero, .siga-nutrition-hero, .siga-stock-hero) { border-top-color: #2c9b59 !important; }
 :is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1) { color: #0c4162 !important; font-family: Manrope, sans-serif !important; font-weight: 850 !important; letter-spacing: -.055em !important; }
+
+/* Composição editorial do ambiente autenticado — o login não participa desta camada. */
+.siga-shell {
+  grid-template-columns: 236px minmax(0, 1fr);
+  background: #fbfdfc;
+}
+.siga-shell .siga-shell-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  padding: 24px 16px 18px;
+  border-right: 1px solid #e9efec;
+  background: #fff !important;
+  box-shadow: 6px 0 21px rgba(22, 67, 68, .035);
+}
+.siga-shell .siga-shell-mark {
+  display: grid !important;
+  justify-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 0 0 21px;
+  border-bottom: 1px solid #e9f0ec;
+}
+.siga-shell .siga-shell-mark img {
+  width: 128px;
+  height: 74px;
+  padding: 0;
+  border-radius: 0;
+  object-fit: contain;
+  box-shadow: none;
+}
+.siga-shell .siga-shell-mark span { align-items: center; text-align: center; }
+.siga-shell .siga-shell-mark small { color: #607b76; font-size: 7px; letter-spacing: .09em; }
+.siga-shell .siga-shell-mark strong { color: #238c52; font-size: 18px; letter-spacing: .03em; }
+.siga-shell .siga-shell-nav { gap: 3px; }
+.siga-shell .siga-nav-item {
+  min-height: 39px;
+  border-radius: 8px;
+  color: #3d5867 !important;
+  font-size: 11px;
+  font-weight: 750;
+}
+.siga-shell .siga-nav-item svg { color: #607884 !important; }
+.siga-shell .siga-nav-item:hover { background: #eff9f2 !important; color: #197a47 !important; }
+.siga-shell .siga-nav-item.active { background: linear-gradient(100deg, #15924d, #38b56a) !important; color: #fff !important; box-shadow: 0 8px 14px rgba(37, 146, 78, .16); }
+.siga-shell .siga-nav-item.active svg { color: #fff !important; }
+.siga-shell .siga-nav-submenu { border-left-color: #cae8d3; }
+.siga-shell .siga-nav-submenu button { color: #5d7480; font-size: 10px; }
+.siga-shell .siga-nav-submenu button:hover { color: #18834a; }
+.siga-shell .siga-shell-sidebar-footer {
+  position: absolute;
+  inset: auto 0 0;
+  display: block;
+  min-height: 180px;
+  padding: 0 24px 23px;
+  border: 0;
+  background: linear-gradient(0deg, rgba(239, 253, 244, .98), rgba(255,255,255,.08)) !important;
+  color: #278d50;
+}
+.siga-shell .siga-shell-sidebar-art {
+  height: 110px;
+  margin: 0 -24px 9px;
+  opacity: .22;
+  background: url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat;
+  mix-blend-mode: multiply;
+}
+.siga-shell .siga-shell-sidebar-footer > div:last-child { display: flex; align-items: center; gap: 9px; font-size: 10px; font-weight: 800; line-height: 1.3; }
+.siga-shell .siga-shell-sidebar-footer svg { flex: none; }
+
+.siga-shell-main { background: #fbfdfc; }
+.siga-shell-header {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) minmax(220px, 280px) auto;
+  align-items: center;
+  min-height: 92px;
+  padding: 14px clamp(22px, 4vw, 60px);
+  border-bottom: 1px solid #e8eeeb;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 3px 12px rgba(23, 64, 69, .035);
+}
+.siga-shell-header-title { gap: 2px; }
+.siga-shell-header-title span { font-size: 11px; letter-spacing: .02em; }
+.siga-shell-header-title strong { font-size: 24px; letter-spacing: -.065em; }
+.siga-shell-header-title small { font-size: 9px; }
+.siga-shell-search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 39px;
+  padding: 0 13px;
+  border: 1px solid #e3ece8;
+  border-radius: 11px;
+  background: #fafdfb;
+  color: #8a9a9a;
+  font-size: 11px;
+  box-shadow: 0 5px 12px rgba(20, 75, 61, .035);
+}
+.siga-shell-search svg { color: #3c6774; }
+.siga-shell-account { gap: 10px; }
+.siga-header-icon { position: relative; width: 34px; height: 34px; border: 0; background: transparent; color: #16844b; }
+.siga-header-icon::after { position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; border: 2px solid #fff; border-radius: 50%; background: #ef476f; content: ''; }
+.siga-header-icon.exit::after { display: none; }
+.siga-shell-avatar { display: grid; width: 37px; height: 37px; place-items: center; border: 2px solid #e5f3e8; border-radius: 50%; background: linear-gradient(145deg, #208d50, #145d74); color: #fff; font-size: 10px; font-weight: 850; }
+.siga-shell-user { gap: 1px; }
+.siga-shell-user span { font-size: 11px; font-weight: 850; }
+.siga-shell-user small { font-size: 9px; color: #688079; }
+.siga-header-text-button { display: none; }
+.siga-shell-content { width: min(1280px, 100%); padding: 28px clamp(22px, 4vw, 60px) 42px; }
+
+.siga-home-editorial { gap: 18px; }
+.siga-home-editorial-intro { display: grid; grid-template-columns: minmax(220px, .86fr) minmax(310px, 1.14fr); align-items: end; min-height: 156px; padding: 7px 4px 0; }
+.siga-home-editorial-intro h1 { margin: 3px 0 5px; color: #0a3e63; font-family: Manrope, sans-serif; font-size: clamp(26px, 3vw, 37px); font-weight: 900; letter-spacing: -.075em; }
+.siga-home-editorial-intro > div > p:last-child { max-width: 380px; margin: 0; color: #52707c; font-size: 13px; line-height: 1.45; }
+.siga-home-editorial-illustration { align-self: stretch; min-height: 135px; background: linear-gradient(0deg, rgba(255,255,255,.1), rgba(255,255,255,.05)), url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat; opacity: .36; mix-blend-mode: multiply; -webkit-mask-image: linear-gradient(90deg, transparent, #000 24%, #000 80%, transparent); mask-image: linear-gradient(90deg, transparent, #000 24%, #000 80%, transparent); }
+.siga-home-editorial-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.siga-editorial-metric { display: flex; align-items: center; gap: 12px; min-height: 116px; padding: 16px; border: 1px solid #e7eeeb; border-radius: 14px; background: #fff; box-shadow: 0 9px 21px rgba(25, 78, 70, .045); }
+.siga-editorial-metric > span { flex: none; width: 43px; height: 43px; }
+.siga-editorial-metric > div { display: grid; min-width: 0; gap: 1px; }
+.siga-editorial-metric strong { color: #0d3f61; font-family: Manrope, sans-serif; font-size: 25px; font-weight: 900; letter-spacing: -.06em; }
+.siga-editorial-metric small { color: #60737d; font-size: 10px; line-height: 1.32; }
+.siga-editorial-metric button { display: flex; align-items: center; gap: 4px; width: max-content; margin-top: 5px; padding: 0; border: 0; background: transparent; color: #228c50; font: 800 10px Manrope, sans-serif; cursor: pointer; }
+.siga-editorial-metric.blue button { color: #1685a5; }.siga-editorial-metric.pink button { color: #d43d79; }.siga-editorial-metric.orange button { color: #db8719; }
+.siga-editorial-metric.blue .siga-home-stat-icon { background: #e6f5fb; color: #1685a5; }.siga-editorial-metric.pink .siga-home-stat-icon { background: #feebf3; color: #d43d79; }.siga-editorial-metric.orange .siga-home-stat-icon { background: #fff2df; color: #db8719; }
+
+.siga-home-editorial-main-grid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(250px, .78fr); gap: 15px; }
+.siga-home-editorial-bottom-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, .9fr); gap: 15px; }
+.siga-agenda-card, .siga-notes-card, .siga-home-quick-actions, .siga-home-pending { border: 1px solid #e6eeeb; border-radius: 14px; background: #fff; box-shadow: 0 9px 22px rgba(25, 78, 70, .045); }
+.siga-agenda-card, .siga-notes-card, .siga-home-quick-actions, .siga-home-pending { padding: 19px; }
+.siga-card-heading { align-items: flex-start; }
+.siga-card-heading p { color: #527367; font-size: 10px; font-weight: 850; text-transform: none; }
+.siga-card-heading h2 { color: #0c3f61; font-family: Manrope, sans-serif; font-size: 17px; font-weight: 900; letter-spacing: -.045em; }
+.siga-card-heading .siga-home-outline { height: 32px; border-radius: 9px; font-size: 10px; }
+.siga-week-grid { gap: 9px; margin-top: 15px; }
+.siga-week-day { min-height: 124px; padding: 13px; border: 1px solid #e9efed; border-top: 4px solid #239252; border-radius: 11px; background: linear-gradient(155deg, #fff, #fafffc); }
+.siga-week-day strong { color: #1b9251; font-family: Manrope, sans-serif; font-size: 25px; font-weight: 900; }
+.siga-week-day:nth-child(2) { border-top-color: #1886a9; }.siga-week-day:nth-child(2) strong { color: #1886a9; }.siga-week-day:nth-child(3) { border-top-color: #df8d20; }.siga-week-day:nth-child(3) strong { color: #df8d20; }.siga-week-day:nth-child(4) { border-top-color: #df4d82; }.siga-week-day:nth-child(4) strong { color: #df4d82; }
+.siga-home-quick-actions > div:last-child { display: grid; gap: 4px; margin-top: 12px; }
+.siga-home-quick-actions > div:last-child button { display: flex; align-items: center; justify-content: space-between; min-height: 49px; padding: 8px 10px; border: 0; border-radius: 10px; background: #f7fcf8; color: #188749; font: 800 11px Manrope, sans-serif; cursor: pointer; text-align: left; }
+.siga-home-quick-actions button span { display: grid; gap: 1px; }.siga-home-quick-actions button small { color: #769188; font-size: 8px; font-weight: 650; }.siga-home-quick-actions button.orange { background: #fff8ef; color: #d78216; }.siga-home-quick-actions button.blue { background: #f0f9fc; color: #1686a5; }.siga-home-quick-actions button.pink { background: #fff2f7; color: #d5407c; }
+.siga-home-pending .siga-card-heading > button { border: 0; background: transparent; color: #248a50; font: 800 10px Manrope, sans-serif; cursor: pointer; }
+.siga-home-pending > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.siga-home-pending > div:last-child span { display: flex; align-items: center; gap: 7px; color: #4f6874; font-size: 10px; }.siga-home-pending svg { color: #238d50; }.siga-home-pending b { margin-left: auto; color: #168549; }
+
+.siga-shell .siga-welcome-hero {
+  border: 1px solid #e5eeea !important;
+  border-radius: 16px !important;
+  background: linear-gradient(100deg, #fff 0%, #f4fbf6 62%, #ecf9f0 100%) !important;
+  box-shadow: 0 10px 25px rgba(25, 78, 70, .055) !important;
+  color: #163f5e !important;
+}
+.siga-shell .siga-welcome-hero::after { background: url('/manus-storage/paco-lumiar-internal-banner_53852e32.jpg') center/cover no-repeat; border: 0; border-radius: 0; width: 46%; height: 100%; right: 0; bottom: 0; opacity: .18; mix-blend-mode: multiply; }
+.siga-shell .siga-welcome h1 { color: #0d4162 !important; font-size: clamp(27px, 3.5vw, 40px); }
+.siga-shell .siga-welcome-copy { color: #58727d !important; }
+.siga-shell .siga-welcome-status { border-color: #dcece2 !important; background: rgba(255,255,255,.82) !important; color: #184c55 !important; }
+.siga-shell .siga-welcome-status strong { color: #0d4162 !important; }.siga-shell .siga-welcome-status p { color: #638079 !important; }
+.siga-shell .siga-welcome-briefing article { border-color: #e5eeea !important; background: #fff !important; }
+
+@media (max-width: 1000px) {
+  .siga-shell { grid-template-columns: 200px minmax(0, 1fr); }
+  .siga-shell-header { grid-template-columns: 1fr auto; }.siga-shell-search { display: none; }
+  .siga-home-editorial-metrics { grid-template-columns: repeat(2, 1fr); }
+  .siga-home-editorial-main-grid, .siga-home-editorial-bottom-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 740px) {
+  .siga-shell { grid-template-columns: 1fr; }.siga-shell-sidebar { position: static; height: auto; padding: 13px; }.siga-shell-mark, .siga-shell-sidebar-footer { display: none; }
+  .siga-shell-nav { display: flex; overflow: auto; gap: 5px; }.siga-shell-nav > * { flex: 0 0 auto; }.siga-nav-item { min-height: 36px; padding: 0 10px; }.siga-nav-item span { font-size: 10px; }
+  .siga-shell-header { grid-template-columns: 1fr auto; min-height: 76px; padding: 12px 15px; }.siga-shell-header-title strong { font-size: 20px; }.siga-shell-user { display: none; }.siga-shell-content { padding: 18px 14px 36px; }
+  .siga-home-editorial-intro { grid-template-columns: 1fr; min-height: 0; }.siga-home-editorial-illustration { min-height: 90px; margin-top: 6px; }.siga-home-editorial-metrics { grid-template-columns: 1fr 1fr; gap: 9px; }.siga-editorial-metric { min-height: 104px; padding: 12px; gap: 9px; }.siga-editorial-metric > span { width: 36px; height: 36px; }.siga-editorial-metric strong { font-size: 21px; }
+  .siga-week-grid { grid-template-columns: repeat(2, 1fr); }.siga-home-pending > div:last-child { grid-template-columns: 1fr; }
+}

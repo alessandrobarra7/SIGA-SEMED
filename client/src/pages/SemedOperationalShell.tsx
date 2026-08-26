@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
+  Search,
   School,
   ShieldCheck,
   Truck,
@@ -165,6 +166,7 @@ export default function SemedOperationalShell({
   children: React.ReactNode;
 }) {
   const [openGroup, setOpenGroup] = useState<ShellView | null>(null);
+  const userInitials = user.displayName.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "SM";
 
   function chooseView(view: ShellView) {
     onViewChange(view);
@@ -176,8 +178,8 @@ export default function SemedOperationalShell({
         <button className="siga-shell-mark" type="button" onClick={() => chooseView("welcome")} aria-label="Abrir boas-vindas">
           <img src={logo} alt="SEMED" />
           <span>
-            <small>Sistema integrado</small>
-            <strong>SIGA SEMED</strong>
+            <small>Prefeitura de Paço do Lumiar</small>
+            <strong>SEMED</strong>
           </span>
         </button>
 
@@ -231,8 +233,11 @@ export default function SemedOperationalShell({
         </nav>
 
         <div className="siga-shell-sidebar-footer">
-          <CalendarDays size={16} aria-hidden="true" />
-          <span>Agenda e acompanhamento local</span>
+          <div className="siga-shell-sidebar-art" aria-hidden="true" />
+          <div>
+            <CalendarDays size={16} aria-hidden="true" />
+            <span>Ambiente seguro<br />e monitorado</span>
+          </div>
         </div>
       </aside>
 
@@ -241,12 +246,17 @@ export default function SemedOperationalShell({
           <div className="siga-shell-header-title">
             <span>Secretaria Municipal de Educação</span>
             <strong>{shellViewLabel(activeView)}</strong>
-            <small>Preview local · versão estrutural</small>
+            <small>Visão geral e acesso rápido aos principais recursos.</small>
+          </div>
+          <div className="siga-shell-search" aria-label="Pesquisa visual do sistema">
+            <span>Buscar no sistema...</span>
+            <Search size={17} aria-hidden="true" />
           </div>
           <div className="siga-shell-account">
             <button className="siga-header-icon" type="button" onClick={() => onViewChange("governance")} title="Alertas locais">
               <BellRing size={17} aria-hidden="true" />
             </button>
+            <span className="siga-shell-avatar" aria-hidden="true">{userInitials}</span>
             <div className="siga-shell-user">
               <span>{user.displayName}</span>
               <small>{user.role}</small>

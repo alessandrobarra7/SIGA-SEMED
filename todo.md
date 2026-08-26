@@ -336,3 +336,25 @@
 - [x] Incorporar base clara, azul institucional profundo, verde como destaque, cartões brancos leves, tipografia humanizada e legendas mais claras.
 - [x] Atualizar primeiro o login com composição institucional ilustrada, painel de acesso branco e novo logotipo fornecido.
 - [x] Propagar a mesma identidade ao shell, navegação lateral, painéis, formulários, tabelas e indicadores sem alterar qualquer comportamento.
+
+## Consulta de acessos demonstrativos
+
+- [x] Verificar os usuários e perfis disponíveis no armazenamento local do preview.
+- [x] Apresentar credenciais demonstrativas de navegação sem expor qualquer dado externo.
+
+## Refinamento interno autorizado — login congelado
+
+- [x] Congelar integralmente a tela de login aprovada, incluindo composição, cores, fontes, ilustração e comportamento.
+- [x] Mapear painéis internos prioritários e elementos visuais a aprimorar.
+- [x] Refinar somente shell autenticado, painéis, tabelas, formulários e indicadores sem alterar navegação, lógica, permissões ou dados locais.
+- [x] Validar os fluxos internos em desktop e mobile, mantendo o login visualmente inalterado.
+- [x] Documentar, salvar checkpoint e apresentar o refinamento interno.
+
+## Reformulação editorial interna — referência municipal
+
+- [x] Registrar a referência de composição interna com barra lateral clara, cabeçalho limpo, painel editorial, cartões coloridos, agenda e ações rápidas.
+- [x] Preservar integralmente a tela de login, além de rotas, navegação, permissões, dados locais, cálculos e ações dos módulos.
+- [x] Preparar a composição visual e os ativos municipais para uso exclusivo no ambiente autenticado.
+- [x] Reformular barra lateral, cabeçalho e painel inicial sem alterar comportamentos.
+- [x] Harmonizar os módulos internos e validar desktop, mobile, testes, TypeScript e build.
+- [x] Documentar, salvar checkpoint e apresentar o novo ambiente interno.

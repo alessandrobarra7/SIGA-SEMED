@@ -218,30 +218,51 @@ function HomeDashboard({ records, documents, onViewChange }: { records: SemedRec
     setNote("");
   }
 
-  return <section className="siga-home" aria-labelledby="home-title">
-    <header className="siga-home-heading">
-      <div><p className="siga-kicker">Página inicial</p><h1 id="home-title">Acompanhamento da semana</h1><span>Visão local de agenda, prioridades e acesso rápido aos fluxos já disponíveis.</span></div>
-      <button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><ListChecks size={16} aria-hidden="true" />Ver minhas tarefas</button>
+  const quickActions: { label: string; detail: string; tone: string; view: ShellView }[] = [
+    { label: "Novo documento", detail: "Documentos", tone: "green", view: "documents" },
+    { label: "Cadastrar unidade", detail: "Unidades escolares", tone: "orange", view: "schools" },
+    { label: "Novo usuário", detail: "Usuários", tone: "blue", view: "users" },
+    { label: "Relatórios gerenciais", detail: "Gestão", tone: "pink", view: "governance" },
+  ];
+
+  return <section className="siga-home siga-home-editorial" aria-labelledby="home-title">
+    <header className="siga-home-editorial-intro">
+      <div>
+        <p className="siga-kicker">Página inicial</p>
+        <h1 id="home-title">Acompanhamento da semana</h1>
+        <p>Visão local de agenda, prioridades e acesso rápido aos fluxos já disponíveis.</p>
+      </div>
+      <div className="siga-home-editorial-illustration" aria-hidden="true" />
     </header>
 
-    <div className="siga-home-overview">
-      <article className="siga-home-hero-card"><span>Resumo operacional</span><strong>Organize o acompanhamento sem sair do contexto.</strong><p>Consulte prazos, documentos e contratos locais a partir dos atalhos do painel.</p><div><button type="button" onClick={() => onViewChange("records")}>Abrir contratos</button><button type="button" onClick={() => onViewChange("documents")}>Abrir documentos</button></div></article>
-      <article className="siga-home-stat"><span className="siga-home-stat-icon orange"><FileClock size={17} aria-hidden="true" /></span><strong>{dueRecords}</strong><small>contrato(s) com alerta</small></article>
-      <article className="siga-home-stat"><span className="siga-home-stat-icon green"><ClipboardCheck size={17} aria-hidden="true" /></span><strong>{dueDocuments}</strong><small>documento(s) com alerta</small></article>
-      <article className="siga-home-stat"><span className="siga-home-stat-icon navy"><CalendarDays size={17} aria-hidden="true" /></span><strong>{agendaDays.length}</strong><small>rotinas na semana</small></article>
+    <div className="siga-home-editorial-metrics">
+      <article className="siga-editorial-metric green"><span className="siga-home-stat-icon green"><ClipboardCheck size={22} aria-hidden="true" /></span><div><strong>{records.length}</strong><small>Registros locais</small><button type="button" onClick={() => onViewChange("records")}>Ver contratos <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric blue"><span className="siga-home-stat-icon navy"><ListChecks size={22} aria-hidden="true" /></span><div><strong>{agendaDays.length}</strong><small>Rotinas na semana</small><button type="button" onClick={() => onViewChange("governance")}>Ver gestão <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric pink"><span className="siga-home-stat-icon orange"><FileText size={22} aria-hidden="true" /></span><div><strong>{documents.length}</strong><small>Documentos locais</small><button type="button" onClick={() => onViewChange("documents")}>Ver documentos <ArrowRight size={14} /></button></div></article>
+      <article className="siga-editorial-metric orange"><span className="siga-home-stat-icon orange"><FileClock size={22} aria-hidden="true" /></span><div><strong>{dueRecords + dueDocuments}</strong><small>Alertas em aberto</small><button type="button" onClick={() => onViewChange("finance")}>Ver financeiro <ArrowRight size={14} /></button></div></article>
     </div>
 
-    <div className="siga-home-grid">
+    <div className="siga-home-editorial-main-grid">
       <section className="siga-agenda-card" aria-labelledby="agenda-title">
-        <div className="siga-card-heading"><div><p>Agenda institucional</p><h2 id="agenda-title">Semana de acompanhamento</h2></div><span>Agosto</span></div>
+        <div className="siga-card-heading"><div><p>Acompanhamento da semana</p><h2 id="agenda-title">Agenda institucional</h2></div><button type="button" className="siga-home-outline" onClick={() => onViewChange("governance")}><CalendarDays size={15} aria-hidden="true" />Ver calendário</button></div>
         <div className="siga-week-grid">{agendaDays.map((item) => <article key={item.day} className={`siga-week-day ${item.tone}`}><small>{item.day}</small><strong>{item.date}</strong>{item.items.map((agendaItem) => <span key={agendaItem}>{agendaItem}</span>)}</article>)}</div>
-        <footer><CalendarDays size={15} aria-hidden="true" />Calendário demonstrativo alinhado à rotina administrativa.</footer>
       </section>
 
+      <section className="siga-home-quick-actions" aria-labelledby="quick-actions-title">
+        <div className="siga-card-heading"><div><p>Acesso rápido</p><h2 id="quick-actions-title">Ações rápidas</h2></div></div>
+        <div>{quickActions.map((action) => <button key={action.label} className={action.tone} type="button" onClick={() => onViewChange(action.view)}><span>{action.label}<small>{action.detail}</small></span><ArrowRight size={16} aria-hidden="true" /></button>)}</div>
+      </section>
+    </div>
+
+    <div className="siga-home-editorial-bottom-grid">
       <section className="siga-notes-card" aria-labelledby="notes-title">
-        <div className="siga-card-heading"><div><p>Anotações rápidas</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
+        <div className="siga-card-heading"><div><p>Mural de comunicados</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
         <form onSubmit={saveNote} className="siga-quick-note-form"><input aria-label="Nova anotação" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Registrar um lembrete local" /><button type="submit" aria-label="Adicionar anotação"><Plus size={16} aria-hidden="true" /></button></form>
         <div className="siga-quick-notes">{notes.length ? notes.map((item, index) => <p key={`${item}-${index}`}>{item}</p>) : <p className="empty">Nenhuma anotação criada nesta sessão.</p>}</div>
+      </section>
+      <section className="siga-home-pending" aria-label="Atividades pendentes">
+        <div className="siga-card-heading"><div><p>Atividades pendentes</p><h2>Prioridades locais</h2></div><button type="button" onClick={() => onViewChange("governance")}>Ver todas</button></div>
+        <div><span><FileText size={15} />Documentos para assinatura <b>{dueDocuments}</b></span><span><FileClock size={15} />Contratos para renovação <b>{dueRecords}</b></span><span><ClipboardCheck size={15} />Rotinas da semana <b>{agendaDays.length}</b></span></div>
       </section>
     </div>
   </section>;
