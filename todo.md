@@ -559,3 +559,10 @@
 - [x] Aplicar a hierarquia de texto a painéis, formulários, listas, tabelas, estados e navegação sem modificar textos, fluxos ou permissões.
 - [x] Cobrir os tokens tipográficos com regressão e validar contraste, desktop, mobile, TypeScript e build.
 - [x] Atualizar documentação, salvar checkpoint e apresentar o refinamento sistêmico publicado.
+
+## Correção autorizada — legendas pequenas do ambiente interno
+
+- [x] Identificar as legendas, metadados e textos auxiliares que ainda herdam estilo inadequado nos painéis, cartões, agenda, listas e ações rápidas.
+- [x] Aplicar uma fonte de interface distinta, com tamanho, peso, contraste e espaçamento perceptivelmente melhores a essas legendas.
+- [x] Validar em preview desktop e mobile, cobrir regressão tipográfica, executar TypeScript e build sem alterar a tela de login.
+- [x] Atualizar documentação, salvar checkpoint e apresentar a correção visual.

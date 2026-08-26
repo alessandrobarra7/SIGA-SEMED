@@ -10,6 +10,7 @@ describe("tipografia institucional do shell", () => {
   it("carrega famílias tipográficas para o ambiente e mantém a regra visual escopada ao shell", () => {
     expect(indexHtml).toContain("family=IBM+Plex+Sans");
     expect(indexHtml).toContain("family=IBM+Plex+Serif");
+    expect(indexHtml).toContain("family=DM+Sans");
     expect(shellStyles).toContain(".siga-shell {");
     expect(shellStyles).toContain('font-family: var(--siga-font-body);');
     expect(shellStyles).toContain('font-family: var(--siga-font-display) !important;');
@@ -31,5 +32,12 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain("Sistema editorial: todos os módulos internos compartilham os mesmos níveis de leitura.");
     expect(shellStyles).toContain(".siga-finance-status");
     expect(shellStyles).toContain(".siga-fleet-status");
+  });
+
+  it("atribui uma fonte específica e legível às legendas operacionais", () => {
+    expect(shellStyles).toContain('--siga-font-caption: "DM Sans", sans-serif;');
+    expect(shellStyles).toContain("Legendas operacionais: fonte própria, mais aberta e legível que o texto de corpo.");
+    expect(shellStyles).toContain(".siga-home-quick-actions button small");
+    expect(shellStyles).toContain(".siga-week-day p");
   });
 });

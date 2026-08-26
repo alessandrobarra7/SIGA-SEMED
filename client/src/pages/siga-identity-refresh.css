@@ -393,6 +393,7 @@
 .siga-shell {
   --siga-font-body: "IBM Plex Sans", sans-serif;
   --siga-font-display: "IBM Plex Serif", serif;
+  --siga-font-caption: "DM Sans", sans-serif;
   font-family: var(--siga-font-body);
 }
 .siga-shell :is(button, input, select, textarea) { font-family: inherit; }
@@ -634,4 +635,88 @@
   font-weight: 700 !important;
   letter-spacing: .005em;
   text-transform: none;
+}
+
+/* Legendas operacionais: fonte própria, mais aberta e legível que o texto de corpo. */
+.siga-shell {
+  --siga-text-label: .79rem;
+  --siga-text-meta: .75rem;
+  --siga-text-micro: .69rem;
+}
+.siga-shell :is(
+  .siga-shell-header-title small,
+  .siga-shell-user small,
+  .siga-editorial-metric small,
+  .siga-editorial-metric button,
+  .siga-metric-card span,
+  .siga-metric-card small,
+  .siga-home-quick-actions button small,
+  .siga-home-pending > div:last-child span,
+  .siga-week-day small,
+  .siga-week-day p,
+  .siga-home-monthly-deadline small,
+  .siga-home-monthly-deadline p,
+  .siga-task-row small,
+  .siga-hr-audit-list small,
+  .siga-hr-server-main small,
+  .siga-nutrition-list small,
+  .siga-stock-table-panel td,
+  .schools-educa-card small,
+  .siga-user-detail-grid small,
+  .siga-fleet-list small,
+  .record-identity small,
+  .record-object,
+  .detail-item strong,
+  .siga-page-heading > p,
+  .siga-list-heading > p,
+  .siga-card-heading > p,
+  .siga-welcome-copy,
+  .siga-hr-caption,
+  .siga-finance-note,
+  .siga-workspace-notice,
+  .siga-inline-note,
+  .siga-nutrition-hero p,
+  .siga-fleet-hero p,
+  .schools-educa-heading p,
+  .siga-management-page p
+) {
+  color: #506873;
+  font-family: var(--siga-font-caption) !important;
+  font-size: var(--siga-text-meta) !important;
+  font-weight: 600 !important;
+  letter-spacing: .005em;
+  line-height: 1.48 !important;
+  text-transform: none !important;
+}
+.siga-shell :is(
+  .siga-shell-mark small,
+  .siga-shell-header-title span,
+  .siga-kicker,
+  .siga-page-heading > span,
+  .siga-list-heading > span,
+  .siga-finance-hero small,
+  .siga-stock-hero small,
+  .siga-hr-action-bar p
+) {
+  color: #287254;
+  font-family: var(--siga-font-caption) !important;
+  font-size: var(--siga-text-micro) !important;
+  font-weight: 700 !important;
+  letter-spacing: .045em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.siga-shell :is(
+  .siga-status-pill,
+  .siga-stock-status,
+  .siga-finance-status,
+  .siga-fleet-status,
+  .siga-hr-status,
+  .siga-alert-tag,
+  [class*="badge"],
+  table th,
+  [class*="table-wrap"] th,
+  .siga-fleet-table th
+) {
+  font-family: var(--siga-font-caption) !important;
 }

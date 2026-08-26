@@ -26,8 +26,8 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 94 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa IBM Plex Sans para leitura e IBM Plex Serif para títulos e dados, com escala editorial compartilhada entre painéis, formulários, listas, tabelas e navegação. Caixa alta ficou restrita a microcontextos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase nos demais contextos. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Testes mais recentes | 95 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa IBM Plex Sans para leitura, IBM Plex Serif para títulos e dados e DM Sans especificamente para legendas operacionais, metadados e descrições auxiliares. A escala editorial é compartilhada entre painéis, formulários, listas, tabelas e navegação; caixa alta ficou restrita a microcontextos institucionais, estados e cabeçalhos de tabela, preservando a leitura em frase nos demais contextos. Mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 
