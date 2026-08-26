@@ -388,3 +388,54 @@
   .siga-home-editorial-intro { grid-template-columns: 1fr; min-height: 0; }.siga-home-editorial-metrics { grid-template-columns: 1fr 1fr; gap: 9px; }.siga-editorial-metric { min-height: 104px; padding: 12px; gap: 9px; }.siga-editorial-metric > span { width: 36px; height: 36px; }.siga-editorial-metric strong { font-size: 21px; }
   .siga-week-grid { grid-template-columns: repeat(2, 1fr); }.siga-home-pending > div:last-child { grid-template-columns: 1fr; }
 }
+
+/* Tipografia institucional do ambiente autenticado — o login permanece intocado. */
+.siga-shell {
+  --siga-font-body: "Public Sans", sans-serif;
+  --siga-font-display: "Sora", sans-serif;
+  font-family: var(--siga-font-body);
+}
+.siga-shell :is(button, input, select, textarea) { font-family: inherit; }
+.siga-shell :is(
+  .siga-shell-header-title strong,
+  .siga-home-editorial-intro h1,
+  .siga-home-heading h1,
+  .siga-list-heading h2,
+  .siga-form-heading h2,
+  .siga-card-heading h2,
+  .siga-welcome h1,
+  .siga-module-surface :is(.siga-finance-hero h1, .siga-nutrition-hero h1, .siga-stock-hero h1, .siga-hr-header h1, .schools-educa-heading h1),
+  .siga-editorial-metric strong,
+  .siga-metric-card strong,
+  .siga-week-day strong
+) {
+  font-family: var(--siga-font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: -.045em;
+}
+.siga-shell :is(
+  .siga-shell-mark small,
+  .siga-shell-header-title span,
+  .siga-shell-header-title small,
+  .siga-nav-item,
+  .siga-nav-submenu button,
+  .siga-shell-user small,
+  .siga-kicker,
+  .siga-card-heading p,
+  .siga-editorial-metric small,
+  .siga-editorial-metric button,
+  .siga-home-quick-actions button small,
+  .siga-home-pending > div:last-child span,
+  .siga-module-surface :is(.siga-finance-tabs button, .siga-nutrition-tabs button, .siga-stock-contexts button, .siga-hr-tabs button),
+  .siga-module-surface :is(label, th, .status-pill, [class*="status"], [class*="badge"])
+) {
+  font-size: .72em;
+  font-weight: 800;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+.siga-shell .siga-nav-item { font-size: 10px; letter-spacing: .055em; }
+.siga-shell .siga-nav-submenu button { font-size: 9px; letter-spacing: .045em; }
+.siga-shell .siga-shell-header-title span,
+.siga-shell .siga-shell-header-title small { font-size: 9px; }
+.siga-shell :is(.siga-editorial-metric strong, .siga-metric-card strong, .siga-week-day strong) { font-variant-numeric: tabular-nums; }

@@ -21,13 +21,13 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 
 | Elemento | Situação atual |
 |---|---|
-| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada e buscador global com navegação por resultados permitidos. |
+| Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e tipografia institucional para leitura operacional. |
 | Persistência local | Concluída: armazenamento v11 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, unidades escolares, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 91 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
-| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
+| Testes mais recentes | 93 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. O ambiente autenticado usa Public Sans para leitura, Sora para títulos e dados, e caixa alta em navegação, rótulos, abas, estados e cabeçalhos de tabela; mantém barra lateral clara em fluxo natural, cabeçalho editorial, painel inicial com indicadores, agenda e ações rápidas, sem imagem fotográfica. |
 
 ## 3. Módulos concluídos no preview
 

@@ -537,3 +537,10 @@
 - [x] Localizar a conta Administrador e atualizar sua senha local para o valor informado, sem registrá-lo em código, documentação ou testes.
 - [x] Preservar o estado de primeiro acesso e as credenciais dos demais perfis demonstrativos.
 - [x] Validar o acesso administrativo com a nova senha, executar regressão de autenticação e salvar checkpoint.
+
+## Refinamento autorizado — tipografia do ambiente interno
+
+- [x] Mapear as fontes, os seletores e as hierarquias tipográficas do shell e dos módulos autenticados, sem tocar no login.
+- [x] Definir tipografia institucional para títulos, dados, rótulos e navegação, com caixa alta reservada a contextos de leitura rápida.
+- [x] Aplicar fontes, pesos, espaçamentos e caixa alta ao ambiente autenticado sem alterar textos, rotas, permissões ou ações.
+- [x] Validar contraste, responsividade, testes, TypeScript e build; documentar e salvar checkpoint da atualização visual.
