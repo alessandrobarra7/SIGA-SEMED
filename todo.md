@@ -386,3 +386,10 @@
 - [x] Criar um módulo novo de configurações por autorização explícita do usuário, já que a referência não possui uma área institucional própria.
 - [x] Definir parâmetros locais para identificação institucional, exercício, comunicações, segurança e auditoria, sem serviços ou credenciais externas.
 - [x] Restringir leitura e escrita das configurações ao Administrador, preservando os demais perfis em modo protegido.
+
+## Publicação autorizada — Configurações institucionais
+
+- [x] Revisar o estado Git, os arquivos de migração v7, testes e a autorização de escrita antes do envio.
+- [x] Criar commit descritivo com Configurações institucionais, migração v7, testes e documentação.
+- [ ] Enviar a atualização para a branch principal do repositório autorizado.
+- [ ] Confirmar o hash remoto e orientar sobre segurança de credenciais.
