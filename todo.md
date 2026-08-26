@@ -496,4 +496,4 @@
 
 - [x] Revisar o estado Git, o destino remoto e os arquivos alterados, excluindo credenciais e referências somente leitura.
 - [x] Preparar um commit descritivo com a migração v10, Gestão, painel Início, testes e documentação.
-- [ ] Enviar a versão validada para a branch principal do repositório autorizado e confirmar o hash remoto.
+- [x] Enviar a versão validada para a branch principal do repositório autorizado e confirmar o hash remoto.
