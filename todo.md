@@ -716,8 +716,8 @@
 - [x] Inventariar arquitetura, módulos, fluxos, documentos existentes, validações e marcos de publicação.
 - [x] Redigir uma memória de projeto acessível a novos colaboradores, cobrindo propósito, estrutura, persistência, segurança, permissões, fluxos e histórico de modificações.
 - [x] Revisar a documentação para remover credenciais, dados reais, referências externas sensíveis e instruções de operação inadequadas.
-- [ ] Criar checkpoint da documentação e enviá-la ao repositório autorizado.
-- [ ] Confirmar ao usuário o caminho do documento e o hash remoto do envio.
+- [x] Criar checkpoint da documentação e enviá-la ao repositório autorizado; conteúdo incluído no envio remoto `a94ba2567a0d77360e324d808c27a93fb6592f56`.
+- [x] Confirmar ao usuário o caminho `PROJECT_MEMORY.md` e o hash remoto verificado do envio.
 
 ## Publicação autorizada — primeira etapa de backend real
 
