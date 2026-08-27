@@ -652,3 +652,10 @@
 - [x] Aplicar Manrope diretamente aos seletores efetivos de Início, sem tocar no login, nos fluxos, nos dados locais ou nas permissões.
 - [x] Verificar a família calculada de títulos e legendas no sandbox, validar desktop e mobile e executar regressões antes de novo checkpoint.
 - [x] Documentar o resultado visual comparável e salvar checkpoint somente após a validação autenticada.
+
+## Ajuste corretivo — legibilidade perceptível de Início
+
+- [x] Mapear as legendas que permanecem visualmente discretas na resolução de uso real, incluindo indicadores, agenda, prazos, ações rápidas e prioridades.
+- [x] Aumentar de forma coerente tamanho, peso, contraste e espaçamento de Manrope nesses seletores efetivos, mantendo Montserrat nos títulos e números.
+- [x] Validar em sessão autenticada na escala de desktop da captura do usuário e em mobile, além de repetir testes, TypeScript e build.
+- [x] Documentar o resultado somente se a comparação visual evidenciar a nova hierarquia antes de salvar checkpoint.

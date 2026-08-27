@@ -628,9 +628,9 @@
 
 /* Legendas operacionais: fonte própria, mais aberta e legível que o texto de corpo. */
 .siga-shell {
-  --siga-text-label: .79rem;
-  --siga-text-meta: .75rem;
-  --siga-text-micro: .69rem;
+  --siga-text-label: .86rem;
+  --siga-text-meta: .82rem;
+  --siga-text-micro: .74rem;
 }
 .siga-shell :is(
   .siga-shell-header-title small,
@@ -667,12 +667,12 @@
   .siga-fleet-hero p,
   .schools-educa-heading p
 ) {
-  color: #506873;
+  color: #3f5f6c;
   font-family: var(--siga-font-caption) !important;
   font-size: var(--siga-text-meta) !important;
-  font-weight: 600 !important;
-  letter-spacing: .005em;
-  line-height: 1.48 !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em;
+  line-height: 1.52 !important;
   text-transform: none !important;
 }
 .siga-shell :is(
@@ -687,10 +687,10 @@
 ) {
   color: #287254;
   font-family: var(--siga-font-dashboard) !important;
-  font-size: .74rem !important;
-  font-weight: 600 !important;
-  letter-spacing: .012em;
-  line-height: 1.4;
+  font-size: var(--siga-text-label) !important;
+  font-weight: 700 !important;
+  letter-spacing: .015em;
+  line-height: 1.42;
   text-transform: none;
 }
 .siga-shell :is(

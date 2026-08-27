@@ -60,6 +60,9 @@ describe("tipografia institucional do shell", () => {
     expect(indexStyles).toContain('content: none !important;');
     expect(indexStyles).not.toContain(".siga-shell .siga-kicker:not(.kicker)");
     expect(indexStyles).toContain("--siga-font-caption: var(--siga-font-dashboard);");
+    expect(shellStyles).toContain("--siga-text-label: .86rem;");
+    expect(shellStyles).toContain("--siga-text-meta: .82rem;");
+    expect(shellStyles).toContain("font-weight: 700 !important;");
   });
 
   it("sobrepõe fontes legadas de todos os estilos internos com tokens funcionais", () => {
