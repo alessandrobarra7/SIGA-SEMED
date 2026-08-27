@@ -686,3 +686,9 @@
 - [x] Implementar PDDE/FNDE por unidade escolar, incluindo unidade executora, contas e prestação de contas local.
 - [x] Validar cada grupo em desktop e mobile, com testes, TypeScript, build e preservação de login, fluxos e permissões.
 - [x] Consolidar documentação de cobertura de campos e salvar checkpoint somente após a validação final.
+
+## Publicação autorizada — expansão local completa
+
+- [x] Revisar os arquivos pendentes e excluir referências externas, capturas, utilitários temporários, dados de validação e credenciais do envio.
+- [ ] Criar o commit da expansão v12, com Unidades/Turmas, Agenda/Mensagens/Lembretes, Cadastros Gerais, Agricultura Familiar, PDDE/FNDE, testes e documentação.
+- [ ] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
