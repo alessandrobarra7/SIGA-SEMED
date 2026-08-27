@@ -659,3 +659,11 @@
 - [x] Aumentar de forma coerente tamanho, peso, contraste e espaçamento de Manrope nesses seletores efetivos, mantendo Montserrat nos títulos e números.
 - [x] Validar em sessão autenticada na escala de desktop da captura do usuário e em mobile, além de repetir testes, TypeScript e build.
 - [x] Documentar o resultado somente se a comparação visual evidenciar a nova hierarquia antes de salvar checkpoint.
+
+## Convenção visual autorizada — caixa alta institucional
+
+- [x] Mapear os títulos institucionais e os botões de abas, módulos, janelas e ações de navegação que devem usar caixa alta no ambiente autenticado.
+- [x] Aplicar a convenção diretamente aos seletores efetivos do shell e dos módulos, mantendo textos de conteúdo, dados, descrições e campos em leitura normal.
+- [x] Reforçar a regressão para diferenciar controles institucionais de textos de conteúdo e impedir alterações na tela de login.
+- [x] Validar Gestão, Início, menu lateral e pontos de quebra mobile em sessão autenticada antes de salvar checkpoint.
+- [x] Documentar o resultado e disponibilizar a versão somente após a validação visual comprovada.

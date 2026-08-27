@@ -636,7 +636,6 @@
   .siga-shell-header-title small,
   .siga-shell-user small,
   .siga-editorial-metric small,
-  .siga-editorial-metric button,
   .siga-metric-card span,
   .siga-metric-card small,
   .siga-home-quick-actions button small,
@@ -747,4 +746,85 @@
 ) {
   font-family: var(--siga-font-display) !important;
   font-weight: 800 !important;
+}
+
+/* Convenção institucional: títulos e controles que abrem contextos usam caixa alta; conteúdo operacional permanece em leitura normal. */
+.siga-shell :is(
+  h1,
+  h2,
+  h3,
+  .siga-task-row strong,
+  .siga-deadline-row strong,
+  .siga-home-monthly-deadlines strong,
+  .siga-editorial-metric strong,
+  .siga-metric-card strong,
+  .siga-fleet-list strong,
+  .siga-fleet-table strong,
+  .siga-hr-server-main strong,
+  .siga-hr-payslip-list strong,
+  .siga-nutrition-list .summary strong,
+  .siga-stock-table-panel td strong,
+  .siga-user-summary strong,
+  .record-identity strong
+) {
+  text-transform: uppercase !important;
+  letter-spacing: .024em !important;
+}
+.siga-shell :is(
+  .siga-nav-item,
+  .siga-nav-submenu button,
+  .siga-context-tabs button,
+  .siga-module-tabs button,
+  .siga-master-tabs button,
+  .siga-finance-tabs button,
+  .siga-nutrition-tabs button,
+  .siga-stock-contexts button,
+  .siga-hr-tabs button,
+  .siga-fleet-tabs button,
+  .siga-page-primary,
+  .siga-page-outline,
+  .siga-primary-button,
+  .siga-secondary-button,
+  .siga-danger-button,
+  .siga-icon-text-button,
+  .siga-home-outline,
+  .siga-header-text-button,
+  .siga-editorial-metric button,
+  .siga-home-quick-actions button,
+  .siga-home-pending .siga-card-heading > button,
+  .siga-finance-tools button,
+  .siga-finance-source-grid button,
+  .siga-fleet-list button,
+  .siga-fleet-table button,
+  .siga-fleet-report-head button,
+  .siga-fleet-save,
+  .siga-master-toolbar button,
+  .siga-master-create-form button,
+  .siga-management-form footer button,
+  .siga-report-controls button,
+  .siga-attachment-panel > .siga-card-heading button,
+  .siga-approval-workspace > .siga-card-heading button,
+  .siga-approval-list button,
+  .siga-return-form button,
+  .siga-approval-history button,
+  .siga-info-state button
+) {
+  font-family: var(--siga-font-dashboard) !important;
+  font-weight: 800 !important;
+  letter-spacing: .045em !important;
+  text-transform: uppercase !important;
+}
+.siga-shell :is(.siga-module-surface, .siga-management-page, .siga-welcome) button:not(.siga-task-check):not(.siga-row-action),
+.siga-shell .siga-row-action.labeled {
+  font-family: var(--siga-font-dashboard) !important;
+  font-weight: 800 !important;
+  letter-spacing: .045em !important;
+  text-transform: uppercase !important;
+}
+.siga-shell .siga-editorial-metric button,
+.siga-shell .siga-home-monthly-deadlines > div > button {
+  font-family: var(--siga-font-dashboard) !important;
+  font-weight: 800 !important;
+  letter-spacing: .045em !important;
+  text-transform: uppercase !important;
 }

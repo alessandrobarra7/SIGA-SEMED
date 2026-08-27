@@ -42,6 +42,25 @@ describe("tipografia institucional do shell", () => {
     expect(shellStyles).toContain("/* Tipografia institucional do ambiente autenticado — o login permanece intocado. */");
   });
 
+  it("aplica caixa alta a títulos e controles de abertura do ambiente autenticado sem alcançar conteúdo ou login", () => {
+    expect(shellStyles).toContain("Convenção institucional: títulos e controles que abrem contextos usam caixa alta");
+    expect(shellStyles).toContain(".siga-task-row strong,");
+    expect(shellStyles).toContain(".siga-context-tabs button,");
+    expect(shellStyles).toContain(".siga-module-tabs button,");
+    expect(shellStyles).toContain(".siga-nav-item,");
+    expect(shellStyles).toContain(".siga-page-primary,");
+    expect(shellStyles).toContain(".siga-report-controls button,");
+    expect(shellStyles).toContain(".siga-header-text-button,");
+    expect(shellStyles).toContain(".siga-home-pending .siga-card-heading > button,");
+    expect(shellStyles).toContain(".siga-shell :is(\n  h1,\n  h2,\n  h3,");
+    expect(shellStyles).toContain(".siga-shell :is(.siga-module-surface, .siga-management-page, .siga-welcome) button");
+    expect(shellStyles).toContain(".siga-shell .siga-editorial-metric button,");
+    expect(shellStyles).toContain(".siga-shell .siga-home-monthly-deadlines > div > button");
+    expect(shellStyles).not.toContain(".siga-editorial-metric small,\n  .siga-editorial-metric button,");
+    expect(shellStyles).toContain("text-transform: uppercase !important;");
+    expect(shellStyles).not.toContain(".siga-login");
+  });
+
   it("declara uma escala editorial reutilizável para títulos, contexto, rótulos, metadados, estados e tabelas", () => {
     expect(shellStyles).toContain("--siga-text-page:");
     expect(shellStyles).toContain("--siga-text-section:");
@@ -96,9 +115,12 @@ describe("tipografia institucional do shell", () => {
     expectTokenRule(".siga-page-heading h1", "var(--siga-font-display)", "var(--siga-text-page)");
     expectTokenRule(".siga-context-tabs button", "var(--siga-font-body)", "var(--siga-text-label)");
     expectTokenRule(".siga-task-row strong", "var(--siga-font-display)", "var(--siga-text-card)");
+    expect(rule(".siga-task-row strong")).toContain("white-space: normal");
+    expect(rule(".siga-task-row strong")).toContain("text-overflow: clip");
     expectTokenRule(".siga-task-row small", "var(--siga-font-body)", "var(--siga-text-meta)");
     expectTokenRule(".siga-task-row em", "var(--siga-font-body)", "var(--siga-text-meta)");
-    expectTokenRule(".siga-governance-side-card h2", "var(--siga-font-display)", "var(--siga-text-section)");
+    expectTokenRule(".siga-governance-side-card h2", "var(--siga-font-display)", "var(--siga-text-card)");
+    expect(rule(".siga-governance-side-card h2")).toContain("overflow-wrap: normal");
     expectTokenRule(".siga-deadline-row strong", "var(--siga-font-display)", "var(--siga-text-card)");
     expectTokenRule(".siga-deadline-row small", "var(--siga-font-body)", "var(--siga-text-meta)");
 
@@ -146,7 +168,8 @@ describe("tipografia institucional do shell", () => {
     expectTokenRule(homeStyles, ".siga-home-quick-actions > div:last-child button", "var(--siga-font-dashboard)", "var(--siga-text-label)");
 
     expectTokenRule(complementStyles, ".siga-home-monthly-deadlines h3", "var(--siga-font-display)", "var(--siga-text-section)");
-    expectTokenRule(complementStyles, ".siga-home-monthly-deadlines strong", "var(--siga-font-display)", "var(--siga-text-card)");
+    expect(complementStyles).toContain(".siga-home-monthly-deadlines strong { color: #345161; font-family: var(--siga-font-display); font-size: var(--siga-text-card);");
+    expect(complementStyles).toContain(".siga-home-monthly-deadlines strong { overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }");
     expectTokenRule(complementStyles, ".siga-home-monthly-deadlines small", "var(--siga-font-dashboard)", "var(--siga-text-meta)");
     expect(homeStyles).toContain(".siga-home-monthly-deadlines small,");
     expect(homeStyles).not.toContain(".siga-home-monthly-deadline small,");

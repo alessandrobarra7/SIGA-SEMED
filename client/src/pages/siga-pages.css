@@ -109,7 +109,7 @@
 .siga-context-tabs button { display: inline-flex; min-height: 36px; align-items: center; gap: 7px; border: 1px solid #d7e3e7; border-radius: 6px; padding: 0 11px; background: #fff; color: #607580; cursor: pointer; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; letter-spacing: 0; text-transform: none; }
 .siga-context-tabs button.active { border-color: #155d66; background: #155d66; color: #fff; }
 .siga-governance-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(240px, .48fr); gap: 14px; }
-.siga-governance-main-card, .siga-governance-side-card { border: 1px solid #dae5e8; border-radius: 10px; padding: 19px; background: #fff; }
+.siga-governance-main-card, .siga-governance-side-card { min-width: 0; border: 1px solid #dae5e8; border-radius: 10px; padding: 19px; background: #fff; }
 .siga-governance-main-card .siga-card-heading { align-items: center; }
 .siga-governance-main-card .siga-card-heading h2 { color: #1d415c; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; letter-spacing: -.03em; line-height: 1.16; }
 .siga-governance-main-card .siga-card-heading p { color: #2a7d59; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 700; letter-spacing: .01em; text-transform: none; }
@@ -125,17 +125,18 @@
 .siga-task-check.done { border-color: #2d9863; background: #e8f7ed; }
 .siga-task-row > div { display: grid; min-width: 0; gap: 3px; }
 .siga-task-row small { color: #2a9365; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 700; letter-spacing: .01em; line-height: 1.35; text-transform: none; }
-.siga-task-row strong { overflow: hidden; color: #254052; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; letter-spacing: -.018em; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.siga-task-row strong { overflow: visible; color: #254052; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; letter-spacing: -.018em; line-height: 1.25; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
 .siga-task-row span { color: #798992; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); line-height: 1.42; }
 .siga-task-row em { margin-left: auto; border-radius: 999px; padding: 5px 7px; background: #eef4f5; color: #516d7b; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-style: normal; font-weight: 700; white-space: nowrap; }
 .siga-governance-side-card { display: grid; align-content: start; gap: 13px; background: linear-gradient(180deg, #0f456e 0%, #145f6d 100%); color: #fff; }
 .siga-governance-side-card .siga-kicker { color: #bfe9c5; }
-.siga-governance-side-card h2 { margin: -7px 0 0; font-family: var(--siga-font-display); font-size: var(--siga-text-section); font-weight: 800; letter-spacing: -.035em; line-height: 1.15; }
+.siga-governance-side-card h2 { margin: -7px 0 0; overflow-wrap: normal; word-break: normal; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; letter-spacing: .018em; line-height: 1.2; }
 .siga-governance-side-card > p { margin: 0; color: rgba(255,255,255,.79); font-family: var(--siga-font-body); font-size: var(--siga-text-body); line-height: 1.5; }
 .siga-deadline-row { display: flex; align-items: center; gap: 9px; border-top: 1px solid rgba(255,255,255,.17); padding-top: 12px; }
 .siga-deadline-row > span { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: rgba(255,255,255,.14); color: #d0edd6; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; }
+.siga-deadline-row > div { min-width: 0; }
 .siga-deadline-row strong, .siga-deadline-row small { display: block; }
-.siga-deadline-row strong { font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; letter-spacing: -.012em; line-height: 1.25; }
+.siga-deadline-row strong { overflow-wrap: anywhere; font-family: var(--siga-font-display); font-size: var(--siga-text-card); font-weight: 800; letter-spacing: -.012em; line-height: 1.25; }
 .siga-deadline-row small { margin-top: 2px; color: rgba(255,255,255,.7); font-family: var(--siga-font-body); font-size: var(--siga-text-meta); font-weight: 500; line-height: 1.4; }
 .siga-governance-side-card button { display: inline-flex; min-height: 33px; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; border: 0; border-radius: 5px; background: #fff; color: #154b67; cursor: pointer; font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; }
 
