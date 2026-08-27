@@ -361,13 +361,16 @@ export type SemedAfEntityInput = Omit<SemedAfEntity, "id" | "createdAt" | "updat
 export type SemedAfContract = { id: string; entityId: string; number: string; processNumber: string; startDate: string; endDate: string; status: "Ativo" | "Encerrado" | "Suspenso"; notes: string; createdAt: string; updatedAt: string };
 export type SemedAfContractInput = Omit<SemedAfContract, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedAfContractProduct = { id: string; contractId: string; name: string; unit: string; contractedQuantity: number; unitPrice: number; createdAt: string; updatedAt: string };
+export type SemedAfContractProductInput = Omit<SemedAfContractProduct, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedAfContractSchool = { id: string; contractId: string; schoolInep: string; createdAt: string; updatedAt: string };
 export type SemedAfSupplyPlan = { id: string; contractId: string; schoolInep: string; schoolName: string; referenceMonth: string; educationModality: string; weekDates: string[]; items: Array<{ productId: string; productName: string; unit: string; unitPrice: number; quantityPlanned: number }>; status: "Em elaboração" | "Confirmado" | "Cancelado"; notes: string; createdAt: string; updatedAt: string };
 export type SemedAfSupplyPlanInput = Omit<SemedAfSupplyPlan, "id" | "createdAt" | "updatedAt"> & { id?: string };
 export type SemedAfGuide = { id: string; sequenceNumber: number; year: number; guideNumber: string; contractId: string; schoolInep: string; schoolName: string; deliveryDate: string; deliveryMonth: string; educationModality: string; weekDates: string[]; weeklyReceipts: number[]; carrier: string; notes: string; status: "Em elaboração" | "Recebida" | "Confirmada" | "Cancelada"; receivedByName: string; receivedByRole: string; receivedByDocument: string; receivedDate: string; confirmationNotes: string; confirmedByUserId: string; confirmedByName: string; confirmedAt: string; createdAt: string; updatedAt: string };
-export type SemedAfGuideInput = Omit<SemedAfGuide, "id" | "createdAt" | "updatedAt" | "sequenceNumber" | "confirmedByUserId" | "confirmedByName" | "confirmedAt"> & { id?: string; sequenceNumber?: number; confirmedByUserId?: string; confirmedByName?: string; confirmedAt?: string };
+export type SemedAfGuideInput = Omit<SemedAfGuide, "id" | "createdAt" | "updatedAt" | "sequenceNumber" | "year" | "confirmedByUserId" | "confirmedByName" | "confirmedAt"> & { id?: string; sequenceNumber?: number; year?: number; confirmedByUserId?: string; confirmedByName?: string; confirmedAt?: string };
 export type SemedAfGuideItem = { id: string; guideId: string; productId: string; productName: string; unit: string; unitPrice: number; quantityPlanned: number; quantityReceived: number; weeklyQuantities: number[]; weeklyReceived: number[]; createdAt: string; updatedAt: string };
 export type SemedAfBilling = { id: string; sequenceNumber: number; year: number; billingNumber: string; guideId: string; contractId: string; educationModality: string; totalAmount: number; status: "Em elaboração" | "Emitido" | "Pago" | "Cancelado"; createdAt: string; updatedAt: string };
+export type SemedAfGuideItemInput = Omit<SemedAfGuideItem, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedAfBillingInput = Omit<SemedAfBilling, "id" | "createdAt" | "updatedAt" | "sequenceNumber" | "year" | "billingNumber"> & { id?: string; sequenceNumber?: number; year?: number; billingNumber?: string };
 export type SemedAfBillingGuide = { id: string; billingId: string; guideId: string; createdAt: string; updatedAt: string };
 
 export type SemedSchoolExecutingUnit = { id: string; schoolInep: string; cnpj: string; mandateStart: string; mandateEnd: string; presidentName: string; presidentCpf: string; treasurerName: string; treasurerCpf: string; deliberativeCouncil: string; fiscalCouncil: string; statuteDate: string; electionMinutesDate: string; notes: string; costPercentageBp: number; capitalPercentageBp: number; createdAt: string; updatedAt: string };
@@ -1734,6 +1737,97 @@ export function saveLocalMasterRecord(database: SemedLocalDatabase, input: Semed
   return { error: null, record };
 }
 
+function canWriteAgricultureFamily(database: SemedLocalDatabase, actorUserId: string) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  return Boolean(actor && canWriteLocalModule(database, actor, "estoque.agricultura_familiar"));
+}
+
+export function saveLocalAfEntity(database: SemedLocalDatabase, input: SemedAfEntityInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar entidades da Agricultura Familiar.", entity: null };
+  const entityType = input.entityType.trim(); const name = input.name.trim(); const document = input.document.trim();
+  if (!entityType || !name || !document) return { error: "Informe tipo, nome e documento da entidade fornecedora.", entity: null };
+  const duplicate = database.semedAfEntities.find((entity) => entity.id !== input.id && upper(entity.document) === upper(document));
+  if (duplicate) return { error: "Já existe uma entidade demonstrativa com este documento.", entity: null };
+  const current = input.id ? database.semedAfEntities.find((entity) => entity.id === input.id) : null;
+  const entity: SemedAfEntity = { id: current?.id ?? localId("af-entity"), entityType, name, document, representative: input.representative.trim(), phone: input.phone.trim(), email: input.email.trim(), address: input.address.trim(), status: input.status ?? "Ativa", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfEntities[database.semedAfEntities.indexOf(current)] = entity; else database.semedAfEntities.push(entity);
+  return { error: null, entity };
+}
+
+export function saveLocalAfContract(database: SemedLocalDatabase, input: SemedAfContractInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar contratos da Agricultura Familiar.", contract: null };
+  const entityId = input.entityId.trim(); const number = upper(input.number); if (!entityId || !number) return { error: "Informe entidade e número do contrato local.", contract: null };
+  if (!database.semedAfEntities.some((entity) => entity.id === entityId && entity.status === "Ativa")) return { error: "Selecione uma entidade fornecedora ativa.", contract: null };
+  const duplicate = database.semedAfContracts.find((contract) => contract.id !== input.id && upper(contract.number) === number);
+  if (duplicate) return { error: "Já existe um contrato local com este número.", contract: null };
+  const current = input.id ? database.semedAfContracts.find((contract) => contract.id === input.id) : null;
+  const contract: SemedAfContract = { id: current?.id ?? localId("af-contract"), entityId, number, processNumber: input.processNumber.trim(), startDate: input.startDate.trim(), endDate: input.endDate.trim(), status: input.status ?? "Ativo", notes: input.notes.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfContracts[database.semedAfContracts.indexOf(current)] = contract; else database.semedAfContracts.push(contract);
+  return { error: null, contract };
+}
+
+export function saveLocalAfContractProduct(database: SemedLocalDatabase, input: SemedAfContractProductInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar produtos contratados.", product: null };
+  const contractId = input.contractId.trim(); const name = input.name.trim(); if (!contractId || !name || nonNegative(input.contractedQuantity) <= 0) return { error: "Informe contrato, produto e quantidade contratada maior que zero.", product: null };
+  if (!database.semedAfContracts.some((contract) => contract.id === contractId)) return { error: "Contrato local não encontrado para o produto.", product: null };
+  const duplicate = database.semedAfContractProducts.find((product) => product.id !== input.id && product.contractId === contractId && upper(product.name) === upper(name));
+  if (duplicate) return { error: "Este produto já está registrado no contrato local.", product: null };
+  const current = input.id ? database.semedAfContractProducts.find((product) => product.id === input.id) : null;
+  const product: SemedAfContractProduct = { id: current?.id ?? localId("af-contract-product"), contractId, name, unit: input.unit.trim() || "KG", contractedQuantity: nonNegative(input.contractedQuantity), unitPrice: nonNegative(input.unitPrice), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfContractProducts[database.semedAfContractProducts.indexOf(current)] = product; else database.semedAfContractProducts.push(product);
+  return { error: null, product };
+}
+
+export function saveLocalAfSupplyPlan(database: SemedLocalDatabase, input: SemedAfSupplyPlanInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar planos de abastecimento.", plan: null };
+  const contract = database.semedAfContracts.find((candidate) => candidate.id === input.contractId); const unit = database.semedSchoolUnits.find((candidate) => upper(candidate.inep || candidate.code) === upper(input.schoolInep));
+  if (!contract || !unit || !input.referenceMonth.trim()) return { error: "Informe contrato, unidade escolar e mês de referência para o plano.", plan: null };
+  const current = input.id ? database.semedAfSupplyPlans.find((plan) => plan.id === input.id) : null;
+  const plan: SemedAfSupplyPlan = { id: current?.id ?? localId("af-plan"), contractId: contract.id, schoolInep: upper(input.schoolInep), schoolName: input.schoolName.trim() || unit.name, referenceMonth: input.referenceMonth.trim(), educationModality: input.educationModality.trim(), weekDates: (input.weekDates ?? []).map((value) => value.trim()).filter(Boolean), items: input.items ?? [], status: input.status ?? "Em elaboração", notes: input.notes.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfSupplyPlans[database.semedAfSupplyPlans.indexOf(current)] = plan; else database.semedAfSupplyPlans.push(plan);
+  return { error: null, plan };
+}
+
+export function saveLocalAfGuide(database: SemedLocalDatabase, input: SemedAfGuideInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar guias de fornecimento.", guide: null };
+  const contract = database.semedAfContracts.find((candidate) => candidate.id === input.contractId); const unit = database.semedSchoolUnits.find((candidate) => upper(candidate.inep || candidate.code) === upper(input.schoolInep));
+  if (!contract || !unit || !input.deliveryDate.trim()) return { error: "Informe contrato, unidade escolar e data de entrega para a guia.", guide: null };
+  const current = input.id ? database.semedAfGuides.find((guide) => guide.id === input.id) : null; const year = Number(input.deliveryDate.slice(0, 4)) || new Date(timestamp).getFullYear(); const sequenceNumber = current?.sequenceNumber ?? Math.max(0, ...database.semedAfGuides.filter((guide) => guide.year === year).map((guide) => guide.sequenceNumber)) + 1;
+  const guide: SemedAfGuide = { id: current?.id ?? localId("af-guide"), sequenceNumber, year, guideNumber: input.guideNumber.trim() || `AF-${year}-${String(sequenceNumber).padStart(3, "0")}`, contractId: contract.id, schoolInep: upper(input.schoolInep), schoolName: input.schoolName.trim() || unit.name, deliveryDate: input.deliveryDate.trim(), deliveryMonth: input.deliveryMonth.trim() || input.deliveryDate.slice(0, 7), educationModality: input.educationModality.trim(), weekDates: (input.weekDates ?? []).map((value) => value.trim()).filter(Boolean), weeklyReceipts: (input.weeklyReceipts ?? []).map(nonNegative), carrier: input.carrier.trim(), notes: input.notes.trim(), status: input.status ?? "Em elaboração", receivedByName: input.receivedByName.trim(), receivedByRole: input.receivedByRole.trim(), receivedByDocument: input.receivedByDocument.trim(), receivedDate: input.receivedDate.trim(), confirmationNotes: input.confirmationNotes.trim(), confirmedByUserId: current?.confirmedByUserId ?? "", confirmedByName: current?.confirmedByName ?? "", confirmedAt: current?.confirmedAt ?? "", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfGuides[database.semedAfGuides.indexOf(current)] = guide; else database.semedAfGuides.push(guide);
+  return { error: null, guide };
+}
+
+export function receiveLocalAfGuide(database: SemedLocalDatabase, guideId: string, receivedByName: string, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para registrar recebimento.", guide: null };
+  const guide = database.semedAfGuides.find((candidate) => candidate.id === guideId); if (!guide) return { error: "Guia local não encontrada.", guide: null };
+  if (guide.status === "Cancelada") return { error: "Não é possível receber uma guia cancelada.", guide: null };
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  const updated: SemedAfGuide = { ...guide, status: "Recebida", receivedByName: receivedByName.trim() || actor?.displayName || "Equipe local", receivedDate: timestamp, confirmedByUserId: actorUserId, confirmedByName: actor?.displayName ?? "Equipe local", confirmedAt: timestamp, updatedAt: timestamp };
+  database.semedAfGuides[database.semedAfGuides.indexOf(guide)] = updated; return { error: null, guide: updated };
+}
+
+export function saveLocalAfGuideItem(database: SemedLocalDatabase, input: SemedAfGuideItemInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar itens de guia.", item: null };
+  const guide = database.semedAfGuides.find((candidate) => candidate.id === input.guideId); const product = database.semedAfContractProducts.find((candidate) => candidate.id === input.productId && candidate.contractId === guide?.contractId);
+  if (!guide || !product || nonNegative(input.quantityPlanned) <= 0) return { error: "Informe guia, produto contratado e quantidade planejada maior que zero.", item: null };
+  const current = input.id ? database.semedAfGuideItems.find((item) => item.id === input.id) : null;
+  const item: SemedAfGuideItem = { id: current?.id ?? localId("af-guide-item"), guideId: guide.id, productId: product.id, productName: input.productName.trim() || product.name, unit: input.unit.trim() || product.unit, unitPrice: nonNegative(input.unitPrice || product.unitPrice), quantityPlanned: nonNegative(input.quantityPlanned), quantityReceived: nonNegative(input.quantityReceived), weeklyQuantities: (input.weeklyQuantities ?? []).map(nonNegative), weeklyReceived: (input.weeklyReceived ?? []).map(nonNegative), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfGuideItems[database.semedAfGuideItems.indexOf(current)] = item; else database.semedAfGuideItems.push(item);
+  return { error: null, item };
+}
+
+export function saveLocalAfBilling(database: SemedLocalDatabase, input: SemedAfBillingInput, actorUserId: string, timestamp = now()) {
+  if (!canWriteAgricultureFamily(database, actorUserId)) return { error: "Usuário sem permissão para alterar faturamento.", billing: null };
+  const guide = database.semedAfGuides.find((candidate) => candidate.id === input.guideId); const contract = database.semedAfContracts.find((candidate) => candidate.id === input.contractId);
+  if (!guide || !contract || guide.contractId !== contract.id) return { error: "Informe guia recebida e contrato correspondente para faturamento.", billing: null };
+  if (!["Recebida", "Confirmada"].includes(guide.status)) return { error: "O faturamento local exige uma guia recebida ou confirmada.", billing: null };
+  const current = input.id ? database.semedAfBillings.find((billing) => billing.id === input.id) : null; const year = Number(guide.deliveryDate.slice(0, 4)) || new Date(timestamp).getFullYear(); const sequenceNumber = current?.sequenceNumber ?? Math.max(0, ...database.semedAfBillings.filter((billing) => billing.year === year).map((billing) => billing.sequenceNumber)) + 1;
+  const billing: SemedAfBilling = { id: current?.id ?? localId("af-billing"), sequenceNumber, year, billingNumber: input.billingNumber?.trim() || `FAT-AF-${year}-${String(sequenceNumber).padStart(3, "0")}`, guideId: guide.id, contractId: contract.id, educationModality: input.educationModality.trim() || guide.educationModality, totalAmount: nonNegative(input.totalAmount), status: input.status ?? "Em elaboração", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedAfBillings[database.semedAfBillings.indexOf(current)] = billing; else database.semedAfBillings.push(billing);
+  return { error: null, billing };
+}
+
 export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: SemedEducaNucleusInput, actorUserId: string, timestamp = now()) {
   const actor = database.semedUsers.find((user) => user.id === actorUserId);
   if (!actor || !canWriteLocalModule(database, actor, "educa_paco")) return { error: "Usuário sem permissão para alterar núcleos do Educa Paço.", nucleus: null };
@@ -2245,6 +2339,14 @@ export function useSigaLocalRepository() {
     markUserMessageRead(messageId: string, userId: string) { return mutate((draft) => markLocalUserMessageRead(draft, messageId, userId)); },
     saveUserNote(input: SemedUserNoteInput, actorUserId: string) { return mutate((draft) => saveLocalUserNote(draft, input, actorUserId)); },
     saveMasterRecord(input: SemedMasterRecordInput, actorUserId: string) { return mutate((draft) => saveLocalMasterRecord(draft, input, actorUserId)); },
+    saveAfEntity(input: SemedAfEntityInput, actorUserId: string) { return mutate((draft) => saveLocalAfEntity(draft, input, actorUserId)); },
+    saveAfContract(input: SemedAfContractInput, actorUserId: string) { return mutate((draft) => saveLocalAfContract(draft, input, actorUserId)); },
+    saveAfContractProduct(input: SemedAfContractProductInput, actorUserId: string) { return mutate((draft) => saveLocalAfContractProduct(draft, input, actorUserId)); },
+    saveAfSupplyPlan(input: SemedAfSupplyPlanInput, actorUserId: string) { return mutate((draft) => saveLocalAfSupplyPlan(draft, input, actorUserId)); },
+    saveAfGuide(input: SemedAfGuideInput, actorUserId: string) { return mutate((draft) => saveLocalAfGuide(draft, input, actorUserId)); },
+    receiveAfGuide(guideId: string, receivedByName: string, actorUserId: string) { return mutate((draft) => receiveLocalAfGuide(draft, guideId, receivedByName, actorUserId)); },
+    saveAfGuideItem(input: SemedAfGuideItemInput, actorUserId: string) { return mutate((draft) => saveLocalAfGuideItem(draft, input, actorUserId)); },
+    saveAfBilling(input: SemedAfBillingInput, actorUserId: string) { return mutate((draft) => saveLocalAfBilling(draft, input, actorUserId)); },
     saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
     saveFinanceSource(input: SemedFinanceSourceInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceSource(draft, input, actorUserId)); },
     saveFinanceRule(input: SemedFinanceRuleInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRule(draft, input, actorUserId)); },

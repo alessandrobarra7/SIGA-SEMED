@@ -22,11 +22,11 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e convenção tipográfica global aplicada por função aos módulos internos. |
-| Persistência local | Concluída: armazenamento v12 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, Unidades Escolares expandidas, Turmas, Agenda, Mensagens, Lembretes, Cadastros Gerais, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
+| Persistência local | Concluída: armazenamento v12 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, Unidades Escolares expandidas, Turmas, Agenda, Mensagens, Lembretes, Cadastros Gerais, Agricultura Familiar, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 107 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 109 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. Montserrat ExtraBold atende títulos, chamadas e números de destaque; Manrope atende legendas e controles internos, com escala reforçada no painel Início. Por orientação explícita, títulos institucionais e controles textuais que abrem módulos, abas, janelas ou ações agora usam caixa alta no ambiente autenticado. Descrições, dados, textos de lista, campos, filtros e a marca institucional permanecem em leitura normal. |
 
 ## 3. Módulos concluídos no preview
@@ -40,7 +40,7 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Contratos e Documentos | Fluxos de registros, filtros, documentos, parcelas, baixas, histórico e exclusão confirmada. | Operações locais e persistência. |
 | Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF coexistentes, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, recuperação defensiva de base local, desktop e mobile. |
 | Nutrição | Planejamento semanal, análise de saldos, planejamento anual, per capita, dias letivos, cobertura, compra/contratação, impressão e CSV local. | Cálculos, permissões, desktop e mobile. |
-| Estoque | Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente, Relatórios e Agricultura Familiar; inclui catálogo, saldo, movimentos, conferência, auditoria, pedidos e guias locais. | 55 testes totais, desktop e mobile. |
+| Estoque e Agricultura Familiar | Industrializado, Kit do Aluno, Alimentação Escolar, Limpeza, Expediente e Relatórios preservados. Agricultura Familiar agora possui entidades fornecedoras, contratos, itens contratados, planos por unidade, guias com numeração local, itens de entrega, recebimento e faturamento, todos demonstrativos e persistentes. Guia somente é elegível para faturamento após confirmação de recebimento. | Regressões referenciais, bloqueio por permissão, sequência autenticada de entidade a faturamento, desktop e mobile; 109 testes, TypeScript e build aprovados. |
 | Recursos Humanos | Cadastro de Servidores, ficha financeira, holerite, frequência e movimento, competências, relatórios, permissões e auditoria local; dias trabalhados e faltas limitados ao total previsto. Os cinco submenus laterais abrem diretamente sua aba correspondente. | Migração v4, permissões, regressões de limite e navegação, desktop, mobile, TypeScript e build. |
 | Unidades Escolares e Turmas | Cadastro de Unidades Escolares expandido com identificação institucional, censo, matrículas por etapa e ano, necessidades educacionais especiais, infraestrutura, acessibilidade e referências locais; pesquisa, filtros, relatórios e CSV demonstrativo preservados. Turmas possui destino próprio, indicadores, filtros, cadastro/edição vinculados ao INEP, ano letivo, etapa, quantitativos, origem e data de referência. | Migração v12 compatível com bases legadas, permissões de Unidades Escolares, persistência de Turmas, validação autenticada em desktop, testes de domínio e interface, 102 testes totais, TypeScript e build. |
 | Educa Paço | Cadastro de Núcleos, classificação, situação, capacidade, atividades, modalidades, responsáveis demonstrativos, relatórios, CSV e impressão local. | Migração v5, permissões, 64 testes totais, desktop, mobile, TypeScript e build. |
@@ -58,8 +58,7 @@ A navegação e a estrutura dos itens abaixo já foram mapeadas na referência, 
 
 | Prioridade sugerida | Setor | Escopo a reproduzir a partir da referência |
 |---:|---|---|
-| 1 | Agricultura Familiar | Estruturar entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos no fluxo de Estoque. |
-| 2 | PDDE/FNDE | Incluir unidades executoras, contas e prestação de contas local vinculadas às Unidades Escolares. |
+| 1 | PDDE/FNDE | Incluir unidades executoras, contas e prestação de contas local vinculadas às Unidades Escolares. |
 
 ## 5. Protocolo obrigatório para cada novo setor
 
