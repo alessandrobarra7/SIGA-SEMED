@@ -1828,6 +1828,60 @@ export function saveLocalAfBilling(database: SemedLocalDatabase, input: SemedAfB
   return { error: null, billing };
 }
 
+function pddeWriter(database: SemedLocalDatabase, actorUserId: string) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  return actor && canWriteLocalModule(database, actor, "unidades.uex") ? actor : null;
+}
+
+function pddeSchool(database: SemedLocalDatabase, schoolInep: string) {
+  const normalizedInep = upper(schoolInep);
+  return database.semedSchoolUnits.find((unit) => upper(unit.inep || unit.code) === normalizedInep) ?? null;
+}
+
+function localCents(value: unknown) { return Math.round(nonNegative(value)); }
+
+export function saveLocalSchoolExecutingUnit(database: SemedLocalDatabase, input: SemedSchoolExecutingUnitInput, actorUserId: string, timestamp = now()) {
+  if (!pddeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar unidade executora.", executingUnit: null };
+  const schoolInep = upper(input.schoolInep); const school = pddeSchool(database, schoolInep); const cnpj = input.cnpj.replace(/\D/g, "");
+  const costPercentageBp = Math.round(nonNegative(input.costPercentageBp)); const capitalPercentageBp = Math.round(nonNegative(input.capitalPercentageBp));
+  if (!school || cnpj.length !== 14 || !input.mandateStart.trim() || !input.mandateEnd.trim() || !input.presidentName.trim() || !input.treasurerName.trim()) return { error: "Informe unidade escolar, CNPJ demonstrativo válido, mandato, presidente e tesoureiro.", executingUnit: null };
+  if (costPercentageBp + capitalPercentageBp !== 10000) return { error: "Custeio e capital devem totalizar 100% na unidade executora.", executingUnit: null };
+  const duplicate = database.semedSchoolExecutingUnits.find((unit) => unit.id !== input.id && unit.schoolInep === schoolInep);
+  if (duplicate) return { error: "A unidade escolar já possui unidade executora local cadastrada.", executingUnit: null };
+  const current = input.id ? database.semedSchoolExecutingUnits.find((unit) => unit.id === input.id) : null;
+  const executingUnit: SemedSchoolExecutingUnit = { id: current?.id ?? localId("school-uex"), schoolInep, cnpj, mandateStart: input.mandateStart.trim(), mandateEnd: input.mandateEnd.trim(), presidentName: input.presidentName.trim(), presidentCpf: input.presidentCpf.trim(), treasurerName: input.treasurerName.trim(), treasurerCpf: input.treasurerCpf.trim(), deliberativeCouncil: input.deliberativeCouncil.trim(), fiscalCouncil: input.fiscalCouncil.trim(), statuteDate: input.statuteDate.trim(), electionMinutesDate: input.electionMinutesDate.trim(), notes: input.notes.trim(), costPercentageBp, capitalPercentageBp, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedSchoolExecutingUnits[database.semedSchoolExecutingUnits.indexOf(current)] = executingUnit; else database.semedSchoolExecutingUnits.push(executingUnit);
+  return { error: null, executingUnit };
+}
+
+export function saveLocalSchoolFndeAccount(database: SemedLocalDatabase, input: SemedSchoolFndeAccountInput, actorUserId: string, timestamp = now()) {
+  if (!pddeWriter(database, actorUserId)) return { error: "Usuário sem permissão para alterar contas PDDE/FNDE.", account: null };
+  const schoolInep = upper(input.schoolInep); const school = pddeSchool(database, schoolInep); const referenceYear = Math.round(nonNegative(input.referenceYear));
+  if (!school || !referenceYear || !input.programGroup.trim()) return { error: "Informe unidade escolar, exercício e programa da conta local.", account: null };
+  if (!database.semedSchoolExecutingUnits.some((unit) => unit.schoolInep === schoolInep)) return { error: "Cadastre a unidade executora antes de abrir a conta PDDE/FNDE.", account: null };
+  const duplicate = database.semedSchoolFndeAccounts.find((account) => account.id !== input.id && account.schoolInep === schoolInep && account.referenceYear === referenceYear && upper(account.programGroup) === upper(input.programGroup) && upper(account.subprogram) === upper(input.subprogram));
+  if (duplicate) return { error: "Já existe uma conta local para este programa, exercício e unidade escolar.", account: null };
+  const current = input.id ? database.semedSchoolFndeAccounts.find((account) => account.id === input.id) : null;
+  const reprogrammedOpeningCents = localCents(input.reprogrammedOpeningCents); const installment1Cents = localCents(input.installment1Cents); const installment2Cents = localCents(input.installment2Cents);
+  const account: SemedSchoolFndeAccount = { id: current?.id ?? localId("fnde-account"), schoolInep, referenceYear, programGroup: input.programGroup.trim(), subprogram: input.subprogram.trim(), reprogrammedOpeningCents, installment1Cents, installment1Date: input.installment1Date.trim(), installment2Cents, installment2Date: input.installment2Date.trim(), status: input.status ?? "Aberta", notes: input.notes.trim(), sourceAccountId: input.sourceAccountId.trim(), globalAmountCents: reprogrammedOpeningCents + installment1Cents + installment2Cents, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedSchoolFndeAccounts[database.semedSchoolFndeAccounts.indexOf(current)] = account; else database.semedSchoolFndeAccounts.push(account);
+  return { error: null, account };
+}
+
+export function saveLocalSchoolFndeAccountability(database: SemedLocalDatabase, input: SemedSchoolFndeAccountabilityInput, actorUserId: string, timestamp = now()) {
+  if (!pddeWriter(database, actorUserId)) return { error: "Usuário sem permissão para registrar prestação de contas.", accountability: null };
+  const account = database.semedSchoolFndeAccounts.find((candidate) => candidate.id === input.accountId);
+  const amountCents = localCents(input.amountCents); const quantity = Math.max(1, Math.round(nonNegative(input.quantity)) || 1);
+  if (!account || !input.accountabilityDate.trim() || !input.description.trim() || !input.documentNumber.trim() || !amountCents) return { error: "Informe conta, data, descrição, documento e valor da prestação de contas.", accountability: null };
+  if (account.status === "Concluída") return { error: "A conta local já foi concluída e não aceita novos itens.", accountability: null };
+  const current = input.id ? database.semedSchoolFndeAccountability.find((entry) => entry.id === input.id) : null;
+  const itemSequence = current?.itemSequence ?? Math.max(0, ...database.semedSchoolFndeAccountability.filter((entry) => entry.accountId === account.id).map((entry) => entry.itemSequence)) + 1;
+  const accountability: SemedSchoolFndeAccountability = { id: current?.id ?? localId("fnde-accountability"), accountId: account.id, accountabilityDate: input.accountabilityDate.trim(), description: input.description.trim(), documentNumber: upper(input.documentNumber), amountCents, notes: input.notes.trim(), expenseNature: input.expenseNature.trim(), quantity, expenseDocumentId: input.expenseDocumentId.trim(), unitAmountCents: localCents(input.unitAmountCents) || Math.round(amountCents / quantity), itemSequence, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedSchoolFndeAccountability[database.semedSchoolFndeAccountability.indexOf(current)] = accountability; else database.semedSchoolFndeAccountability.push(accountability);
+  if (account.status === "Aberta") database.semedSchoolFndeAccounts[database.semedSchoolFndeAccounts.indexOf(account)] = { ...account, status: "Em prestação de contas", updatedAt: timestamp };
+  return { error: null, accountability };
+}
+
 export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: SemedEducaNucleusInput, actorUserId: string, timestamp = now()) {
   const actor = database.semedUsers.find((user) => user.id === actorUserId);
   if (!actor || !canWriteLocalModule(database, actor, "educa_paco")) return { error: "Usuário sem permissão para alterar núcleos do Educa Paço.", nucleus: null };
@@ -2347,6 +2401,9 @@ export function useSigaLocalRepository() {
     receiveAfGuide(guideId: string, receivedByName: string, actorUserId: string) { return mutate((draft) => receiveLocalAfGuide(draft, guideId, receivedByName, actorUserId)); },
     saveAfGuideItem(input: SemedAfGuideItemInput, actorUserId: string) { return mutate((draft) => saveLocalAfGuideItem(draft, input, actorUserId)); },
     saveAfBilling(input: SemedAfBillingInput, actorUserId: string) { return mutate((draft) => saveLocalAfBilling(draft, input, actorUserId)); },
+    saveSchoolExecutingUnit(input: SemedSchoolExecutingUnitInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolExecutingUnit(draft, input, actorUserId)); },
+    saveSchoolFndeAccount(input: SemedSchoolFndeAccountInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolFndeAccount(draft, input, actorUserId)); },
+    saveSchoolFndeAccountability(input: SemedSchoolFndeAccountabilityInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolFndeAccountability(draft, input, actorUserId)); },
     saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
     saveFinanceSource(input: SemedFinanceSourceInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceSource(draft, input, actorUserId)); },
     saveFinanceRule(input: SemedFinanceRuleInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRule(draft, input, actorUserId)); },

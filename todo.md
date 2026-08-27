@@ -673,8 +673,8 @@
 - [x] Consolidar os setores ausentes: agenda/mensagens, cadastros gerais, Agricultura Familiar e PDDE/FNDE, sem criar conexão externa.
 - [x] Mapear a expansão compatível de Unidades Escolares e a necessidade de cadastro de turmas no armazenamento local atual.
 - [x] Definir, com autorização do usuário, o primeiro grupo de campos e telas a implementar, preservando arquitetura, login, rotas, fluxos e permissões existentes.
-- [ ] Implementar e validar exclusivamente o grupo autorizado com dados demonstrativos em localStorage, sem migração de dados reais ou Cloudflare D1.
-- [ ] Atualizar a matriz de cobertura dos demais módulos somente após sua revisão campo a campo.
+- [x] Implementar e validar exclusivamente o grupo autorizado com dados demonstrativos em localStorage, sem migração de dados reais ou Cloudflare D1.
+- [x] Atualizar a matriz de cobertura dos demais módulos somente após sua revisão campo a campo.
 
 ## Execução sequencial autorizada — ampliação de cobertura local
 
@@ -683,6 +683,6 @@
 - [x] Implementar Agenda, Mensagens e Notas locais com persistência e fluxos de leitura próprios.
 - [x] Implementar Cadastros Gerais institucionais reutilizáveis pelos módulos locais.
 - [x] Implementar Agricultura Familiar com entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos.
-- [ ] Implementar PDDE/FNDE por unidade escolar, incluindo unidade executora, contas e prestação de contas local.
-- [ ] Validar cada grupo em desktop e mobile, com testes, TypeScript, build e preservação de login, fluxos e permissões.
-- [ ] Consolidar documentação de cobertura de campos e salvar checkpoint somente após a validação final.
+- [x] Implementar PDDE/FNDE por unidade escolar, incluindo unidade executora, contas e prestação de contas local.
+- [x] Validar cada grupo em desktop e mobile, com testes, TypeScript, build e preservação de login, fluxos e permissões.
+- [x] Consolidar documentação de cobertura de campos e salvar checkpoint somente após a validação final.

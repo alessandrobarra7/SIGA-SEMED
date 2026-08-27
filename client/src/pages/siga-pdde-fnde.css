@@ -1,0 +1,25 @@
+.siga-pdde-page { display: grid; gap: 1rem; color: #173d59; }
+.siga-pdde-hero { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .85rem; padding: 1.35rem; background: linear-gradient(125deg, #f4fbf8, #fff); border: 1px solid #dbe9e2; border-radius: 18px; box-shadow: 0 12px 28px rgba(25, 65, 89, .06); }
+.siga-pdde-icon { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: .8rem; background: #e4f4ec; color: #167b51; }
+.siga-pdde-hero > div:nth-child(2) { min-width: 0; flex: 1; }
+.siga-pdde-hero small, .siga-pdde-table-panel .siga-list-heading p { font-family: var(--siga-font-body); font-size: var(--siga-text-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #357958; }
+.siga-pdde-hero h1 { margin: .2rem 0; font-family: var(--siga-font-display); font-size: var(--siga-text-page); line-height: 1; color: #124765; text-transform: uppercase; overflow-wrap: normal; word-break: normal; }
+.siga-pdde-hero p { margin: 0; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); color: #557083; overflow-wrap: normal; word-break: normal; }
+.siga-shell .siga-pdde-page .siga-pdde-hero > .siga-primary-button { width: auto; min-width: max-content; justify-self: end; }
+.siga-pdde-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.siga-pdde-tabs { overflow-x: auto; }
+.siga-pdde-workspace { display: grid; gap: 1rem; }
+.siga-pdde-table-panel { border: 1px solid #e2ece7; border-radius: 15px; background: #fff; overflow: hidden; }
+.siga-pdde-table-panel .siga-list-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1rem 1.15rem; border-bottom: 1px solid #e7efeb; }
+.siga-pdde-table-panel .siga-list-heading h2 { margin: .2rem 0 0; font-family: var(--siga-font-display); font-size: var(--siga-text-section); color: #173d59; text-transform: uppercase; }
+.siga-pdde-table-panel .siga-list-heading > span { font-family: var(--siga-font-body); font-size: var(--siga-text-meta); color: #587083; white-space: nowrap; }
+.siga-pdde-table-wrap { overflow-x: auto; }
+.siga-pdde-table-wrap table { width: 100%; min-width: 740px; border-collapse: collapse; font-family: var(--siga-font-body); }
+.siga-pdde-table-wrap th { padding: .72rem .9rem; text-align: left; background: #f6faf8; color: #517166; font-size: var(--siga-text-label); letter-spacing: .06em; text-transform: uppercase; }
+.siga-pdde-table-wrap td { padding: .85rem .9rem; border-top: 1px solid #eaf1ed; color: #365264; font-size: var(--siga-text-meta); vertical-align: top; }
+.siga-pdde-table-wrap td strong, .siga-pdde-table-wrap td small { display: block; }
+.siga-pdde-table-wrap td strong { color: #173d59; font-weight: 750; }
+.siga-pdde-table-wrap td small { margin-top: .2rem; color: #6d8490; }
+.siga-pdde-empty { margin: 0; padding: 1.2rem; color: #5f7785; font-family: var(--siga-font-body); font-size: var(--siga-text-meta); }
+.siga-pdde-form { border: 1px solid #dcebe4; background: #fbfefd; }
+@media (max-width: 760px) { .siga-pdde-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: flex-start; }.siga-shell .siga-pdde-page .siga-pdde-hero > .siga-primary-button { grid-column: 1 / -1; width: 100%; justify-self: stretch; justify-content: center; }.siga-pdde-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }.siga-pdde-table-panel .siga-list-heading { align-items: flex-start; flex-direction: column; gap: .35rem; } }

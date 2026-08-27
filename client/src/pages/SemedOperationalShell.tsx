@@ -33,6 +33,7 @@ export type ShellView =
   | "records"
   | "schools"
   | "schools-classes"
+  | "schools-pdde"
   | "schools-reports"
   | "educa"
   | "educa-reports"
@@ -80,6 +81,7 @@ const navigation: NavigationItem[] = [
     children: [
       { label: "Cadastro", target: "schools" },
       { label: "Turmas", target: "schools-classes" },
+      { label: "PDDE / FNDE", target: "schools-pdde" },
       { label: "Relatórios", target: "schools-reports" },
     ],
   },
