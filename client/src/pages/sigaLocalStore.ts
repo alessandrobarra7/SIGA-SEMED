@@ -1661,6 +1661,79 @@ export function saveLocalSchoolClass(database: SemedLocalDatabase, input: SemedS
   return { error: null, schoolClass };
 }
 
+export function saveLocalAgendaEvent(database: SemedLocalDatabase, input: SemedAgendaEventInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "inicio")) return { error: "Usuário sem permissão para alterar a agenda local.", event: null };
+  const current = input.id ? database.semedAgendaEvents.find((event) => event.id === input.id) : null;
+  if (current && current.userId !== actorUserId && actor.profile !== "Administrador") return { error: "Você só pode alterar eventos locais da sua agenda.", event: null };
+  const title = input.title.trim(); const eventDate = input.eventDate.trim();
+  if (!title || !eventDate) return { error: "Informe título e data para o evento local.", event: null };
+  const status = input.status ?? "Agendado";
+  const event: SemedAgendaEvent = {
+    id: current?.id ?? localId("agenda"), userId: current?.userId ?? actorUserId, type: input.type.trim() || "Compromisso", title, eventDate,
+    startTime: input.startTime.trim(), priority: input.priority ?? "Média", reminderDays: Math.round(nonNegative(input.reminderDays)), notes: input.notes.trim(), status,
+    completedAt: status === "Concluído" ? (current?.completedAt || timestamp) : "", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedAgendaEvents[database.semedAgendaEvents.indexOf(current)] = event;
+  else database.semedAgendaEvents.push(event);
+  return { error: null, event };
+}
+
+export function saveLocalUserMessage(database: SemedLocalDatabase, input: SemedUserMessageInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "inicio")) return { error: "Usuário sem permissão para enviar mensagem local.", message: null };
+  const current = input.id ? database.semedUserMessages.find((message) => message.id === input.id) : null;
+  if (current && current.senderUserId !== actorUserId) return { error: "Somente o remetente pode alterar esta mensagem local.", message: null };
+  const recipient = database.semedUsers.find((user) => user.id === input.recipientUserId && user.active);
+  const subject = input.subject.trim(); const messageBody = input.message.trim();
+  if (!recipient || !subject || !messageBody) return { error: "Informe destinatário ativo, assunto e mensagem local.", message: null };
+  const message: SemedUserMessage = {
+    id: current?.id ?? localId("message"), senderUserId: actorUserId, senderName: actor.displayName, recipientUserId: recipient.id,
+    subject, message: messageBody, priority: input.priority ?? "Média", expiresAt: input.expiresAt.trim(), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedUserMessages[database.semedUserMessages.indexOf(current)] = message;
+  else database.semedUserMessages.push(message);
+  return { error: null, message };
+}
+
+export function markLocalUserMessageRead(database: SemedLocalDatabase, messageId: string, userId: string, timestamp = now()) {
+  const message = database.semedUserMessages.find((item) => item.id === messageId);
+  if (!message || message.recipientUserId !== userId) return false;
+  if (!database.semedUserMessageReads.some((item) => item.messageId === messageId && item.userId === userId)) database.semedUserMessageReads.push({ id: localId("message-read"), messageId, userId, readAt: timestamp });
+  return true;
+}
+
+export function saveLocalUserNote(database: SemedLocalDatabase, input: SemedUserNoteInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "inicio")) return { error: "Usuário sem permissão para alterar lembretes locais.", note: null };
+  const current = input.id ? database.semedUserNotes.find((note) => note.id === input.id) : null;
+  if (current && current.userId !== actorUserId) return { error: "Você só pode alterar seus próprios lembretes locais.", note: null };
+  const content = input.content.trim();
+  if (!content) return { error: "Informe o conteúdo do lembrete local.", note: null };
+  const note: SemedUserNote = { id: current?.id ?? localId("note"), userId: actorUserId, content, createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp };
+  if (current) database.semedUserNotes[database.semedUserNotes.indexOf(current)] = note;
+  else database.semedUserNotes.push(note);
+  return { error: null, note };
+}
+
+export function saveLocalMasterRecord(database: SemedLocalDatabase, input: SemedMasterRecordInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "cadastros_gerais")) return { error: "Usuário sem permissão para alterar cadastros gerais.", record: null };
+  const recordType = input.recordType.trim(); const code = upper(input.code); const name = input.name.trim();
+  if (!recordType || !code || !name) return { error: "Informe tipo, código e nome para o cadastro institucional.", record: null };
+  const duplicate = database.semedMasterRecords.find((record) => record.id !== input.id && upper(record.code) === code);
+  if (duplicate) return { error: "Já existe um cadastro institucional com este código.", record: null };
+  const current = input.id ? database.semedMasterRecords.find((record) => record.id === input.id) : null;
+  const record: SemedMasterRecord = {
+    id: current?.id ?? localId("master-record"), recordType, code, name,
+    document: input.document.trim(), email: input.email.trim(), phone: input.phone.trim(), department: input.department.trim(), position: input.position.trim(),
+    address: input.address.trim(), notes: input.notes.trim(), status: input.status ?? "Ativo", createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedMasterRecords[database.semedMasterRecords.indexOf(current)] = record;
+  else database.semedMasterRecords.push(record);
+  return { error: null, record };
+}
+
 export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: SemedEducaNucleusInput, actorUserId: string, timestamp = now()) {
   const actor = database.semedUsers.find((user) => user.id === actorUserId);
   if (!actor || !canWriteLocalModule(database, actor, "educa_paco")) return { error: "Usuário sem permissão para alterar núcleos do Educa Paço.", nucleus: null };
@@ -2167,6 +2240,11 @@ export function useSigaLocalRepository() {
     saveHrAttendancePeriod(input: SemedHrAttendanceInput, actorUserId: string) { return mutate((draft) => saveLocalHrAttendancePeriod(draft, input, actorUserId)); },
     saveSchoolUnit(input: SemedSchoolUnitInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolUnit(draft, input, actorUserId)); },
     saveSchoolClass(input: SemedSchoolClassInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolClass(draft, input, actorUserId)); },
+    saveAgendaEvent(input: SemedAgendaEventInput, actorUserId: string) { return mutate((draft) => saveLocalAgendaEvent(draft, input, actorUserId)); },
+    saveUserMessage(input: SemedUserMessageInput, actorUserId: string) { return mutate((draft) => saveLocalUserMessage(draft, input, actorUserId)); },
+    markUserMessageRead(messageId: string, userId: string) { return mutate((draft) => markLocalUserMessageRead(draft, messageId, userId)); },
+    saveUserNote(input: SemedUserNoteInput, actorUserId: string) { return mutate((draft) => saveLocalUserNote(draft, input, actorUserId)); },
+    saveMasterRecord(input: SemedMasterRecordInput, actorUserId: string) { return mutate((draft) => saveLocalMasterRecord(draft, input, actorUserId)); },
     saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
     saveFinanceSource(input: SemedFinanceSourceInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceSource(draft, input, actorUserId)); },
     saveFinanceRule(input: SemedFinanceRuleInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRule(draft, input, actorUserId)); },

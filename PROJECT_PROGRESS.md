@@ -22,11 +22,11 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Elemento | Situação atual |
 |---|---|
 | Shell autenticado | Concluído: cabeçalho institucional, boas-vindas, Início, menu lateral na ordem observada, buscador global com navegação por resultados permitidos e convenção tipográfica global aplicada por função aos módulos internos. |
-| Persistência local | Concluída: armazenamento v12 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, Unidades Escolares expandidas, Turmas, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
+| Persistência local | Concluída: armazenamento v12 para contratos, documentos, usuários, credencial demonstrativa administrativa, Gestão complementar, comentários de devolução, nutrição, estoque, recursos humanos, Unidades Escolares expandidas, Turmas, Agenda, Mensagens, Lembretes, Cadastros Gerais, núcleos Educa Paço, Financeiro ampliado, Configurações institucionais, governança e Frota. |
 | Permissões | Concluídas para o preview: leitura, escrita, escopo escolar e acesso administrativo por perfil. |
 | Auditoria local | Concluída para ações administrativas e operações locais relevantes. |
 | Integração externa | Deliberadamente ausente. Nenhuma chamada ao D1 ou ao ambiente original é permitida. |
-| Testes mais recentes | 102 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
+| Testes mais recentes | 107 testes automatizados aprovados, além de checagem TypeScript e build de produção. |
 | Identidade visual | Login ilustrado com marca municipal fornecida, tipografia humanizada e painel de acesso claro — congelado por aprovação expressa. Montserrat ExtraBold atende títulos, chamadas e números de destaque; Manrope atende legendas e controles internos, com escala reforçada no painel Início. Por orientação explícita, títulos institucionais e controles textuais que abrem módulos, abas, janelas ou ações agora usam caixa alta no ambiente autenticado. Descrições, dados, textos de lista, campos, filtros e a marca institucional permanecem em leitura normal. |
 
 ## 3. Módulos concluídos no preview
@@ -34,9 +34,9 @@ O projeto é um preview React/Vite com persistência local via `localStorage`. O
 | Módulo | Entrega funcional atual | Validação concluída |
 |---|---|---|
 | Login e primeiro acesso | Matrícula e CPF coexistentes no cadastro de qualquer perfil; autenticação pelo identificador disponível, senha local, validação, alteração obrigatória no primeiro acesso e encerramento de sessão. | Desktop, mobile e regressões de acesso pelos dois identificadores. |
-| Shell e Início | Boas-vindas, agenda local, visão mensal navegável de prazos de Gestão, anotações, navegação lateral expansível e indicadores de tarefas abertas, aprovações pendentes e alertas de Gestão quando o perfil possui leitura permitida. A tipografia efetiva de Início usa Montserrat nos títulos e números de destaque; Manrope foi aplicada diretamente às legendas, descrições, dias, metadados, botões e controles internos visíveis. Após a captura real revelar que a primeira troca ainda era discreta, os níveis de rótulo, metadado e microtexto foram elevados para 13,76 px, 13,12 px e 11,84 px, com peso 700, contraste e entrelinha reforçados. Títulos e botões textuais de abertura adotam caixa alta; cartões mensais longos quebram linha sem elipse. | Regressão estrutural dos seletores reais de Início; confirmação no sandbox de Montserrat em títulos, Manrope nas legendas e caixa alta nos controles institucionais; validação autenticada específica em desktop e mobile; 99 testes totais, TypeScript e build aprovados. |
+| Shell e Início | Boas-vindas, Agenda local com cadastro, situação e conclusão de eventos; mensagens internas por destinatário com leitura individual; lembretes individuais persistentes; visão mensal navegável de prazos de Gestão, navegação lateral expansível e indicadores condicionados à permissão. Agenda e lembretes substituíram exemplos fixos dos cartões originais. A tipografia efetiva usa Montserrat nos títulos e números de destaque; Manrope nas legendas, descrições, dias, metadados, botões e controles internos. Títulos e botões textuais de abertura adotam caixa alta; cartões mensais longos quebram linha sem elipse. | Regressão de domínio e interface das três coleções, confirmação de reidratação no sandbox e validação autenticada em desktop e mobile; 105 testes, TypeScript e build aprovados no fechamento do grupo. |
 | Gestão | Tarefas persistentes com prazo, prioridade, responsável e contexto; filtros combináveis por área, responsável, intervalo, situação e prioridade; alertas derivados de tarefas, contratos e documentos; relatórios CSV locais; metadados de anexos; solicitações de aprovação com decisão segregada, devolução fundamentada, histórico de auditoria e comentários internos locais restritos a solicitante e decisor. A tipografia efetiva foi reescrita diretamente em `siga-pages.css` com os tokens globais de Montserrat e Inter; a antiga camada complementar tipográfica foi removida. Título de página, títulos de tarefa, agenda, abas e controles textuais adotam caixa alta; títulos longos quebram linha no card principal e lateral sem corte. | Regressão lê os seletores reais do CSS-base e falha para fonte legada, escala fixa ou truncamento de títulos em caixa alta. Foram aprovados 99 testes, TypeScript e build; Gestão e navegação lateral foram revisadas em sessão administrativa autenticada, em desktop e em viewport móvel. |
-| Cadastros | Escolas, núcleos, prédios administrativos e biblioteca, com filtros e criação local demonstrativa. | Desktop, mobile, testes e build. |
+| Cadastros Gerais | Base institucional persistente de pessoas, contatos, departamentos, cargos, fornecedores e entidades, com código, nome, documento, contato, setor, função, endereço, observações, situação, pesquisa, filtro e edição local. | Permissão de Cadastros Gerais, código único, reidratação autenticada, desktop e mobile; 107 testes, TypeScript e build aprovados. |
 | Contratos e Documentos | Fluxos de registros, filtros, documentos, parcelas, baixas, histórico e exclusão confirmada. | Operações locais e persistência. |
 | Usuários | Cadastro, edição, filtros, perfis, matrícula/CPF coexistentes, senha provisória, sessões, ativação, desativação e auditoria local. | Regras de permissão, recuperação defensiva de base local, desktop e mobile. |
 | Nutrição | Planejamento semanal, análise de saldos, planejamento anual, per capita, dias letivos, cobertura, compra/contratação, impressão e CSV local. | Cálculos, permissões, desktop e mobile. |
@@ -58,10 +58,8 @@ A navegação e a estrutura dos itens abaixo já foram mapeadas na referência, 
 
 | Prioridade sugerida | Setor | Escopo a reproduzir a partir da referência |
 |---:|---|---|
-| 1 | Agenda, Mensagens e Notas | Substituir a agenda e os lembretes de exemplo do Início por coleções locais com cadastro, leitura e permissões. |
-| 2 | Cadastros Gerais | Incluir referências institucionais reutilizáveis pelos módulos locais. |
-| 3 | Agricultura Familiar | Estruturar entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos no fluxo de Estoque. |
-| 4 | PDDE/FNDE | Incluir unidades executoras, contas e prestação de contas local vinculadas às Unidades Escolares. |
+| 1 | Agricultura Familiar | Estruturar entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos no fluxo de Estoque. |
+| 2 | PDDE/FNDE | Incluir unidades executoras, contas e prestação de contas local vinculadas às Unidades Escolares. |
 
 ## 5. Protocolo obrigatório para cada novo setor
 

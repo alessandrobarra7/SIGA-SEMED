@@ -26,7 +26,8 @@ import {
 } from "lucide-react";
 import { validateFirstAccess } from "./sigaFlow";
 import SemedOperationalShell, { ShellView, shellViewLabel } from "./SemedOperationalShell";
-import { GovernancePage, MastersPage } from "./SemedManagementPages";
+import { GovernancePage } from "./SemedManagementPages";
+import SemedMastersPage from "./SemedMastersPage";
 import SemedNutritionPage from "./SemedNutritionPage";
 import SemedStockPage, { type StockSection } from "./SemedStockPage";
 import SemedHumanResourcesPage from "./SemedHumanResourcesPage";
@@ -35,6 +36,7 @@ import SemedFinancePage from "./SemedFinancePage";
 import SemedUsersPage from "./SemedUsersPage";
 import SemedInstitutionSettingsPage from "./SemedInstitutionSettingsPage";
 import SemedFleetPage from "./SemedFleetPage";
+import SemedHomeOperationsPage from "./SemedHomeOperationsPage";
 import "./siga-identity-refresh.css";
 import "./siga-financial-alert.css";
 import {
@@ -172,14 +174,6 @@ function exportSimulation(records: SemedRecord[], documents: SemedDocument[]) {
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "siga-semed-simulacao-local.csv"; anchor.click(); URL.revokeObjectURL(url);
 }
 
-const agendaDays = [
-  { day: "SEG", date: "25", tone: "navy", items: ["Acompanhamento de prazos"] },
-  { day: "TER", date: "26", tone: "green", items: ["Rotina de documentos"] },
-  { day: "QUA", date: "27", tone: "orange", items: ["Conferência administrativa"] },
-  { day: "QUI", date: "28", tone: "slate", items: ["Atualização de pendências"] },
-  { day: "SEX", date: "29", tone: "navy", items: ["Fechamento semanal"] },
-];
-
 function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
   const firstName = user.displayName.split(" ")[0] || "Equipe";
   return <section className="siga-welcome" aria-labelledby="welcome-title">
@@ -211,10 +205,14 @@ function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
   </section>;
 }
 
-function HomeDashboard({ records, documents, tasks = [], approvals = [], canReadGovernance = false, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; canReadGovernance?: boolean; onViewChange: (view: ShellView) => void }) {
+function HomeDashboard({ records, documents, tasks = [], approvals = [], agendaEvents = [], userNotes = [], currentUser, canReadGovernance = false, canWriteHome = false, onSaveUserNote, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; agendaEvents?: import("./sigaLocalStore").SemedAgendaEvent[]; userNotes?: import("./sigaLocalStore").SemedUserNote[]; currentUser: User; canReadGovernance?: boolean; canWriteHome?: boolean; onSaveUserNote: (content: string) => { error: string | null }; onViewChange: (view: ShellView) => void }) {
   const [note, setNote] = useState("");
-  const [notes, setNotes] = useState<string[]>([]);
   const [deadlineMonth, setDeadlineMonth] = useState(() => tasks.find((task) => task.dueDate)?.dueDate.slice(0, 7) ?? new Date().toISOString().slice(0, 7));
+  const agendaDays = useMemo(() => {
+    const activeEvents = agendaEvents.filter((event) => event.userId === currentUser.id && event.status !== "Cancelado").slice().sort((first, second) => `${first.eventDate}${first.startTime}`.localeCompare(`${second.eventDate}${second.startTime}`)).slice(0, 5);
+    return activeEvents.length ? activeEvents.map((event, index) => ({ day: new Date(`${event.eventDate}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "").toUpperCase(), date: event.eventDate.slice(8, 10), tone: ["navy", "green", "orange", "slate"][index % 4], items: [event.title] })) : Array.from({ length: 5 }, (_, index) => { const date = new Date(); date.setDate(date.getDate() + index); return { day: date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "").toUpperCase(), date: String(date.getDate()).padStart(2, "0"), tone: ["navy", "green", "orange", "slate"][index % 4], items: ["Sem evento local"] }; });
+  }, [agendaEvents, currentUser.id]);
+  const ownNotes = useMemo(() => userNotes.filter((item) => item.userId === currentUser.id).sort((first, second) => second.updatedAt.localeCompare(first.updatedAt)).slice(0, 3), [currentUser.id, userNotes]);
   const dueRecords = records.filter((record) => recordAlert(record) !== "Em dia").length;
   const dueDocuments = documents.filter((document) => documentAlert(document) !== "Em dia").length;
   const openManagementTasks = tasks.filter((task) => !["Concluída", "Cancelada"].includes(task.status)).length;
@@ -229,8 +227,8 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
     event.preventDefault();
     const value = note.trim();
     if (!value) return;
-    setNotes((current) => [value, ...current].slice(0, 3));
-    setNote("");
+    const result = onSaveUserNote(value);
+    if (!result.error) setNote("");
   }
 
   const quickActions: { label: string; detail: string; tone: string; view: ShellView }[] = [
@@ -273,8 +271,8 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], canRead
     <div className="siga-home-editorial-bottom-grid">
       <section className="siga-notes-card" aria-labelledby="notes-title">
         <div className="siga-card-heading"><div><p className="kicker kicker--section">Mural de comunicados</p><h2 id="notes-title">Lembretes desta sessão</h2></div><StickyNote size={18} aria-hidden="true" /></div>
-        <form onSubmit={saveNote} className="siga-quick-note-form"><input aria-label="Nova anotação" value={note} onChange={(event) => setNote(event.target.value)} placeholder="Registrar um lembrete local" /><button type="submit" aria-label="Adicionar anotação"><Plus size={16} aria-hidden="true" /></button></form>
-        <div className="siga-quick-notes">{notes.length ? notes.map((item, index) => <p key={`${item}-${index}`}>{item}</p>) : <p className="empty">Nenhuma anotação criada nesta sessão.</p>}</div>
+        <form onSubmit={saveNote} className="siga-quick-note-form"><input aria-label="Nova anotação" disabled={!canWriteHome} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Registrar um lembrete local" /><button type="submit" disabled={!canWriteHome} aria-label="Adicionar anotação"><Plus size={16} aria-hidden="true" /></button></form>
+        <div className="siga-quick-notes">{ownNotes.length ? ownNotes.map((item) => <p key={item.id}>{item.content}</p>) : <p className="empty">Nenhum lembrete local criado para este usuário.</p>}</div>
       </section>
       <section className="siga-home-pending" aria-label="Atividades pendentes">
         <div className="siga-card-heading"><div><p className="kicker kicker--section">Atividades pendentes</p><h2>Prioridades locais</h2></div><button type="button" onClick={() => onViewChange("governance")}>Ver todas</button></div>
@@ -329,9 +327,9 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
     <SemedOperationalShell user={user} activeView={activeView} onViewChange={changeView} onPassword={() => setSecurityOpen(true)} onLogout={onLogout} isViewAllowed={(view) => { const permissionKey = viewPermissionKey[view]; return permissionKey ? repository.canRead(user.id, permissionKey) : true; }} logo={logo}>
       {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
       {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
-      {activeView === "home" ? <HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} canReadGovernance={repository.canRead(user.id, "gestao")} onViewChange={changeView} /> : null}
+      {activeView === "home" ? <><HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} agendaEvents={repository.agendaEvents} userNotes={repository.userNotes} currentUser={user} canReadGovernance={repository.canRead(user.id, "gestao")} canWriteHome={repository.canWrite(user.id, "inicio")} onSaveUserNote={(content) => repository.saveUserNote({ content }, user.id)} onViewChange={changeView} /><SemedHomeOperationsPage user={user} users={repository.users} events={repository.agendaEvents} messages={repository.userMessages} messageReads={repository.userMessageReads} canWrite={repository.canWrite(user.id, "inicio")} onSaveEvent={(input) => repository.saveAgendaEvent(input, user.id)} onSaveMessage={(input) => repository.saveUserMessage(input, user.id)} onMarkMessageRead={(messageId) => repository.markUserMessageRead(messageId, user.id)} onNotify={setNotice} /></> : null}
       {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} approvalComments={repository.managementApprovalComments} records={repository.records} documents={repository.documents} auditLog={repository.governanceAuditLog} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onSaveApprovalComment={(approvalId, content) => repository.addManagementApprovalComment(approvalId, content, user.id).error} onNotify={setNotice} /> : null}
-      {activeView === "masters" ? <MastersPage readOnly={!repository.canWrite(user.id, "cadastros_gerais")} /> : null}
+      {activeView === "masters" ? <SemedMastersPage records={repository.masterRecords} canWrite={repository.canWrite(user.id, "cadastros_gerais")} onSave={(input) => repository.saveMasterRecord(input, user.id)} onNotify={setNotice} /> : null}
       {activeView === "finance" ? <SemedFinancePage sources={repository.financeSources} rules={repository.financeRules} planningEntries={repository.financePlanningEntries} revenues={repository.financeRevenues} executions={repository.financeExecutions} contractCount={repository.records.length} hrRecordCount={repository.hrFinancialRecords.length} canWrite={repository.canWrite(user.id, "financeiro")} canManageRules={user.profile === "Administrador" && repository.canWrite(user.id, "financeiro")} onSaveSource={(input) => repository.saveFinanceSource(input, user.id)} onSaveRule={(input) => repository.saveFinanceRule(input, user.id)} onSavePlanning={(input) => repository.saveFinancePlanningEntry(input, user.id)} onSaveRevenue={(input) => repository.saveFinanceRevenue(input, user.id)} onSaveExecution={(input) => repository.saveFinanceExecution(input, user.id)} onNotify={setNotice} /> : null}
       {activeView === "users" ? <SemedUsersPage currentUser={user} users={repository.users} permissions={repository.userPermissions} auditLog={repository.userAuditLog} onCreate={(input) => repository.createUser(input, user.id)} onUpdate={(userId, input) => repository.updateUser(userId, input, user.id)} onSetActive={(userId, active) => repository.setUserActive(userId, active, user.id)} onIssuePassword={(userId) => repository.issueProvisionalPassword(userId, user.id)} onTerminateSessions={(userId) => repository.terminateUserSessions(userId, user.id)} onNotify={setNotice} /> : null}
       {activeView === "settings" ? <SemedInstitutionSettingsPage settings={repository.institutionSettings} auditLog={repository.institutionSettingsAuditLog} governanceAuditLog={repository.governanceAuditLog} actorUserId={user.id} readOnly={user.profile !== "Administrador"} onSave={repository.saveInstitutionSettings} /> : null}

@@ -680,8 +680,8 @@
 
 - [x] Preparar tipos e migração local compartilhada para os cinco grupos autorizados, sem conexão externa.
 - [x] Expandir Unidades Escolares e implementar o cadastro local de Turmas, com seus campos e permissões.
-- [ ] Implementar Agenda, Mensagens e Notas locais com persistência e fluxos de leitura próprios.
-- [ ] Implementar Cadastros Gerais institucionais reutilizáveis pelos módulos locais.
+- [x] Implementar Agenda, Mensagens e Notas locais com persistência e fluxos de leitura próprios.
+- [x] Implementar Cadastros Gerais institucionais reutilizáveis pelos módulos locais.
 - [ ] Implementar Agricultura Familiar com entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos.
 - [ ] Implementar PDDE/FNDE por unidade escolar, incluindo unidade executora, contas e prestação de contas local.
 - [ ] Validar cada grupo em desktop e mobile, com testes, TypeScript, build e preservação de login, fluxos e permissões.
