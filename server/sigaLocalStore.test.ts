@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecordDeletion, createLocalDocument, createLocalPayment, createLocalRecord, createLocalSemedDatabase, deleteLocalDocument, deleteLocalPayment, deleteLocalRecord, getLocalUserIdentity, hydrateLocalDatabase, listLocalRecords, loadLocalDatabase, loginLocalUser, logoutLocalSession, parseBrazilianAmount, requiresDeleteConfirmation, saveLocalDatabase, serializeLocalDatabase, updateLocalDocument, updateLocalRecord } from "../client/src/pages/sigaLocalStore";
+import { calculateFinancialPosition, completeLocalFirstAccess, confirmLocalRecordDeletion, createLocalDocument, createLocalPayment, createLocalRecord, createLocalSemedDatabase, deleteLocalDocument, deleteLocalPayment, deleteLocalRecord, getLocalUserIdentity, hydrateLocalDatabase, listLocalRecords, loadLocalDatabase, loginLocalUser, logoutLocalSession, parseBrazilianAmount, requiresDeleteConfirmation, saveLocalDatabase, saveLocalSchoolClass, saveLocalSchoolUnit, serializeLocalDatabase, updateLocalDocument, updateLocalRecord } from "../client/src/pages/sigaLocalStore";
 
 describe("estrutura local compatível com o SIGA SEMED", () => {
   it("mantém as coleções estruturais e administrativas da referência", () => {
     const database = createLocalSemedDatabase();
-    expect(database).toMatchObject({ schemaVersion: 11 });
+    expect(database).toMatchObject({ schemaVersion: 12 });
     expect(database.semedUsers).toHaveLength(3);
     expect(database.semedUserPermissions.length).toBeGreaterThan(0);
     expect(database.semedUserAuditLog).toEqual([]);
@@ -15,6 +15,12 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     expect(database.semedStockItems.length).toBeGreaterThan(0);
     expect(database.semedSchoolStocks.length).toBeGreaterThan(0);
     expect(database.semedHrServers.length).toBeGreaterThan(0);
+    expect(database.semedSchoolClasses).toEqual([]);
+    expect(database.semedAgendaEvents).toEqual([]);
+    expect(database.semedUserMessages).toEqual([]);
+    expect(database.semedMasterRecords).toEqual([]);
+    expect(database.semedAfEntities).toEqual([]);
+    expect(database.semedSchoolFndeAccounts).toEqual([]);
   });
 
   it("deriva pago e saldo das baixas relacionadas pelo recordId", () => {
@@ -87,7 +93,58 @@ describe("estrutura local compatível com o SIGA SEMED", () => {
     const hydrated = hydrateLocalDatabase(serializeLocalDatabase(database));
     expect(hydrated?.semedRecords).toHaveLength(4);
     expect(hydrated?.semedDocuments).toHaveLength(3);
+    expect(hydrated?.schemaVersion).toBe(12);
+    expect(hydrated?.semedSchoolUnits[0]).toMatchObject({ inep: "DEMO0001", classroomsTotal: 0, internetAccess: "" });
+    expect(hydrated?.semedAfGuides).toEqual([]);
     expect(hydrateLocalDatabase("inválido")).toBeNull();
+  });
+
+  it("migra uma base v11 preservando registros e inicializando as coleções novas", () => {
+    const current = createLocalSemedDatabase();
+    const legacy = { ...current, schemaVersion: 11 };
+    delete (legacy as Partial<typeof current>).semedSchoolClasses;
+    delete (legacy as Partial<typeof current>).semedAgendaEvents;
+    delete (legacy as Partial<typeof current>).semedUserMessages;
+    delete (legacy as Partial<typeof current>).semedUserMessageReads;
+    delete (legacy as Partial<typeof current>).semedUserNotes;
+    delete (legacy as Partial<typeof current>).semedMasterRecords;
+    delete (legacy as Partial<typeof current>).semedAfEntities;
+    delete (legacy as Partial<typeof current>).semedAfContracts;
+    delete (legacy as Partial<typeof current>).semedAfContractProducts;
+    delete (legacy as Partial<typeof current>).semedAfContractSchools;
+    delete (legacy as Partial<typeof current>).semedAfSupplyPlans;
+    delete (legacy as Partial<typeof current>).semedAfGuides;
+    delete (legacy as Partial<typeof current>).semedAfGuideItems;
+    delete (legacy as Partial<typeof current>).semedAfBillings;
+    delete (legacy as Partial<typeof current>).semedAfBillingGuides;
+    delete (legacy as Partial<typeof current>).semedSchoolExecutingUnits;
+    delete (legacy as Partial<typeof current>).semedSchoolFndeAccounts;
+    delete (legacy as Partial<typeof current>).semedSchoolFndeAccountability;
+    const migrated = hydrateLocalDatabase(JSON.stringify(legacy))!;
+    expect(migrated.schemaVersion).toBe(12);
+    expect(migrated.semedRecords).toHaveLength(current.semedRecords.length);
+    expect(migrated.semedSchoolUnits).toHaveLength(current.semedSchoolUnits.length);
+    expect(migrated.semedSchoolClasses).toEqual([]);
+    expect(migrated.semedSchoolFndeAccounts).toEqual([]);
+  });
+
+  it("preserva os campos expandidos da unidade e vincula Turmas pelo INEP", () => {
+    const database = createLocalSemedDatabase();
+    const school = database.semedSchoolUnits[0];
+    const saved = saveLocalSchoolUnit(database, { ...school, managerName: "Gestão demonstrativa", classroomsTotal: 18, classroomsInUse: 16, enrollmentGrade1: 48, specialNeedsGrade1: 3, internetAccess: "Conectividade demonstrativa" }, "u-admin");
+    expect(saved.error).toBeNull();
+    expect(saved.unit).toMatchObject({ managerName: "Gestão demonstrativa", classroomsTotal: 18, enrollmentGrade1: 48, specialNeedsGrade1: 3 });
+    const created = saveLocalSchoolClass(database, { unitInep: school.inep, schoolYear: 2026, schoolName: school.name, className: "4º ano A", classType: "Ensino Fundamental", students: 28, professionals: 2, sourceRow: "Cadastro", source: "Simulação local", importedAt: "2026-08-27" }, "u-admin");
+    expect(created.error).toBeNull();
+    expect(database.semedSchoolClasses).toHaveLength(1);
+    expect(database.semedSchoolClasses[0]).toMatchObject({ unitInep: school.inep, className: "4º ano A", students: 28 });
+  });
+
+  it("bloqueia Turma sem unidade demonstrativa correspondente", () => {
+    const database = createLocalSemedDatabase();
+    const result = saveLocalSchoolClass(database, { unitInep: "INEP-INEXISTENTE", schoolYear: 2026, schoolName: "", className: "1º ano A", classType: "", students: 0, professionals: 0, sourceRow: "", source: "Cadastro local", importedAt: "" }, "u-admin");
+    expect(result).toMatchObject({ error: "Unidade escolar demonstrativa não encontrada para a turma." });
+    expect(database.semedSchoolClasses).toEqual([]);
   });
 
   it("recupera os demais dados quando a coleção de usuários estiver ausente ou corrompida", () => {

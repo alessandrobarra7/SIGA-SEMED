@@ -17,7 +17,7 @@ describe("Gestão complementar local", () => {
     delete legacy.semedManagementApprovals;
     delete legacy.semedManagementApprovalComments;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(11);
+    expect(restored.schemaVersion).toBe(12);
     expect(restored.semedRecords).toHaveLength(current.semedRecords.length);
     expect(restored.semedManagementTasks.length).toBeGreaterThan(0);
     expect(restored.semedManagementApprovals.length).toBeGreaterThan(0);

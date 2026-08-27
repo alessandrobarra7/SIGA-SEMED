@@ -29,7 +29,7 @@ describe("Unidades Escolares e Educa Paço locais", () => {
     const legacy = { ...current, schemaVersion: 4 } as unknown as Record<string, unknown>;
     delete legacy.semedSchoolUnits; delete legacy.semedEducaNuclei;
     const restored = hydrateLocalDatabase(JSON.stringify(legacy))!;
-    expect(restored.schemaVersion).toBe(11);
+    expect(restored.schemaVersion).toBe(12);
     expect(restored.semedUsers).toHaveLength(current.semedUsers.length);
     expect(restored.semedStockItems).toHaveLength(current.semedStockItems.length);
     expect(restored.semedHrServers).toHaveLength(current.semedHrServers.length);
@@ -63,10 +63,13 @@ describe("Unidades Escolares e Educa Paço locais", () => {
 
   it("renderiza Cadastro e Relatórios nos dois módulos sem o placeholder genérico", () => {
     const database = createLocalSemedDatabase();
-    const props = { currentUser: { ...database.semedUsers[0], mustChangePassword: false }, schoolUnits: database.semedSchoolUnits, educaNuclei: database.semedEducaNuclei, canWriteSchools: true, canWriteEduca: true, onSaveSchool: vi.fn(() => ({ error: null })), onSaveNucleus: vi.fn(() => ({ error: null })), onNotify: vi.fn() };
+    const props = { currentUser: { ...database.semedUsers[0], mustChangePassword: false }, schoolUnits: database.semedSchoolUnits, schoolClasses: database.semedSchoolClasses, educaNuclei: database.semedEducaNuclei, canWriteSchools: true, canWriteEduca: true, onSaveSchool: vi.fn(() => ({ error: null })), onSaveSchoolClass: vi.fn(() => ({ error: null })), onSaveNucleus: vi.fn(() => ({ error: null })), onNotify: vi.fn() };
     const { rerender } = render(<SemedSchoolsEducaPage initialSection="schools" {...props} />);
     expect(screen.getByRole("heading", { name: "Cadastro de Unidades Escolares" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Nova unidade/i })).toBeTruthy();
+    rerender(<SemedSchoolsEducaPage initialSection="schools-classes" {...props} />);
+    expect(screen.getByRole("heading", { name: "Turmas e quantitativos" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Nova turma/i })).toBeTruthy();
     rerender(<SemedSchoolsEducaPage initialSection="schools-reports" {...props} />);
     expect(screen.getByRole("heading", { name: "Relatórios de Unidades Escolares" })).toBeTruthy();
     rerender(<SemedSchoolsEducaPage initialSection="educa" {...props} />);

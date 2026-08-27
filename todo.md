@@ -667,3 +667,22 @@
 - [x] Reforçar a regressão para diferenciar controles institucionais de textos de conteúdo e impedir alterações na tela de login.
 - [x] Validar Gestão, Início, menu lateral e pontos de quebra mobile em sessão autenticada antes de salvar checkpoint.
 - [x] Documentar o resultado e disponibilizar a versão somente após a validação visual comprovada.
+
+## Expansão incremental — cobertura de campos do sistema de referência
+
+- [x] Consolidar os setores ausentes: agenda/mensagens, cadastros gerais, Agricultura Familiar e PDDE/FNDE, sem criar conexão externa.
+- [x] Mapear a expansão compatível de Unidades Escolares e a necessidade de cadastro de turmas no armazenamento local atual.
+- [x] Definir, com autorização do usuário, o primeiro grupo de campos e telas a implementar, preservando arquitetura, login, rotas, fluxos e permissões existentes.
+- [ ] Implementar e validar exclusivamente o grupo autorizado com dados demonstrativos em localStorage, sem migração de dados reais ou Cloudflare D1.
+- [ ] Atualizar a matriz de cobertura dos demais módulos somente após sua revisão campo a campo.
+
+## Execução sequencial autorizada — ampliação de cobertura local
+
+- [x] Preparar tipos e migração local compartilhada para os cinco grupos autorizados, sem conexão externa.
+- [x] Expandir Unidades Escolares e implementar o cadastro local de Turmas, com seus campos e permissões.
+- [ ] Implementar Agenda, Mensagens e Notas locais com persistência e fluxos de leitura próprios.
+- [ ] Implementar Cadastros Gerais institucionais reutilizáveis pelos módulos locais.
+- [ ] Implementar Agricultura Familiar com entidades, contratos, planos, guias, recebimentos e faturamento demonstrativos.
+- [ ] Implementar PDDE/FNDE por unidade escolar, incluindo unidade executora, contas e prestação de contas local.
+- [ ] Validar cada grupo em desktop e mobile, com testes, TypeScript, build e preservação de login, fluxos e permissões.
+- [ ] Consolidar documentação de cobertura de campos e salvar checkpoint somente após a validação final.

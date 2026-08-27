@@ -312,9 +312,70 @@ export type SemedSchoolUnitType = "Municipal" | "Conveniada";
 export type SemedSchoolUnitStatus = "Ativa" | "Inativa";
 export type SemedSchoolUnit = {
   id: string; code: string; name: string; type: SemedSchoolUnitType; status: SemedSchoolUnitStatus;
-  censusYear: number; neighborhood: string; address: string; students: number; hasUex: boolean; hasMap: boolean; createdAt: string; updatedAt: string;
+  censusYear: number; neighborhood: string; address: string; students: number; hasUex: boolean; hasMap: boolean;
+  inep: string; email: string; managerName: string; phone: string; notes: string;
+  enrollmentCreche: number; enrollmentPreSchool: number; enrollmentFundamental1: number; enrollmentFundamental2: number; enrollmentEjaiInitial: number; enrollmentEjaiFinal: number;
+  specialNeedsCreche: number; specialNeedsPreSchool: number; enrollmentGrade1: number; specialNeedsGrade1: number; enrollmentGrade2: number; specialNeedsGrade2: number;
+  enrollmentGrade3: number; specialNeedsGrade3: number; enrollmentGrade4: number; specialNeedsGrade4: number; enrollmentGrade5: number; specialNeedsGrade5: number;
+  enrollmentGrade6: number; specialNeedsGrade6: number; enrollmentGrade7: number; specialNeedsGrade7: number; enrollmentGrade8: number; specialNeedsGrade8: number;
+  enrollmentGrade9: number; specialNeedsGrade9: number; specialNeedsEjaiInitial: number; specialNeedsEjaiFinal: number;
+  propertyType: string; locationZone: string; landAreaM2: number; builtAreaM2: number; classroomsTotal: number; classroomsInUse: number; administrativeRooms: number;
+  bathroomsTotal: number; accessibleBathrooms: number; kitchenStatus: string; cafeteriaStatus: string; libraryStatus: string; computerLabStatus: string; sportsCourtStatus: string;
+  accessibilityStatus: string; waterSupply: string; energySupply: string; sewageSystem: string; internetAccess: string; conservationStatus: string; structureNotes: string;
+  createdAt: string; updatedAt: string;
 };
-export type SemedSchoolUnitInput = Omit<SemedSchoolUnit, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedSchoolUnitInput = Pick<SemedSchoolUnit, "code" | "name" | "type" | "status" | "censusYear" | "neighborhood" | "address" | "students" | "hasUex" | "hasMap"> & Partial<Omit<SemedSchoolUnit, "id" | "createdAt" | "updatedAt" | "code" | "name" | "type" | "status" | "censusYear" | "neighborhood" | "address" | "students" | "hasUex" | "hasMap">> & { id?: string };
+
+const schoolUnitExpansionDefaults = {
+  inep: "", email: "", managerName: "", phone: "", notes: "",
+  enrollmentCreche: 0, enrollmentPreSchool: 0, enrollmentFundamental1: 0, enrollmentFundamental2: 0, enrollmentEjaiInitial: 0, enrollmentEjaiFinal: 0,
+  specialNeedsCreche: 0, specialNeedsPreSchool: 0, enrollmentGrade1: 0, specialNeedsGrade1: 0, enrollmentGrade2: 0, specialNeedsGrade2: 0,
+  enrollmentGrade3: 0, specialNeedsGrade3: 0, enrollmentGrade4: 0, specialNeedsGrade4: 0, enrollmentGrade5: 0, specialNeedsGrade5: 0,
+  enrollmentGrade6: 0, specialNeedsGrade6: 0, enrollmentGrade7: 0, specialNeedsGrade7: 0, enrollmentGrade8: 0, specialNeedsGrade8: 0,
+  enrollmentGrade9: 0, specialNeedsGrade9: 0, specialNeedsEjaiInitial: 0, specialNeedsEjaiFinal: 0,
+  propertyType: "", locationZone: "", landAreaM2: 0, builtAreaM2: 0, classroomsTotal: 0, classroomsInUse: 0, administrativeRooms: 0,
+  bathroomsTotal: 0, accessibleBathrooms: 0, kitchenStatus: "", cafeteriaStatus: "", libraryStatus: "", computerLabStatus: "", sportsCourtStatus: "",
+  accessibilityStatus: "", waterSupply: "", energySupply: "", sewageSystem: "", internetAccess: "", conservationStatus: "", structureNotes: "",
+} satisfies Omit<SemedSchoolUnit, "id" | "code" | "name" | "type" | "status" | "censusYear" | "neighborhood" | "address" | "students" | "hasUex" | "hasMap" | "createdAt" | "updatedAt">;
+
+export type SemedSchoolClass = {
+  id: string; unitInep: string; schoolYear: number; schoolName: string; className: string; classType: string; students: number; professionals: number;
+  sourceRow: string; source: string; importedAt: string; createdAt: string; updatedAt: string;
+};
+export type SemedSchoolClassInput = Omit<SemedSchoolClass, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedAgendaEventStatus = "Agendado" | "Concluído" | "Cancelado";
+export type SemedAgendaEvent = { id: string; userId: string; type: string; title: string; eventDate: string; startTime: string; priority: "Baixa" | "Média" | "Alta"; reminderDays: number; notes: string; status: SemedAgendaEventStatus; completedAt: string; createdAt: string; updatedAt: string };
+export type SemedAgendaEventInput = Omit<SemedAgendaEvent, "id" | "createdAt" | "updatedAt" | "completedAt"> & { id?: string; completedAt?: string };
+export type SemedUserMessage = { id: string; senderUserId: string; senderName: string; recipientUserId: string; subject: string; message: string; priority: "Baixa" | "Média" | "Alta"; expiresAt: string; createdAt: string; updatedAt: string };
+export type SemedUserMessageInput = Omit<SemedUserMessage, "id" | "createdAt" | "updatedAt" | "senderName"> & { id?: string; senderName?: string };
+export type SemedUserMessageRead = { id: string; messageId: string; userId: string; readAt: string };
+export type SemedUserNote = { id: string; userId: string; content: string; createdAt: string; updatedAt: string };
+export type SemedUserNoteInput = Omit<SemedUserNote, "id" | "createdAt" | "updatedAt" | "userId"> & { id?: string };
+
+export type SemedMasterRecord = { id: string; recordType: string; code: string; name: string; document: string; email: string; phone: string; department: string; position: string; address: string; notes: string; status: "Ativo" | "Inativo"; createdAt: string; updatedAt: string };
+export type SemedMasterRecordInput = Omit<SemedMasterRecord, "id" | "createdAt" | "updatedAt"> & { id?: string };
+
+export type SemedAfEntity = { id: string; entityType: string; name: string; document: string; representative: string; phone: string; email: string; address: string; status: "Ativa" | "Inativa"; createdAt: string; updatedAt: string };
+export type SemedAfEntityInput = Omit<SemedAfEntity, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedAfContract = { id: string; entityId: string; number: string; processNumber: string; startDate: string; endDate: string; status: "Ativo" | "Encerrado" | "Suspenso"; notes: string; createdAt: string; updatedAt: string };
+export type SemedAfContractInput = Omit<SemedAfContract, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedAfContractProduct = { id: string; contractId: string; name: string; unit: string; contractedQuantity: number; unitPrice: number; createdAt: string; updatedAt: string };
+export type SemedAfContractSchool = { id: string; contractId: string; schoolInep: string; createdAt: string; updatedAt: string };
+export type SemedAfSupplyPlan = { id: string; contractId: string; schoolInep: string; schoolName: string; referenceMonth: string; educationModality: string; weekDates: string[]; items: Array<{ productId: string; productName: string; unit: string; unitPrice: number; quantityPlanned: number }>; status: "Em elaboração" | "Confirmado" | "Cancelado"; notes: string; createdAt: string; updatedAt: string };
+export type SemedAfSupplyPlanInput = Omit<SemedAfSupplyPlan, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedAfGuide = { id: string; sequenceNumber: number; year: number; guideNumber: string; contractId: string; schoolInep: string; schoolName: string; deliveryDate: string; deliveryMonth: string; educationModality: string; weekDates: string[]; weeklyReceipts: number[]; carrier: string; notes: string; status: "Em elaboração" | "Recebida" | "Confirmada" | "Cancelada"; receivedByName: string; receivedByRole: string; receivedByDocument: string; receivedDate: string; confirmationNotes: string; confirmedByUserId: string; confirmedByName: string; confirmedAt: string; createdAt: string; updatedAt: string };
+export type SemedAfGuideInput = Omit<SemedAfGuide, "id" | "createdAt" | "updatedAt" | "sequenceNumber" | "confirmedByUserId" | "confirmedByName" | "confirmedAt"> & { id?: string; sequenceNumber?: number; confirmedByUserId?: string; confirmedByName?: string; confirmedAt?: string };
+export type SemedAfGuideItem = { id: string; guideId: string; productId: string; productName: string; unit: string; unitPrice: number; quantityPlanned: number; quantityReceived: number; weeklyQuantities: number[]; weeklyReceived: number[]; createdAt: string; updatedAt: string };
+export type SemedAfBilling = { id: string; sequenceNumber: number; year: number; billingNumber: string; guideId: string; contractId: string; educationModality: string; totalAmount: number; status: "Em elaboração" | "Emitido" | "Pago" | "Cancelado"; createdAt: string; updatedAt: string };
+export type SemedAfBillingGuide = { id: string; billingId: string; guideId: string; createdAt: string; updatedAt: string };
+
+export type SemedSchoolExecutingUnit = { id: string; schoolInep: string; cnpj: string; mandateStart: string; mandateEnd: string; presidentName: string; presidentCpf: string; treasurerName: string; treasurerCpf: string; deliberativeCouncil: string; fiscalCouncil: string; statuteDate: string; electionMinutesDate: string; notes: string; costPercentageBp: number; capitalPercentageBp: number; createdAt: string; updatedAt: string };
+export type SemedSchoolExecutingUnitInput = Omit<SemedSchoolExecutingUnit, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedSchoolFndeAccount = { id: string; schoolInep: string; referenceYear: number; programGroup: string; subprogram: string; reprogrammedOpeningCents: number; installment1Cents: number; installment1Date: string; installment2Cents: number; installment2Date: string; status: "Aberta" | "Em prestação de contas" | "Concluída"; notes: string; sourceAccountId: string; globalAmountCents: number; createdAt: string; updatedAt: string };
+export type SemedSchoolFndeAccountInput = Omit<SemedSchoolFndeAccount, "id" | "createdAt" | "updatedAt"> & { id?: string };
+export type SemedSchoolFndeAccountability = { id: string; accountId: string; accountabilityDate: string; description: string; documentNumber: string; amountCents: number; notes: string; expenseNature: string; quantity: number; expenseDocumentId: string; unitAmountCents: number; itemSequence: number; createdAt: string; updatedAt: string };
+export type SemedSchoolFndeAccountabilityInput = Omit<SemedSchoolFndeAccountability, "id" | "createdAt" | "updatedAt" | "itemSequence"> & { id?: string; itemSequence?: number };
 
 export type SemedEducaClassification = "Pedagógico" | "Esportivo" | "Pleno";
 export type SemedEducaStatus = "Ativo" | "Inativo";
@@ -384,7 +445,7 @@ export type SemedInstitutionSettingsInput = Omit<SemedInstitutionSettings, "id" 
 export type SemedInstitutionSettingsAudit = { id: string; action: "configuracoes.salvas"; changedFields: string[]; summary: string; actorUserId: string; createdAt: string };
 
 export type SemedLocalDatabase = {
-  schemaVersion: 11;
+  schemaVersion: 12;
   semedUsers: SemedLocalUser[];
   semedSessions: SemedLocalSession[];
   semedUserPermissions: SemedLocalUserPermission[];
@@ -414,6 +475,24 @@ export type SemedLocalDatabase = {
   semedHrAttendancePeriods: SemedHrAttendancePeriod[];
   semedHrAuditLog: SemedHrAudit[];
   semedSchoolUnits: SemedSchoolUnit[];
+  semedSchoolClasses: SemedSchoolClass[];
+  semedAgendaEvents: SemedAgendaEvent[];
+  semedUserMessages: SemedUserMessage[];
+  semedUserMessageReads: SemedUserMessageRead[];
+  semedUserNotes: SemedUserNote[];
+  semedMasterRecords: SemedMasterRecord[];
+  semedAfEntities: SemedAfEntity[];
+  semedAfContracts: SemedAfContract[];
+  semedAfContractProducts: SemedAfContractProduct[];
+  semedAfContractSchools: SemedAfContractSchool[];
+  semedAfSupplyPlans: SemedAfSupplyPlan[];
+  semedAfGuides: SemedAfGuide[];
+  semedAfGuideItems: SemedAfGuideItem[];
+  semedAfBillings: SemedAfBilling[];
+  semedAfBillingGuides: SemedAfBillingGuide[];
+  semedSchoolExecutingUnits: SemedSchoolExecutingUnit[];
+  semedSchoolFndeAccounts: SemedSchoolFndeAccount[];
+  semedSchoolFndeAccountability: SemedSchoolFndeAccountability[];
   semedEducaNuclei: SemedEducaNucleus[];
   semedFinanceSources: SemedFinanceSource[];
   semedFinanceRules: SemedFinanceRule[];
@@ -695,7 +774,7 @@ const localUsers: SemedLocalUser[] = [
 export function createLocalSemedDatabase(): SemedLocalDatabase {
   const createdAt = now();
   return {
-    schemaVersion: 11,
+    schemaVersion: 12,
     semedUsers: localUsers.map((user) => user.id === "u-admin" ? { ...user, passwordHash: localPasswordDigest(user.username), mustChangePassword: false, provisionalPasswordIssuedAt: "" } : { ...user }),
     semedSessions: [],
     semedUserPermissions: localUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", createdAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
@@ -809,10 +888,28 @@ export function createLocalSemedDatabase(): SemedLocalDatabase {
     ],
     semedHrAuditLog: [],
     semedSchoolUnits: [
-      { id: "nutrition-school-1", code: "UE-DEMO-001", name: "Unidade Escolar Demonstrativa Norte", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Norte", address: "Endereço demonstrativo 01", students: 420, hasUex: true, hasMap: true, createdAt, updatedAt: createdAt },
-      { id: "nutrition-school-2", code: "UE-DEMO-002", name: "Unidade Escolar Demonstrativa Centro", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Centro", address: "Endereço demonstrativo 02", students: 310, hasUex: false, hasMap: true, createdAt, updatedAt: createdAt },
-      { id: "nutrition-school-3", code: "UE-DEMO-003", name: "Unidade Escolar Demonstrativa Sul", type: "Conveniada", status: "Inativa", censusYear: 2025, neighborhood: "Setor demonstrativo Sul", address: "Endereço demonstrativo 03", students: 185, hasUex: false, hasMap: false, createdAt, updatedAt: createdAt },
+      { ...schoolUnitExpansionDefaults, id: "nutrition-school-1", code: "UE-DEMO-001", name: "Unidade Escolar Demonstrativa Norte", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Norte", address: "Endereço demonstrativo 01", students: 420, hasUex: true, hasMap: true, inep: "DEMO0001", createdAt, updatedAt: createdAt },
+      { ...schoolUnitExpansionDefaults, id: "nutrition-school-2", code: "UE-DEMO-002", name: "Unidade Escolar Demonstrativa Centro", type: "Municipal", status: "Ativa", censusYear: 2026, neighborhood: "Setor demonstrativo Centro", address: "Endereço demonstrativo 02", students: 310, hasUex: false, hasMap: true, inep: "DEMO0002", createdAt, updatedAt: createdAt },
+      { ...schoolUnitExpansionDefaults, id: "nutrition-school-3", code: "UE-DEMO-003", name: "Unidade Escolar Demonstrativa Sul", type: "Conveniada", status: "Inativa", censusYear: 2025, neighborhood: "Setor demonstrativo Sul", address: "Endereço demonstrativo 03", students: 185, hasUex: false, hasMap: false, inep: "DEMO0003", createdAt, updatedAt: createdAt },
     ],
+    semedSchoolClasses: [],
+    semedAgendaEvents: [],
+    semedUserMessages: [],
+    semedUserMessageReads: [],
+    semedUserNotes: [],
+    semedMasterRecords: [],
+    semedAfEntities: [],
+    semedAfContracts: [],
+    semedAfContractProducts: [],
+    semedAfContractSchools: [],
+    semedAfSupplyPlans: [],
+    semedAfGuides: [],
+    semedAfGuideItems: [],
+    semedAfBillings: [],
+    semedAfBillingGuides: [],
+    semedSchoolExecutingUnits: [],
+    semedSchoolFndeAccounts: [],
+    semedSchoolFndeAccountability: [],
     semedEducaNuclei: [
       { id: "educa-nucleus-1", code: "EP-DEMO-001", name: "Núcleo Demonstrativo de Aprendizagem", classification: "Pedagógico", status: "Ativo", roomCount: 4, capacityPerShift: 90, activities: ["Reforço demonstrativo", "Leitura"], sportModalities: [], address: "Endereço demonstrativo do núcleo 01", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: true, createdAt, updatedAt: createdAt },
       { id: "educa-nucleus-2", code: "EP-DEMO-002", name: "Núcleo Demonstrativo de Esporte", classification: "Esportivo", status: "Ativo", roomCount: 2, capacityPerShift: 70, activities: ["Atividade corporal"], sportModalities: ["Modalidade demonstrativa"], address: "Endereço demonstrativo do núcleo 02", coordination: "Coordenação demonstrativa", supervision: "Supervisão demonstrativa", integratedNutrition: false, createdAt, updatedAt: createdAt },
@@ -1529,7 +1626,9 @@ export function saveLocalSchoolUnit(database: SemedLocalDatabase, input: SemedSc
   const duplicate = database.semedSchoolUnits.find((unit) => unit.id !== input.id && upper(unit.code) === code);
   if (duplicate) return { error: "Já existe uma unidade demonstrativa com este código.", unit: null };
   const current = input.id ? database.semedSchoolUnits.find((unit) => unit.id === input.id) : null;
+  const expansion = { ...schoolUnitExpansionDefaults, ...current, ...input };
   const unit: SemedSchoolUnit = {
+    ...expansion,
     id: current?.id ?? localId("school-unit"), code, name, type: input.type, status: input.status, censusYear,
     neighborhood: input.neighborhood.trim(), address: input.address.trim(), students: Math.round(nonNegative(input.students)),
     hasUex: Boolean(input.hasUex), hasMap: Boolean(input.hasMap), createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
@@ -1537,6 +1636,29 @@ export function saveLocalSchoolUnit(database: SemedLocalDatabase, input: SemedSc
   if (current) database.semedSchoolUnits[database.semedSchoolUnits.indexOf(current)] = unit;
   else database.semedSchoolUnits.push(unit);
   return { error: null, unit };
+}
+
+export function saveLocalSchoolClass(database: SemedLocalDatabase, input: SemedSchoolClassInput, actorUserId: string, timestamp = now()) {
+  const actor = database.semedUsers.find((user) => user.id === actorUserId);
+  if (!actor || !canWriteLocalModule(database, actor, "unidades_escolares")) return { error: "Usuário sem permissão para alterar turmas.", schoolClass: null };
+  const unitInep = upper(input.unitInep);
+  const schoolYear = Math.round(nonNegative(input.schoolYear));
+  const className = input.className.trim();
+  if (!unitInep || !schoolYear || !className) return { error: "Informe unidade, ano letivo e identificação da turma.", schoolClass: null };
+  const unit = database.semedSchoolUnits.find((candidate) => upper(candidate.inep || candidate.code) === unitInep);
+  if (!unit) return { error: "Unidade escolar demonstrativa não encontrada para a turma.", schoolClass: null };
+  const duplicate = database.semedSchoolClasses.find((candidate) => candidate.id !== input.id && upper(candidate.unitInep) === unitInep && candidate.schoolYear === schoolYear && upper(candidate.className) === upper(className));
+  if (duplicate) return { error: "Já existe uma turma demonstrativa com esta identificação para a unidade e ano informados.", schoolClass: null };
+  const current = input.id ? database.semedSchoolClasses.find((candidate) => candidate.id === input.id) : null;
+  const schoolClass: SemedSchoolClass = {
+    id: current?.id ?? localId("school-class"), unitInep, schoolYear, className, schoolName: input.schoolName.trim() || unit.name,
+    classType: input.classType.trim(), students: Math.round(nonNegative(input.students)), professionals: Math.round(nonNegative(input.professionals)),
+    sourceRow: input.sourceRow.trim(), source: input.source.trim() || "Cadastro local", importedAt: input.importedAt.trim(),
+    createdAt: current?.createdAt ?? timestamp, updatedAt: timestamp,
+  };
+  if (current) database.semedSchoolClasses[database.semedSchoolClasses.indexOf(current)] = schoolClass;
+  else database.semedSchoolClasses.push(schoolClass);
+  return { error: null, schoolClass };
 }
 
 export function saveLocalEducaNucleus(database: SemedLocalDatabase, input: SemedEducaNucleusInput, actorUserId: string, timestamp = now()) {
@@ -1698,7 +1820,8 @@ export function serializeLocalDatabase(database: SemedLocalDatabase) { return JS
 type SemedLocalDatabasePreV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: number };
 type SemedLocalDatabaseV7 = Omit<SemedLocalDatabase, "schemaVersion" | "semedFleetVehicles" | "semedFleetFuelLogs" | "semedFleetMaintenances" | "semedFleetOccurrences" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: 7 };
 type SemedLocalDatabaseV8 = Omit<SemedLocalDatabase, "schemaVersion" | "semedManagementTasks" | "semedManagementAttachments" | "semedManagementApprovals" | "semedManagementApprovalComments"> & { schemaVersion: 8 };
-type SemedLocalDatabaseV10 = Omit<SemedLocalDatabase, "schemaVersion"> & { schemaVersion: 10 };
+type SemedLocalDatabaseV11 = Omit<SemedLocalDatabase, "schemaVersion" | "semedSchoolClasses" | "semedAgendaEvents" | "semedUserMessages" | "semedUserMessageReads" | "semedUserNotes" | "semedMasterRecords" | "semedAfEntities" | "semedAfContracts" | "semedAfContractProducts" | "semedAfContractSchools" | "semedAfSupplyPlans" | "semedAfGuides" | "semedAfGuideItems" | "semedAfBillings" | "semedAfBillingGuides" | "semedSchoolExecutingUnits" | "semedSchoolFndeAccounts" | "semedSchoolFndeAccountability"> & { schemaVersion: 11 };
+type SemedLocalDatabaseV10 = Omit<SemedLocalDatabaseV11, "schemaVersion"> & { schemaVersion: 10 };
 type SemedLocalDatabaseV9 = Omit<SemedLocalDatabase, "schemaVersion" | "semedManagementApprovalComments"> & { schemaVersion: 9 };
 type SemedLocalDatabaseV6 = Omit<SemedLocalDatabaseV7, "schemaVersion" | "semedInstitutionSettings" | "semedInstitutionSettingsAuditLog"> & { schemaVersion: 6 };
 type SemedLocalDatabaseV5 = Omit<SemedLocalDatabaseV6, "schemaVersion" | "semedFinanceSources" | "semedFinanceRules" | "semedFinancePlanningEntries" | "semedFinanceRevenues" | "semedFinanceExecutions" | "semedFinanceAuditLog"> & { schemaVersion: 5 };
@@ -1731,9 +1854,9 @@ export function migrateLocalDatabase(database: LegacySemedLocalDatabase): SemedL
   });
   const migratedAt = now();
 	const nutritionDefaults = createLocalSemedDatabase();
-		return {
-			...database,
-			    schemaVersion: 11,
+			return {
+				...database,
+			    schemaVersion: 12,
 		semedUsers: migratedUsers.map((user) => user.id === "u-admin" ? { ...user, passwordHash: localPasswordDigest(user.username), passwordSalt: "", passwordIterations: 100000, mustChangePassword: false, provisionalPasswordIssuedAt: "", updatedAt: migratedAt } : user),
     semedUserPermissions: migratedUsers.flatMap((user) => buildLocalUserPermissions(user.id, user.profile, "u-admin", migratedAt, user.profile === "Técnico" ? LEGACY_TECHNICIAN_KEYS : [])),
     semedUserAuditLog: [],
@@ -1776,13 +1899,13 @@ semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.
 			  };
 		}
 
-function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
+function normalizeCurrentDatabase(database: SemedLocalDatabase | SemedLocalDatabaseV11 | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabasePreV7): SemedLocalDatabase {
 		const nutritionDefaults = createLocalSemedDatabase();
 		const current = database as Partial<SemedLocalDatabase>;
 		const safeUsers = Array.isArray(current.semedUsers) ? current.semedUsers : [];
 		return {
 			...database,
-			    schemaVersion: 11,
+			    schemaVersion: 12,
 		semedUsers: safeUsers.map((user) => ({
       ...user,
       registration: user.registration ?? DEFAULT_REGISTRATION_BY_USER_ID[user.id] ?? normalizeRegistration(user.username),
@@ -1808,7 +1931,25 @@ semedKitOrders: Array.isArray(database.semedKitOrders) ? database.semedKitOrders
     semedHrFinancialRecords: Array.isArray(database.semedHrFinancialRecords) ? database.semedHrFinancialRecords : nutritionDefaults.semedHrFinancialRecords,
     semedHrAttendancePeriods: Array.isArray(database.semedHrAttendancePeriods) ? database.semedHrAttendancePeriods : nutritionDefaults.semedHrAttendancePeriods,
     semedHrAuditLog: Array.isArray(database.semedHrAuditLog) ? database.semedHrAuditLog : nutritionDefaults.semedHrAuditLog,
-	    semedSchoolUnits: Array.isArray(database.semedSchoolUnits) ? database.semedSchoolUnits : nutritionDefaults.semedSchoolUnits,
+		    semedSchoolUnits: Array.isArray(database.semedSchoolUnits) ? database.semedSchoolUnits.map((unit) => ({ ...schoolUnitExpansionDefaults, ...unit })) : nutritionDefaults.semedSchoolUnits,
+		    semedSchoolClasses: Array.isArray(current.semedSchoolClasses) ? current.semedSchoolClasses : nutritionDefaults.semedSchoolClasses,
+		    semedAgendaEvents: Array.isArray(current.semedAgendaEvents) ? current.semedAgendaEvents : nutritionDefaults.semedAgendaEvents,
+		    semedUserMessages: Array.isArray(current.semedUserMessages) ? current.semedUserMessages : nutritionDefaults.semedUserMessages,
+		    semedUserMessageReads: Array.isArray(current.semedUserMessageReads) ? current.semedUserMessageReads : nutritionDefaults.semedUserMessageReads,
+		    semedUserNotes: Array.isArray(current.semedUserNotes) ? current.semedUserNotes : nutritionDefaults.semedUserNotes,
+		    semedMasterRecords: Array.isArray(current.semedMasterRecords) ? current.semedMasterRecords : nutritionDefaults.semedMasterRecords,
+		    semedAfEntities: Array.isArray(current.semedAfEntities) ? current.semedAfEntities : nutritionDefaults.semedAfEntities,
+		    semedAfContracts: Array.isArray(current.semedAfContracts) ? current.semedAfContracts : nutritionDefaults.semedAfContracts,
+		    semedAfContractProducts: Array.isArray(current.semedAfContractProducts) ? current.semedAfContractProducts : nutritionDefaults.semedAfContractProducts,
+		    semedAfContractSchools: Array.isArray(current.semedAfContractSchools) ? current.semedAfContractSchools : nutritionDefaults.semedAfContractSchools,
+		    semedAfSupplyPlans: Array.isArray(current.semedAfSupplyPlans) ? current.semedAfSupplyPlans : nutritionDefaults.semedAfSupplyPlans,
+		    semedAfGuides: Array.isArray(current.semedAfGuides) ? current.semedAfGuides : nutritionDefaults.semedAfGuides,
+		    semedAfGuideItems: Array.isArray(current.semedAfGuideItems) ? current.semedAfGuideItems : nutritionDefaults.semedAfGuideItems,
+		    semedAfBillings: Array.isArray(current.semedAfBillings) ? current.semedAfBillings : nutritionDefaults.semedAfBillings,
+		    semedAfBillingGuides: Array.isArray(current.semedAfBillingGuides) ? current.semedAfBillingGuides : nutritionDefaults.semedAfBillingGuides,
+		    semedSchoolExecutingUnits: Array.isArray(current.semedSchoolExecutingUnits) ? current.semedSchoolExecutingUnits : nutritionDefaults.semedSchoolExecutingUnits,
+		    semedSchoolFndeAccounts: Array.isArray(current.semedSchoolFndeAccounts) ? current.semedSchoolFndeAccounts : nutritionDefaults.semedSchoolFndeAccounts,
+		    semedSchoolFndeAccountability: Array.isArray(current.semedSchoolFndeAccountability) ? current.semedSchoolFndeAccountability : nutritionDefaults.semedSchoolFndeAccountability,
 	    semedEducaNuclei: Array.isArray(database.semedEducaNuclei) ? database.semedEducaNuclei : nutritionDefaults.semedEducaNuclei,
 semedNutritionSchools: Array.isArray(database.semedNutritionSchools) ? database.semedNutritionSchools : nutritionDefaults.semedNutritionSchools,
     semedNutritionContracts: Array.isArray(database.semedNutritionContracts) ? database.semedNutritionContracts : nutritionDefaults.semedNutritionContracts,
@@ -1907,7 +2048,7 @@ function migrateAdministratorDemoPasswordDatabase(database: SemedLocalDatabaseV1
 
 export function hydrateLocalDatabase(serialized: string) {
   try {
-    const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
+  const parsed = JSON.parse(serialized) as SemedLocalDatabase | SemedLocalDatabaseV11 | SemedLocalDatabaseV10 | SemedLocalDatabaseV9 | SemedLocalDatabaseV8 | SemedLocalDatabaseV7 | SemedLocalDatabaseV6 | SemedLocalDatabaseV5 | SemedLocalDatabaseV4 | SemedLocalDatabaseV3 | SemedLocalDatabaseV2 | LegacySemedLocalDatabase;
     if (parsed.schemaVersion === 1) return migrateLocalDatabase(parsed);
     if (parsed.schemaVersion === 2) return migrateStockDatabase(parsed);
     if (parsed.schemaVersion === 3) return migrateHumanResourcesDatabase(parsed);
@@ -1918,7 +2059,7 @@ export function hydrateLocalDatabase(serialized: string) {
     if (parsed.schemaVersion === 8) return migrateManagementDatabase(parsed);
     if (parsed.schemaVersion === 9) return migrateManagementCommentsDatabase(parsed);
     if (parsed.schemaVersion === 10) return migrateAdministratorDemoPasswordDatabase(parsed);
-    if (parsed.schemaVersion === 11) return normalizeCurrentDatabase(parsed);
+    if (parsed.schemaVersion === 11 || parsed.schemaVersion === 12) return normalizeCurrentDatabase(parsed);
     return null;
   } catch {
     return null;
@@ -1971,7 +2112,13 @@ export function useSigaLocalRepository() {
     schoolStockMovements: database.semedSchoolStockMovements, kitOrders: database.semedKitOrders,
     hrServers: database.semedHrServers, hrFinancialRecords: database.semedHrFinancialRecords,
     hrAttendancePeriods: database.semedHrAttendancePeriods, hrAuditLog: database.semedHrAuditLog,
-    schoolUnits: database.semedSchoolUnits, educaNuclei: database.semedEducaNuclei,
+    schoolUnits: database.semedSchoolUnits, schoolClasses: database.semedSchoolClasses,
+    agendaEvents: database.semedAgendaEvents, userMessages: database.semedUserMessages, userMessageReads: database.semedUserMessageReads, userNotes: database.semedUserNotes,
+    masterRecords: database.semedMasterRecords,
+    afEntities: database.semedAfEntities, afContracts: database.semedAfContracts, afContractProducts: database.semedAfContractProducts, afContractSchools: database.semedAfContractSchools,
+    afSupplyPlans: database.semedAfSupplyPlans, afGuides: database.semedAfGuides, afGuideItems: database.semedAfGuideItems, afBillings: database.semedAfBillings, afBillingGuides: database.semedAfBillingGuides,
+    schoolExecutingUnits: database.semedSchoolExecutingUnits, schoolFndeAccounts: database.semedSchoolFndeAccounts, schoolFndeAccountability: database.semedSchoolFndeAccountability,
+    educaNuclei: database.semedEducaNuclei,
     financeSources: database.semedFinanceSources, financeRules: database.semedFinanceRules,
     financePlanningEntries: database.semedFinancePlanningEntries, financeRevenues: database.semedFinanceRevenues,
     financeExecutions: database.semedFinanceExecutions, financeAuditLog: database.semedFinanceAuditLog, governanceAuditLog: database.semedGovernanceAuditLog,
@@ -2019,6 +2166,7 @@ export function useSigaLocalRepository() {
     saveHrFinancialRecord(input: SemedHrFinancialRecordInput, actorUserId: string) { return mutate((draft) => saveLocalHrFinancialRecord(draft, input, actorUserId)); },
     saveHrAttendancePeriod(input: SemedHrAttendanceInput, actorUserId: string) { return mutate((draft) => saveLocalHrAttendancePeriod(draft, input, actorUserId)); },
     saveSchoolUnit(input: SemedSchoolUnitInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolUnit(draft, input, actorUserId)); },
+    saveSchoolClass(input: SemedSchoolClassInput, actorUserId: string) { return mutate((draft) => saveLocalSchoolClass(draft, input, actorUserId)); },
     saveEducaNucleus(input: SemedEducaNucleusInput, actorUserId: string) { return mutate((draft) => saveLocalEducaNucleus(draft, input, actorUserId)); },
     saveFinanceSource(input: SemedFinanceSourceInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceSource(draft, input, actorUserId)); },
     saveFinanceRule(input: SemedFinanceRuleInput, actorUserId: string) { return mutate((draft) => saveLocalFinanceRule(draft, input, actorUserId)); },
