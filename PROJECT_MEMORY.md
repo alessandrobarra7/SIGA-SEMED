@@ -1,193 +1,221 @@
 # Memória do Projeto — SIGA SEMED
 
-> **Finalidade.** Este documento é a porta de entrada para pessoas que precisam entender, manter ou evoluir o SIGA SEMED. Ele descreve o projeto como ele está implementado hoje, separa recursos demonstrativos de recursos com persistência real e registra os limites que não podem ser ultrapassados sem nova decisão formal.
+> **Finalidade.** Esta é a memória técnica e funcional do SIGA SEMED. Ela foi escrita para que uma nova pessoa na equipe consiga entender o propósito do sistema, sua arquitetura, os fluxos em funcionamento, os limites de segurança e a ordem adequada de evolução sem depender do histórico da conversa do projeto.
 
-| Item | Situação atual |
+| Metadado | Registro |
 |---|---|
-| Aplicação | React 19, Vite e TypeScript no cliente; Express e tRPC no servidor. |
-| Banco de dados | MySQL gerenciado por Drizzle, em implantação incremental. |
-| Modo demonstrativo | `localStorage` versionado, preservado como fallback compatível. |
-| Login visual | Oficial e congelado; não deve ser redesenhado sem autorização expressa. |
-| Dados da referência | Não são lidos, copiados, migrados ou sincronizados. |
-| Situação desta memória | Atualizada após a segunda leva do backend real, com Unidades Escolares e Turmas. |
+| Projeto | SIGA SEMED — Sistema Integrado de Gestão e Acompanhamento. |
+| Atualização | 27 de agosto de 2026, após a segunda leva de persistência real. |
+| Redação | Manus AI. |
+| Público | Pessoas responsáveis por produto, frontend, backend, testes e operação técnica. |
+| Documento de apoio | [`PROJECT_PROGRESS.md`](./PROJECT_PROGRESS.md), histórico detalhado de decisões, testes e checkpoints. |
 
-## 1. O que é o SIGA SEMED
+## 1. Visão geral
 
-O SIGA SEMED é uma reconstrução independente de um sistema de gestão educacional municipal. A aplicação conserva os fluxos, setores, permissões e relações funcionais que foram observados na referência em modo somente leitura, mas utiliza código, estruturas e dados demonstrativos próprios. A referência não é um ambiente de integração e não deve receber qualquer escrita.
+O SIGA SEMED é uma reconstrução independente de um sistema de gestão educacional municipal. O projeto preserva os **setores, fluxos, permissões, cálculos e relações funcionais** observados em uma referência externa somente para leitura, mas utiliza código, modelos e dados demonstrativos próprios. A referência não é ambiente de integração e não deve receber qualquer escrita.
 
-O objetivo do projeto é oferecer uma aplicação navegável e segura, inicialmente utilizável no navegador com dados demonstrativos e progressivamente preparada para persistência compartilhada no banco gerenciado do próprio projeto. A evolução não equivale a uma migração do sistema de referência.[1] [2]
+O sistema foi construído para operar inicialmente como um preview seguro no navegador e evoluir, de maneira controlada, para persistência compartilhada no banco do próprio projeto. Portanto, a evolução do SIGA SEMED **não é uma migração do sistema de referência** e não autoriza importar seus registros.[1] [2]
 
-## 2. Princípios que devem permanecer válidos
-
-| Princípio | Regra prática para quem mantém o projeto |
+| Aspecto | Situação atual |
 |---|---|
-| Preservação funcional | Não remover rotas, fluxos, permissões, filtros, cálculos ou operações existentes ao aprimorar telas. |
-| Login congelado | Não modificar composição, cores, fontes, ilustração ou comportamento visual da tela de acesso. |
-| Dados seguros | Não inserir dados reais, documentos reais, credenciais, tokens, senhas ou identificadores externos em código, testes, documentação ou commits. |
-| Referência somente leitura | A referência externa serve para observação funcional; nunca para criar, editar, baixar, exportar ou sincronizar registros. |
-| Migração gradual | Cada módulo só passa ao banco real depois de possuir modelo Drizzle, migração revisada, procedimentos protegidos, fallback e testes. |
-| Compatibilidade | Enquanto não houver sessão válida do domínio SIGA, a tela deve continuar usando o repositório local sem alterar a experiência aprovada. |
+| Cliente | React 19, Vite e TypeScript. |
+| Servidor | Express e tRPC, com contratos tipados entre cliente e servidor. |
+| Banco do projeto | MySQL administrado com Drizzle ORM, adotado por módulos. |
+| Modo demonstrativo | `localStorage` versionado e reidratável, preservado como fallback. |
+| Login visual | Oficial e congelado; não deve ser redesenhado sem autorização explícita. |
+| Dados da referência | Não são lidos, copiados, migrados, sincronizados nem publicados. |
 
-## 3. Arquitetura atual
+## 2. Regras inegociáveis de manutenção
+
+| Princípio | Aplicação prática |
+|---|---|
+| Preservar o funcionamento | Não remover rotas, itens de menu, campos, fluxos, filtros, permissões ou cálculos ao aprimorar layout ou backend. |
+| Manter o login congelado | Não alterar composição, cores, fontes, ilustração, campos ou comportamento visual da área de acesso. |
+| Usar dados demonstrativos | Não inserir dados reais, documentos reais, matrículas reais, credenciais, tokens, senhas ou identificadores externos em código, testes, documentação ou commits. |
+| Tratar a referência como somente leitura | Nunca criar, editar, excluir, baixar, exportar ou sincronizar registros da referência externa. |
+| Migrar por etapas | Cada módulo deve ter modelo Drizzle, migração não destrutiva, procedimentos protegidos, fallback e testes antes de ativar a camada real. |
+| Publicar com higiene | Antes de qualquer envio, revisar `git diff --check`, arquivos alterados e padrões de segredo; não publicar capturas, ZIPs, anexos ou utilitários temporários. |
+
+## 3. Arquitetura em funcionamento
 
 ```mermaid
 flowchart LR
-  UI[React + Vite\nTelas e shell autenticado] --> WP[WorkspacePreview\nComposição de rotas]
-  WP --> LR[sigaLocalStore\nRepositório local versionado]
-  WP --> TRPC[tRPC\nChamadas de domínio condicionais]
-  TRPC --> AUTH[Sessão de domínio\nCookie httpOnly]
-  AUTH --> DB[(MySQL + Drizzle\nTabelas de negócio)]
-  LR --> LS[(localStorage\nDados demonstrativos)]
+  UI[React + Vite\nTelas e shell autenticado] --> Workspace[WorkspacePreview\nRotas e composição]
+  Workspace --> Local[sigaLocalStore\nRepositório local versionado]
+  Workspace --> API[tRPC\nUso condicionado à sessão]
+  API --> Session[Sessão de domínio SIGA\nCookie httpOnly]
+  Session --> Database[(MySQL + Drizzle\nTabelas de negócio)]
+  Local --> Browser[(localStorage\nDados demonstrativos)]
 ```
 
-O cliente é organizado por páginas de setor e por um shell operacional que concentra menu lateral, cabeçalho, permissões e rotas internas. `WorkspacePreview.tsx` funciona como ponto de composição do ambiente autenticado. `sigaLocalStore.ts` é a fonte de persistência demonstrativa e contém os tipos, a versão de esquema local, a reidratação, as validações e as políticas já aprovadas.
+O cliente é organizado por páginas de setor e por um shell operacional que concentra a navegação lateral, cabeçalho, permissões e rotas internas. `WorkspacePreview.tsx` é o ponto de composição do ambiente autenticado. `sigaLocalStore.ts` é o repositório demonstrativo: nele estão os tipos, o esquema local versionado, a reidratação, as validações e as políticas já aprovadas.
 
-O servidor possui uma infraestrutura tRPC e Drizzle já disponível. A camada de negócio é incremental: os procedimentos só utilizam o banco quando uma sessão de domínio SIGA válida foi resolvida pelo servidor. Caso contrário, o cliente continua no caminho local, sem cópia automática entre as duas fontes.[2]
+O servidor possui uma infraestrutura tRPC e Drizzle pronta para expansão. A camada de negócio só alcança o banco quando o servidor resolve uma sessão válida de domínio SIGA. Sem sessão válida, a interface continua no modo local, sem copiar registros entre as duas fontes.[2]
 
-| Diretório ou arquivo | Responsabilidade |
+| Caminho | Responsabilidade |
 |---|---|
-| `client/src/pages/` | Páginas de cada setor, shell operacional, repositório local e estilos específicos. |
-| `client/src/lib/trpc.ts` | Cliente tipado dos procedimentos tRPC. |
-| `server/routers.ts` | Composição do roteador tRPC principal. |
+| `client/src/pages/WorkspacePreview.tsx` | Shell autenticado, rotas internas e escolha condicionada de persistência. |
+| `client/src/pages/sigaLocalStore.ts` | Modelo local v12, dados demonstrativos, migrações locais, permissões e operações dos módulos ainda locais. |
+| `client/src/pages/` | Páginas e estilos específicos dos setores. |
+| `client/src/lib/trpc.ts` | Cliente tipado para os procedimentos tRPC. |
+| `server/routers.ts` | Composição do roteador principal. |
 | `server/routers/semedDomain.ts` | Disponibilidade e sessão do domínio SIGA. |
-| `server/routers/semedInitial.ts` | Cadastros Gerais e operações de Início já persistíveis no banco. |
-| `server/routers/semedSchools.ts` | Unidades Escolares e Turmas já persistíveis no banco. |
-| `server/semedDomainAuth.ts` | Resolução de sessão, ator de domínio e autorização por perfil e módulo. |
-| `drizzle/schema.ts` | Esquema Drizzle da autenticação, identidades de domínio e tabelas de negócio. |
-| `drizzle/*.sql` | Migrações geradas e revisadas antes de aplicação. |
-| `server/*.test.*` | Regressões de regras de negócio, permissões, persistência, interface e navegação. |
+| `server/routers/semedInitial.ts` | Cadastros Gerais e operações do painel Início já persistíveis. |
+| `server/routers/semedSchools.ts` | Unidades Escolares e Turmas já persistíveis. |
+| `server/semedDomainAuth.ts` | Resolução de sessão, ator de domínio e autorização por perfil/módulo. |
+| `drizzle/schema.ts` | Esquema Drizzle de autenticação, identidades, permissões, sessões e tabelas de negócio. |
+| `drizzle/0000_adorable_maria_hill.sql` | Migração da primeira leva de negócio: Cadastros Gerais, Agenda, Mensagens, leituras e Lembretes. |
+| `drizzle/0001_hard_diamondback.sql` | Migração de usuários, permissões e sessões do domínio SIGA. |
+| `drizzle/0002_salty_xorn.sql` | Migração não destrutiva de Unidades Escolares e Turmas. |
 
-## 4. Persistência: o que é local e o que já é real
+## 4. Persistência e compatibilidade
 
-O projeto usa dois destinos de persistência com funções distintas. Eles não devem ser confundidos.
+O SIGA SEMED possui duas camadas de armazenamento com papéis diferentes. Elas coexistem para permitir evolução sem quebrar o preview, mas **não são espelhos uma da outra**.
 
-| Camada | Situação | Uso | Regra de segurança |
+| Camada | Situação | Uso permitido | Garantia importante |
 |---|---|---|---|
-| `localStorage` | Ativa no preview | Dados demonstrativos, testes manuais, continuidade do modo local. | Nunca promove um identificador local a credencial de servidor. |
-| MySQL/Drizzle | Parcialmente integrado | Dados de negócio de módulos já migrados, quando existe sessão de domínio. | Só é acessado por procedimentos tRPC protegidos. |
-| Cloudflare D1 de referência | Fora do escopo | Nenhum. | Não há leitura, escrita, sincronização nem migração automática. |
+| `localStorage` | Ativo no preview | Dados demonstrativos, validação manual e continuidade da interface. | Um registro local não é copiado automaticamente para o banco. |
+| MySQL/Drizzle | Parcialmente integrado | Dados de módulos já migrados, quando há sessão de domínio válida. | Só é acessado por procedimentos tRPC protegidos. |
+| Cloudflare D1 da referência | Fora do escopo | Nenhum. | Não há leitura, escrita, sincronização ou migração automática. |
 
-### 4.1 Sessão do domínio SIGA
+### 4.1 Sessão de domínio
 
-O login visual preserva os mesmos campos de matrícula/CPF e senha. Quando o diretório de domínio possuir usuários ativos, o servidor poderá validar a identidade de domínio e emitir um token opaco em cookie `httpOnly`. Esse token não contém nem substitui a senha. O servidor resolve perfil, situação e permissões antes de liberar qualquer procedimento de negócio.
+O login visual mantém o acesso por matrícula ou CPF e senha. Quando houver usuários ativos no diretório de domínio, o servidor validará a identidade e emitirá um token opaco em cookie `httpOnly`. O token não armazena nem substitui a senha. Antes de liberar operações de negócio, o servidor resolve perfil, situação e permissões.
 
-No estado atual, a ausência de usuário de domínio ativo mantém o preview no modo local. Essa condição é intencional: evita bloquear o acesso demonstrativo e impede a ativação acidental de uma base real vazia.[2]
+No estado atual, não há usuários de domínio ativos; por isso, o preview permanece propositalmente no fluxo local. Essa decisão evita bloquear a demonstração e impede a ativação acidental de uma base real vazia.[2]
 
 ### 4.2 Regra de fallback
 
-O fallback não é uma sincronização. Uma criação local não é copiada automaticamente para MySQL, e um registro do banco não é replicado automaticamente no navegador. Ao migrar um novo módulo, preservar tipos públicos, formulários e telas; alterar somente a camada que decide o destino de leitura e gravação.
+O fallback não é mecanismo de migração nem sincronização. Ao integrar um novo módulo com MySQL, devem ser preservados os tipos públicos, formulários, rotas e comportamentos que já funcionam no modo local. A alteração deve se limitar à decisão de origem para leitura e gravação, seguindo o desenho de compatibilidade documentado.[2]
 
-## 5. Autenticação, perfis e permissões
+> **Não contorne o fallback.** Ter uma conexão de banco disponível não autoriza usar persistência real sem usuário de domínio, sessão válida, permissões resolvidas e validação da interface.
 
-O ambiente demonstrativo possui seis perfis funcionais. Eles determinam o acesso a telas e operações locais; o mesmo critério está sendo reproduzido na camada de domínio para os módulos já migrados.[3]
+## 5. Perfis e autorização
+
+O ambiente demonstrativo possui seis perfis funcionais. A mesma lógica está sendo reproduzida na camada de domínio para os módulos já migrados.[3]
 
 | Perfil | Papel operacional predominante |
 |---|---|
 | Administrador | Gestão integral de cadastros, permissões e operações administrativas. |
-| Técnico | Atuação por módulos e permissões explicitamente concedidas. |
+| Técnico | Atuação limitada aos módulos e permissões explicitamente concedidos. |
 | Gestor Escolar | Leitura e escopo restrito à unidade escolar vinculada. |
-| Secretário Escolar | Operações escolares restritas ao escopo de unidade. |
-| Auditoria Externa | Consulta e auditoria sem escrita operacional. |
+| Secretário Escolar | Operações escolares restritas ao escopo da unidade. |
+| Auditoria Externa | Consulta e auditoria, sem escrita operacional. |
 | Contadora Municipal | Consulta e atuação restrita aos fluxos financeiros permitidos. |
 
-Nas Unidades Escolares, o Administrador pode gerir integralmente. Técnicos precisam da permissão geral de Unidades ou, no caso de Turmas, da permissão específica `unidades.turmas`. Gestor Escolar, Secretário Escolar, Auditoria Externa e Contadora Municipal não ganham escrita nesse fluxo apenas por possuírem acesso de leitura.
+Nas Unidades Escolares, o Administrador pode gerir integralmente o fluxo. Um Técnico precisa da permissão geral de Unidades ou, exclusivamente para Turmas, da permissão `unidades.turmas`. Os demais perfis não recebem escrita nessa área apenas por terem permissão de leitura.
 
-## 6. Fluxos funcionais principais
+## 6. Módulos e estado de persistência
 
-### 6.1 Acesso e primeiro acesso
-
-O usuário se autentica pelo identificador disponível — matrícula ou CPF — e pela senha correspondente. Perfis em primeiro acesso passam pela troca local obrigatória antes de usar o shell. A tela de login é uma área aprovada e não deve sofrer mudanças visuais dentro de tarefas funcionais.
-
-### 6.2 Início, Agenda, Mensagens e Lembretes
-
-O painel Início apresenta indicadores, agenda, prazos, ações rápidas e comunicação interna. Eventos podem ser criados, concluídos e consultados; mensagens têm destinatário e confirmação individual de leitura; lembretes pertencem ao usuário. Essas três coleções substituíram listas fixas de exemplo e já possuem tabelas e procedimentos tRPC na primeira leva de banco.[2]
-
-### 6.3 Cadastros Gerais
-
-Cadastros Gerais reúne referências institucionais reutilizáveis, como pessoas, contatos, departamentos, cargos, fornecedores e entidades. Cada registro possui identificação, situação e informações de contato/endereço. O fluxo local e o procedimento tRPC validam código e nome, protegem a unicidade de código e preservam edição e filtros.
-
-### 6.4 Unidades Escolares e Turmas
-
-Unidades Escolares concentra identificação institucional, censo, matrículas por etapa e ano, necessidades educacionais especiais, infraestrutura, acessibilidade, referências locais e classificação escolar (`school_type`). Turmas é um destino próprio e depende da unidade escolar, identificada por INEP, e do ano letivo. O fluxo mantém cadastro, edição, filtros e indicadores. As duas entidades estão na segunda leva de MySQL/Drizzle e tRPC.[4]
-
-### 6.5 Gestão e governança
-
-Gestão organiza tarefas, responsáveis, prioridades, alertas, anexos, aprovações, comentários de devolução e relatórios CSV locais. As regras de segregação impedem que solicitante e decisor confundam papéis nas aprovações. O painel Início utiliza dados derivados para alertas e prazos, respeitando as permissões do perfil atual.
-
-### 6.6 Estoque, Nutrição e Agricultura Familiar
-
-Estoque abrange categorias industrializadas, Kit do Aluno, alimentação escolar, limpeza, expediente e relatórios. Agricultura Familiar opera, no modo local, uma cadeia de entidade fornecedora, contrato, item contratado, plano por unidade, guia, recebimento e faturamento. O faturamento só pode ocorrer depois do recebimento confirmado da guia.
-
-Nutrição oferece planejamento semanal e anual, análise de saldo, cálculo de necessidades, dias letivos, cobertura e apoio a compra/contratação. Esses módulos continuam no armazenamento local até uma leva específica de backend.
-
-### 6.7 Financeiro, RH, Educa Paço, Frota e Configurações
-
-O Financeiro possui planejamento, receitas, execução, fontes, relatórios e alerta preventivo de sobrepagamento. Recursos Humanos reúne servidores, ficha financeira, holerite, frequência, competências e relatórios. Educa Paço trata núcleos, capacidades, atividades e modalidades. Frota contempla veículos, abastecimento, manutenções, ocorrências e relatórios. Configurações institucionais concentra parâmetros demonstrativos e auditoria, com escrita administrativa restrita. Esses módulos permanecem locais nesta data.
-
-### 6.8 PDDE/FNDE
-
-Dentro de Unidades Escolares, PDDE/FNDE administra Unidade Executora, contas por exercício e itens de prestação de contas demonstrativos. A conta exige Unidade Executora; o total é derivado de saldo reprogramado e parcelas; o primeiro item de prestação altera o estado da conta. A persistência ainda é local e deve ser migrada como módulo próprio posteriormente.
-
-## 7. Convenções visuais e de interface
-
-O ambiente autenticado utiliza Montserrat ExtraBold para títulos, chamadas e números de destaque; Manrope é aplicada a legendas, descrições, botões e controles internos. Títulos institucionais, abas, menu lateral e botões textuais que abrem módulos, janelas ou ações usam caixa alta. Textos explicativos, dados, campos e conteúdos de lista permanecem em leitura normal.
-
-Essas convenções devem ser aplicadas nos estilos efetivos dos módulos, e não apenas em sobreposições genéricas. Mudanças visuais devem preservar contraste, quebra de linha de títulos longos e responsividade. A tela de login permanece fora desse escopo.[5]
-
-## 8. Log de modificações relevantes
-
-| Período | Marco | Resultado |
+| Setor | Capacidades principais | Persistência atual |
 |---|---|---|
-| Base inicial | Reconstrução visual e funcional | Login institucional, shell, módulos principais e dados demonstrativos locais. |
-| Evolução local v12 | Ampliação de cobertura | Unidades/Turmas, Agenda/Mensagens/Lembretes, Cadastros Gerais, Agricultura Familiar e PDDE/FNDE incluídos no repositório local. |
-| Revisões tipográficas | Legibilidade e convenções | Montserrat para destaques, Manrope para interface e caixa alta institucional no ambiente autenticado. |
-| Backend real — primeira leva | Sessão e operações de Início | Identidade de domínio, sessões, Cadastros Gerais, Agenda, Mensagens, leituras e Lembretes em Drizzle/tRPC com fallback. |
-| Backend real — segunda leva | Base escolar | Unidades Escolares, Turmas, `school_type`, relações INEP/ano letivo e autorização específica em Drizzle/tRPC com fallback. |
-| Estado atual | Sem dados reais | Nenhuma migração do D1 foi realizada; a ativação real requer processo administrativo de usuários de domínio. |
+| Início | Indicadores, agenda, prazos, ações rápidas e comunicação. | Agenda, Mensagens e Lembretes já possuem banco condicional; demais elementos permanecem locais. |
+| Cadastros Gerais | Referências institucionais, pessoas, contatos, departamentos, cargos, fornecedores e entidades. | Banco condicional e fallback local. |
+| Unidades Escolares e Turmas | Identificação, censo, matrículas, infraestrutura, acessibilidade, classificação escolar e turmas por INEP/ano. | Banco condicional e fallback local. |
+| Gestão e Governança | Tarefas, alertas, aprovações, devoluções, anexos locais, auditoria e relatórios CSV. | Local. |
+| Contratos, Processos e Documentos | Processos, documentos, pagamentos, filtros e confirmações. | Local. |
+| Estoque | Catálogos, saldos, movimentações, conferências, auditoria e relatórios. | Local. |
+| Agricultura Familiar | Entidades, contratos, produtos, planos, guias, recebimentos e faturamentos. | Local. |
+| Nutrição | Planejamentos, análise de saldos, dias letivos, necessidades e cobertura. | Local. |
+| Financeiro | Planejamento, receitas, execução, fontes, relatórios e alertas preventivos. | Local. |
+| Recursos Humanos | Servidores, competências, ficha financeira, holerites, frequência e relatórios. | Local. |
+| Educa Paço | Núcleos, capacidades, atividades e modalidades. | Local. |
+| PDDE/FNDE | Unidade Executora, contas por exercício e prestação de contas. | Local. |
+| Frota | Veículos, abastecimento, manutenção, ocorrências e relatórios. | Local. |
+| Configurações | Parâmetros institucionais e auditoria administrativa. | Local. |
+| Usuários | Usuários demonstrativos, primeiro acesso, perfis, permissões e auditoria. | Local, com identidade de domínio já preparada no servidor. |
 
-O histórico operacional detalhado, os checkpoints e a lista verificável de tarefas encontram-se em `PROJECT_PROGRESS.md` e `todo.md`. Esta memória é o guia narrativo; esses arquivos registram a cronologia e os itens verificáveis.[1]
+## 7. Fluxos que merecem atenção especial
 
-## 9. Testes e validação
+### 7.1 Acesso e primeiro acesso
 
-O projeto usa Vitest para regras de domínio, persistência local, permissões, rotas e componentes. A validação de uma entrega deve incluir a suíte completa, `pnpm exec tsc --noEmit`, `pnpm build` e uma revisão visual proporcional ao módulo alterado. Na segunda leva de backend, a suíte alcançou 116 testes aprovados.
+O acesso aceita matrícula ou CPF como identificador. Usuários em primeiro acesso passam pela troca local obrigatória antes de usar o shell. A área visual de login é aprovada e deve permanecer intacta em tarefas de backend ou de módulos internos.
 
-| Comando | Uso |
+### 7.2 Início, Agenda, Mensagens e Lembretes
+
+O painel Início reúne indicadores, agenda, prazos, ações rápidas e comunicação interna. Eventos podem ser criados, concluídos e consultados; mensagens têm destinatário e confirmação de leitura individual; lembretes pertencem ao usuário. Essas coleções substituíram exemplos fixos e foram incluídas na primeira leva de banco, mantendo o fallback local.[1] [2]
+
+### 7.3 Cadastros Gerais
+
+Cadastros Gerais concentra referências reutilizáveis. O fluxo valida código e nome, protege a unicidade do código e mantém pesquisa, filtro, cadastro e edição. No ambiente com sessão válida, as mesmas regras estão disponíveis pelos procedimentos tRPC protegidos.
+
+### 7.4 Unidades Escolares e Turmas
+
+Unidades Escolares reúne identificação institucional, campos de censo, matrículas por etapa/ano, necessidades educacionais especiais, infraestrutura, acessibilidade, referências locais e `school_type`. Turmas possui rota própria, depende de unidade escolar e utiliza INEP e ano letivo como relações de negócio. As duas entidades pertencem à segunda leva de MySQL/Drizzle e tRPC.[4]
+
+### 7.5 Gestão e Governança
+
+Gestão mantém tarefas, responsáveis, prioridades, alertas, aprovações, devoluções, comentários internos, metadados de anexo e relatórios CSV locais. A segregação de funções impede que solicitante e decisor ocupem papéis conflitantes na mesma aprovação. O painel Início deriva alertas e prazos respeitando a leitura permitida ao perfil atual.
+
+### 7.6 Estoque, Nutrição e Agricultura Familiar
+
+Estoque abrange as categorias industrializado, Kit do Aluno, alimentação escolar, limpeza, expediente e relatórios. Agricultura Familiar mantém a cadeia de entidade fornecedora, contrato, item contratado, plano por unidade, guia, recebimento e faturamento; faturamento só é permitido depois do recebimento confirmado da guia. Nutrição oferece planejamento semanal/anual, análise de saldo, dias letivos, cálculos de necessidade e cobertura. Todos esses fluxos continuam locais nesta etapa.
+
+### 7.7 Financeiro, RH, Educa Paço, Frota, Configurações e PDDE/FNDE
+
+O Financeiro oferece planejamento, receitas, execução, fontes, relatórios e alerta preventivo de sobrepagamento. Recursos Humanos contém servidores, competências, ficha financeira, holerite, frequência e relatórios. Educa Paço organiza núcleos, capacidades, atividades e modalidades. Frota cobre veículos, abastecimento, manutenção, ocorrências e relatórios. Configurações institucionais concentra parâmetros e auditoria com escrita administrativa restrita.
+
+PDDE/FNDE administra Unidade Executora, contas por exercício e itens demonstrativos de prestação de contas. A conta depende de Unidade Executora; o total considera saldo reprogramado e parcelas; o primeiro item de prestação altera o estado da conta. Esses módulos ainda utilizam exclusivamente o armazenamento local.[4]
+
+## 8. Convenções visuais
+
+No ambiente autenticado, **Montserrat ExtraBold** é usada em títulos, chamadas e números de destaque. **Manrope** é usada em legendas, descrições, botões e controles internos. Títulos institucionais, abas, menu lateral e botões textuais que abrem módulos, janelas ou ações utilizam caixa alta. Descrições, campos, filtros, dados e conteúdos de listas permanecem em leitura normal.
+
+Alterações visuais devem ocorrer nos estilos efetivos do módulo, com contraste adequado, quebra de linha de títulos longos e responsividade preservada. A tela de login não entra nesse escopo.[5]
+
+## 9. Histórico de marcos
+
+| Marco | Resultado |
 |---|---|
-| `pnpm test` | Executa toda a suíte Vitest. |
-| `pnpm exec tsc --noEmit` | Verifica os tipos sem gerar artefatos. |
+| Reconstrução inicial | Login institucional, shell autenticado, módulos principais e dados demonstrativos locais. |
+| Expansão local v12 | Cobertura ampliada para Unidades/Turmas, Agenda/Mensagens/Lembretes, Cadastros Gerais, Agricultura Familiar e PDDE/FNDE. |
+| Refinamento tipográfico | Montserrat para destaques, Manrope para interface e caixa alta institucional no ambiente autenticado. |
+| Backend real — primeira leva | Sessão de domínio, Cadastros Gerais, Agenda, Mensagens, leituras e Lembretes em Drizzle/tRPC com fallback. |
+| Backend real — segunda leva | Unidades Escolares, Turmas, `school_type`, relações INEP/ano letivo e autorização específica em Drizzle/tRPC com fallback. |
+| Estado atual | Não houve migração do D1; a ativação de dados reais depende de provisão controlada de usuários de domínio. |
+
+O histórico cronológico, os checkpoints e o checklist verificável estão em [`PROJECT_PROGRESS.md`](./PROJECT_PROGRESS.md) e [`todo.md`](./todo.md). Esta memória é o guia narrativo que contextualiza esses registros.[1]
+
+## 10. Testes e validação
+
+O projeto utiliza Vitest para regras de domínio, persistência local, permissões, rotas e componentes. Uma entrega funcional deve executar a suíte, verificação de tipos, build e revisão visual proporcional ao módulo alterado. A segunda leva de backend foi validada com **116 testes aprovados**, `pnpm exec tsc --noEmit` e `pnpm build` aprovados; Unidades/Turmas foram validadas em desktop e no fallback local. A captura móvel autenticada desse fluxo não foi concluída pela sessão isolada e não deve ser declarada como validada.[1]
+
+| Comando | Finalidade |
+|---|---|
+| `pnpm test` | Executa a suíte Vitest. |
+| `pnpm exec tsc --noEmit` | Verifica a tipagem sem gerar arquivos. |
 | `pnpm build` | Gera o bundle de produção do cliente e do servidor. |
 | `pnpm run dev` | Inicia o ambiente local de desenvolvimento. |
 
-Antes de aplicar uma migração, gerar o SQL pelo Drizzle, ler integralmente o arquivo criado e confirmar que a operação é não destrutiva. Aplicar alterações de esquema por meio da operação de banco do projeto e confirmar as tabelas e o controle de migrações após a execução.
+Antes de aplicar migrações, gerar o SQL pelo Drizzle, ler integralmente o arquivo, confirmar que a alteração é não destrutiva e verificar depois o esquema e o controle de migrações do banco. Nunca tratar uma revisão de interface como substituta dos testes de regras de autorização.
 
-## 10. Como iniciar uma nova alteração
+## 11. Roteiro para uma nova alteração
 
-Uma pessoa nova no projeto deve primeiro ler esta memória, `PROJECT_PROGRESS.md`, `todo.md`, `backend_compatibility_design.md` e o roteiro de migração. Em seguida, deve localizar o módulo em `client/src/pages/`, o seu modelo em `sigaLocalStore.ts` e os testes correspondentes em `server/`.
+| Etapa | Conduta esperada |
+|---|---|
+| Contextualizar | Ler esta memória, [`PROJECT_PROGRESS.md`](./PROJECT_PROGRESS.md), [`todo.md`](./todo.md), o desenho de compatibilidade e o roteiro de backend. |
+| Localizar o domínio | Identificar página em `client/src/pages/`, modelo em `sigaLocalStore.ts`, procedimento/rota aplicável e testes associados. |
+| Desenhar antes de codificar | Definir entidades, relações, permissões, transições de estado e regra de fallback. |
+| Implementar com compatibilidade | Preservar formulários, rotas e comportamento local; para banco, criar schema, migração, helpers, procedimento protegido e conexão condicional. |
+| Validar | Atualizar testes, executar testes/tipos/build e revisar a interface sem alterar o login. |
+| Documentar e publicar | Atualizar o checklist e os documentos afetados; revisar segredos e artefatos antes de criar checkpoint e enviar ao repositório autorizado. |
 
-Para uma alteração funcional, registrar o item no checklist, desenhar o modelo e as permissões antes da tela, escrever ou atualizar testes e preservar a compatibilidade do repositório local. Para uma alteração de banco, criar o esquema no Drizzle, gerar e revisar a migração, aplicá-la de modo não destrutivo, adicionar procedimentos tRPC protegidos e só então conectar a tela de forma condicional.
+## 12. Próximas etapas recomendadas
 
-> **Não contorne o fallback.** A existência de um banco configurado não autoriza ativar a persistência real sem usuário de domínio, sessão válida, autorização e validação da interface.
-
-## 11. Próximas etapas recomendadas
-
-| Prioridade | Próxima etapa | Dependência |
+| Prioridade | Etapa | Dependência |
 |---|---|---|
-| 1 | Criar administrativamente os primeiros usuários, perfis e permissões do domínio SIGA. | Processo seguro de provisão de identidades; não usar contas demonstrativas como dados reais. |
+| 1 | Provisionar, de forma controlada, os primeiros usuários, perfis e permissões no domínio SIGA. | Processo seguro de identidade; não reutilizar contas demonstrativas como dados reais. |
 | 2 | Migrar Documentos e Contratos/Processos para MySQL/Drizzle e tRPC. | Sessão de domínio e Cadastros Gerais já disponíveis. |
 | 3 | Migrar Estoque e Agricultura Familiar. | Catálogos, vínculos contratuais e regras de movimentação. |
 | 4 | Migrar Nutrição, Financeiro, RH, PDDE/FNDE, Educa Paço, Frota, Gestão e Configurações. | Ordem detalhada no roteiro de backend. |
-| 5 | Avaliar uma migração de dados reais do D1 somente depois de existir destino completo, homologação e autorização específica. | Arquitetura concluída e credenciais tratadas por canal seguro. |
+| 5 | Considerar qualquer migração de dados reais apenas após destino completo, homologação e autorização específica. | Arquitetura completa, plano de migração aprovado e credenciais tratadas por canal seguro. |
 
-## 12. Referências internas
+## Referências internas
 
-[1] `PROJECT_PROGRESS.md` registra decisões, módulos, validações e checkpoints do projeto.
+[1]: ./PROJECT_PROGRESS.md "Histórico consolidado do SIGA SEMED"
+[2]: ./backend_compatibility_design.md "Desenho de compatibilidade entre localStorage e MySQL/tRPC"
+[3]: ./users_permissions_functional_spec.md "Especificação de usuários, perfis e permissões"
+[4]: ./local_field_coverage.md "Cobertura demonstrativa dos campos ampliados"
+[5]: ./visual_identity_refresh.md "Diretrizes de identidade visual do ambiente autenticado"
 
-[2] `backend_compatibility_design.md` descreve a coexistência entre localStorage, MySQL/Drizzle, tRPC e sessão de domínio.
-
-[3] `users_permissions_functional_spec.md` detalha os perfis, permissões e regras do módulo Usuários.
-
-[4] `local_field_coverage.md` relaciona a cobertura demonstrativa de campos dos cinco grupos ampliados.
-
-[5] `visual_identity_refresh.md` registra as diretrizes e os limites da identidade visual autorizada.
-
-Outros documentos de referência encontram-se em `reference_package_audit.md`, `reproduction_before_changes.md`, `backend_migration_roadmap.md` e nos relatórios específicos de cada setor. Documentos históricos podem registrar decisões superadas; em caso de conflito, esta memória e `PROJECT_PROGRESS.md` devem ser tratados como ponto de partida e a implementação atual deve ser confirmada no código.
+Para contexto complementar, consulte [`backend_migration_roadmap.md`](./backend_migration_roadmap.md), [`reference_package_audit.md`](./reference_package_audit.md) e [`reproduction_before_changes.md`](./reproduction_before_changes.md). Documentos históricos podem registrar decisões já superadas; em caso de conflito, trate esta memória e o histórico consolidado como ponto de partida e confirme o comportamento no código atual.
