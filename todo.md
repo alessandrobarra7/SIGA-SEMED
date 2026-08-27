@@ -706,5 +706,5 @@
 ## Publicação autorizada — primeira etapa de backend real
 
 - [x] Revisar os arquivos pendentes para excluir dados reais, capturas, utilitários temporários, arquivos externos e credenciais.
-- [ ] Criar o commit das migrações, rotas tRPC, sessão de domínio, fallback local, testes e documentação.
-- [ ] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
+- [x] Criar o commit das migrações, rotas tRPC, sessão de domínio, fallback local, testes e documentação.
+- [x] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
