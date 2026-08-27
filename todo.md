@@ -702,3 +702,9 @@
 - [x] Criar e aplicar a migração de Agenda, Mensagens, confirmações de leitura e Lembretes; integrar suas rotas tRPC.
 - [x] Validar autorização, persistência, reidratação, fallback local, testes, TypeScript, build e interface dos dois grupos.
 - [x] Documentar a cobertura entregue e planejar os módulos restantes por dependência antes de continuar a migração.
+
+## Publicação autorizada — primeira etapa de backend real
+
+- [x] Revisar os arquivos pendentes para excluir dados reais, capturas, utilitários temporários, arquivos externos e credenciais.
+- [ ] Criar o commit das migrações, rotas tRPC, sessão de domínio, fallback local, testes e documentação.
+- [ ] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
