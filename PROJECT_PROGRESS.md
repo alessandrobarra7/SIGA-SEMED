@@ -90,6 +90,7 @@ Cada nova frente deve seguir esta sequência, sem pular etapas:
 | [`backend_compatibility_design.md`](./backend_compatibility_design.md) | Estratégia de sessão de domínio e coexistência segura entre MySQL/Drizzle, tRPC e localStorage. |
 | [`backend_migration_roadmap.md`](./backend_migration_roadmap.md) | Ordem de migração dos módulos restantes por dependências, sem incluir importação de dados reais do D1. |
 | [`local_field_coverage.md`](./local_field_coverage.md) | Matriz de cobertura demonstrativa dos cinco grupos ampliados no armazenamento local. |
+| [`PROJECT_MEMORY.md`](./PROJECT_MEMORY.md) | Memória técnica e funcional de entrada: objetivo, arquitetura, fluxos, persistência, segurança, validações, histórico e próximos passos. |
 | [`todo.md`](./todo.md) | Histórico verificável de itens concluídos e pendências de cada frente. |
 
 ## 7. Rotina de atualização deste documento

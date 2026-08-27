@@ -711,6 +711,14 @@
 - [x] Validar autorização, relações Unidade–Turma, reidratação, fallback, interface, testes, TypeScript e build.
 - [x] Documentar a segunda leva e salvar checkpoint somente após a validação completa.
 
+## Memória técnica e funcional do projeto
+
+- [x] Inventariar arquitetura, módulos, fluxos, documentos existentes, validações e marcos de publicação.
+- [x] Redigir uma memória de projeto acessível a novos colaboradores, cobrindo propósito, estrutura, persistência, segurança, permissões, fluxos e histórico de modificações.
+- [x] Revisar a documentação para remover credenciais, dados reais, referências externas sensíveis e instruções de operação inadequadas.
+- [ ] Criar checkpoint da documentação e enviá-la ao repositório autorizado.
+- [ ] Confirmar ao usuário o caminho do documento e o hash remoto do envio.
+
 ## Publicação autorizada — primeira etapa de backend real
 
 - [x] Revisar os arquivos pendentes para excluir dados reais, capturas, utilitários temporários, arquivos externos e credenciais.
