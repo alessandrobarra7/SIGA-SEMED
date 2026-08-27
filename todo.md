@@ -703,6 +703,14 @@
 - [x] Validar autorização, persistência, reidratação, fallback local, testes, TypeScript, build e interface dos dois grupos.
 - [x] Documentar a cobertura entregue e planejar os módulos restantes por dependência antes de continuar a migração.
 
+## Backend real incremental — segunda leva: Unidades e Turmas
+
+- [x] Mapear campos, relações e permissões locais de Unidades Escolares e Turmas, incluindo o campo `school_type` pendente.
+- [x] Criar e aplicar tabelas Drizzle/MySQL de Unidades Escolares e Turmas, com migração não destrutiva e índices relacionais.
+- [x] Implementar procedimentos tRPC protegidos e integrar a persistência condicional às telas, mantendo fallback local.
+- [x] Validar autorização, relações Unidade–Turma, reidratação, fallback, interface, testes, TypeScript e build.
+- [x] Documentar a segunda leva e salvar checkpoint somente após a validação completa.
+
 ## Publicação autorizada — primeira etapa de backend real
 
 - [x] Revisar os arquivos pendentes para excluir dados reais, capturas, utilitários temporários, arquivos externos e credenciais.

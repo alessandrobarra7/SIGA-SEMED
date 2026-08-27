@@ -12,6 +12,7 @@ import {
 import { getDb } from "../db";
 import { domainProcedure, router } from "../_core/trpc";
 import { semedDomainRouter } from "./semedDomain";
+import { semedSchoolsRouter } from "./semedSchools";
 
 const idInput = z.object({ id: z.string().trim().min(1).max(64) });
 const priorityInput = z.enum(["Baixa", "Média", "Alta"]);
@@ -87,6 +88,7 @@ function toNote(row: typeof semedUserNotes.$inferSelect) {
 
 export const semedInitialRouter = router({
   domain: semedDomainRouter,
+  schools: semedSchoolsRouter,
   masters: router({
     list: domainProcedure.query(async () => {
       const database = await requireDatabase();

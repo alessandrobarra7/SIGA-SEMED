@@ -173,6 +173,45 @@ export const semedDomainSessions = mysqlTable(
   table => [uniqueIndex("semed_domain_sessions_token_hash_uq").on(table.tokenHash), index("semed_domain_sessions_user_idx").on(table.userId)],
 );
 
+/** Cadastro escolar completo, espelhando os campos locais e o vínculo por INEP. */
+export const semedSchoolUnits = mysqlTable(
+  "semed_school_units",
+  {
+    id: varchar("id", { length: 64 }).primaryKey(),
+    code: varchar("code", { length: 96 }).notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    schoolType: varchar("school_type", { length: 160 }).notNull(),
+    type: varchar("type", { length: 48 }).notNull(),
+    status: mysqlEnum("status", ["Ativa", "Inativa"]).notNull().default("Ativa"),
+    censusYear: int("census_year").notNull(),
+    neighborhood: varchar("neighborhood", { length: 160 }).notNull(),
+    address: text("address").notNull(),
+    students: int("students").notNull().default(0),
+    hasUex: boolean("has_uex").notNull().default(false),
+    hasMap: boolean("has_map").notNull().default(false),
+    inep: varchar("inep", { length: 32 }).notNull(),
+    email: varchar("email", { length: 320 }).notNull(),
+    managerName: varchar("manager_name", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 64 }).notNull(),
+    notes: text("notes").notNull(),
+    enrollmentCreche: int("enrollment_creche").notNull().default(0), enrollmentPreSchool: int("enrollment_pre_school").notNull().default(0), enrollmentFundamental1: int("enrollment_fundamental_1").notNull().default(0), enrollmentFundamental2: int("enrollment_fundamental_2").notNull().default(0), enrollmentEjaiInitial: int("enrollment_ejai_initial").notNull().default(0), enrollmentEjaiFinal: int("enrollment_ejai_final").notNull().default(0),
+    specialNeedsCreche: int("special_needs_creche").notNull().default(0), specialNeedsPreSchool: int("special_needs_pre_school").notNull().default(0), enrollmentGrade1: int("enrollment_grade_1").notNull().default(0), specialNeedsGrade1: int("special_needs_grade_1").notNull().default(0), enrollmentGrade2: int("enrollment_grade_2").notNull().default(0), specialNeedsGrade2: int("special_needs_grade_2").notNull().default(0), enrollmentGrade3: int("enrollment_grade_3").notNull().default(0), specialNeedsGrade3: int("special_needs_grade_3").notNull().default(0), enrollmentGrade4: int("enrollment_grade_4").notNull().default(0), specialNeedsGrade4: int("special_needs_grade_4").notNull().default(0), enrollmentGrade5: int("enrollment_grade_5").notNull().default(0), specialNeedsGrade5: int("special_needs_grade_5").notNull().default(0), enrollmentGrade6: int("enrollment_grade_6").notNull().default(0), specialNeedsGrade6: int("special_needs_grade_6").notNull().default(0), enrollmentGrade7: int("enrollment_grade_7").notNull().default(0), specialNeedsGrade7: int("special_needs_grade_7").notNull().default(0), enrollmentGrade8: int("enrollment_grade_8").notNull().default(0), specialNeedsGrade8: int("special_needs_grade_8").notNull().default(0), enrollmentGrade9: int("enrollment_grade_9").notNull().default(0), specialNeedsGrade9: int("special_needs_grade_9").notNull().default(0), specialNeedsEjaiInitial: int("special_needs_ejai_initial").notNull().default(0), specialNeedsEjaiFinal: int("special_needs_ejai_final").notNull().default(0),
+    propertyType: varchar("property_type", { length: 120 }).notNull(), locationZone: varchar("location_zone", { length: 64 }).notNull(), landAreaM2: int("land_area_m2").notNull().default(0), builtAreaM2: int("built_area_m2").notNull().default(0), classroomsTotal: int("classrooms_total").notNull().default(0), classroomsInUse: int("classrooms_in_use").notNull().default(0), administrativeRooms: int("administrative_rooms").notNull().default(0), bathroomsTotal: int("bathrooms_total").notNull().default(0), accessibleBathrooms: int("accessible_bathrooms").notNull().default(0),
+    kitchenStatus: varchar("kitchen_status", { length: 96 }).notNull(), cafeteriaStatus: varchar("cafeteria_status", { length: 96 }).notNull(), libraryStatus: varchar("library_status", { length: 96 }).notNull(), computerLabStatus: varchar("computer_lab_status", { length: 96 }).notNull(), sportsCourtStatus: varchar("sports_court_status", { length: 96 }).notNull(), accessibilityStatus: varchar("accessibility_status", { length: 96 }).notNull(), waterSupply: varchar("water_supply", { length: 160 }).notNull(), energySupply: varchar("energy_supply", { length: 160 }).notNull(), sewageSystem: varchar("sewage_system", { length: 160 }).notNull(), internetAccess: varchar("internet_access", { length: 160 }).notNull(), conservationStatus: varchar("conservation_status", { length: 96 }).notNull(), structureNotes: text("structure_notes").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(), updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  table => [uniqueIndex("semed_school_units_code_uq").on(table.code), index("semed_school_units_inep_idx").on(table.inep), index("semed_school_units_status_year_idx").on(table.status, table.censusYear)],
+);
+
+/** Turmas por unidade e ano letivo; a chave composta impede duplicidade do cadastro escolar. */
+export const semedSchoolClasses = mysqlTable(
+  "semed_school_classes",
+  {
+    id: varchar("id", { length: 64 }).primaryKey(), unitInep: varchar("unit_inep", { length: 32 }).notNull(), schoolYear: int("school_year").notNull(), schoolName: varchar("school_name", { length: 255 }).notNull(), className: varchar("class_name", { length: 160 }).notNull(), classType: varchar("class_type", { length: 160 }).notNull(), students: int("students").notNull().default(0), professionals: int("professionals").notNull().default(0), sourceRow: varchar("source_row", { length: 96 }).notNull(), source: varchar("source", { length: 160 }).notNull(), importedAt: varchar("imported_at", { length: 40 }).notNull(), createdAt: timestamp("created_at").notNull().defaultNow(), updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  table => [uniqueIndex("semed_school_classes_unit_year_name_uq").on(table.unitInep, table.schoolYear, table.className), index("semed_school_classes_unit_year_idx").on(table.unitInep, table.schoolYear)],
+);
+
 export type SemedMasterRecordRow = typeof semedMasterRecords.$inferSelect;
 export type SemedAgendaEventRow = typeof semedAgendaEvents.$inferSelect;
 export type SemedUserMessageRow = typeof semedUserMessages.$inferSelect;
@@ -181,3 +220,5 @@ export type SemedUserNoteRow = typeof semedUserNotes.$inferSelect;
 export type SemedDomainUserRow = typeof semedDomainUsers.$inferSelect;
 export type SemedDomainPermissionRow = typeof semedDomainUserPermissions.$inferSelect;
 export type SemedDomainSessionRow = typeof semedDomainSessions.$inferSelect;
+export type SemedSchoolUnitRow = typeof semedSchoolUnits.$inferSelect;
+export type SemedSchoolClassRow = typeof semedSchoolClasses.$inferSelect;

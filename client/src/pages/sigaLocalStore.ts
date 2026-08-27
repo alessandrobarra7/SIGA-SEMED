@@ -311,7 +311,7 @@ export type SemedHrAudit = { id: string; action: SemedHrAuditAction; targetId: s
 export type SemedSchoolUnitType = "Municipal" | "Conveniada";
 export type SemedSchoolUnitStatus = "Ativa" | "Inativa";
 export type SemedSchoolUnit = {
-  id: string; code: string; name: string; type: SemedSchoolUnitType; status: SemedSchoolUnitStatus;
+  id: string; code: string; name: string; schoolType: string; type: SemedSchoolUnitType; status: SemedSchoolUnitStatus;
   censusYear: number; neighborhood: string; address: string; students: number; hasUex: boolean; hasMap: boolean;
   inep: string; email: string; managerName: string; phone: string; notes: string;
   enrollmentCreche: number; enrollmentPreSchool: number; enrollmentFundamental1: number; enrollmentFundamental2: number; enrollmentEjaiInitial: number; enrollmentEjaiFinal: number;
@@ -327,7 +327,7 @@ export type SemedSchoolUnit = {
 export type SemedSchoolUnitInput = Pick<SemedSchoolUnit, "code" | "name" | "type" | "status" | "censusYear" | "neighborhood" | "address" | "students" | "hasUex" | "hasMap"> & Partial<Omit<SemedSchoolUnit, "id" | "createdAt" | "updatedAt" | "code" | "name" | "type" | "status" | "censusYear" | "neighborhood" | "address" | "students" | "hasUex" | "hasMap">> & { id?: string };
 
 const schoolUnitExpansionDefaults = {
-  inep: "", email: "", managerName: "", phone: "", notes: "",
+  schoolType: "", inep: "", email: "", managerName: "", phone: "", notes: "",
   enrollmentCreche: 0, enrollmentPreSchool: 0, enrollmentFundamental1: 0, enrollmentFundamental2: 0, enrollmentEjaiInitial: 0, enrollmentEjaiFinal: 0,
   specialNeedsCreche: 0, specialNeedsPreSchool: 0, enrollmentGrade1: 0, specialNeedsGrade1: 0, enrollmentGrade2: 0, specialNeedsGrade2: 0,
   enrollmentGrade3: 0, specialNeedsGrade3: 0, enrollmentGrade4: 0, specialNeedsGrade4: 0, enrollmentGrade5: 0, specialNeedsGrade5: 0,

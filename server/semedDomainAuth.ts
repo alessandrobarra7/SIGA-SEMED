@@ -2,7 +2,7 @@ import { and, eq, gt, or } from "drizzle-orm";
 import { parse } from "cookie";
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import type { Request } from "express";
-import { semedDomainSessions, semedDomainUsers } from "../drizzle/schema";
+import { semedDomainSessions, semedDomainUserPermissions, semedDomainUsers } from "../drizzle/schema";
 import { getDb } from "./db";
 
 export const SEMED_DOMAIN_SESSION_COOKIE = "siga_domain_session";
@@ -16,6 +16,7 @@ export type SemedDomainSessionActor = {
   profile: string;
   active: boolean;
   mustChangePassword: boolean;
+  permissions: string[];
 };
 
 export function hashDomainSecret(value: string) {
@@ -66,7 +67,13 @@ export async function getDomainSessionActor(req: Request): Promise<SemedDomainSe
     .where(and(eq(semedDomainSessions.tokenHash, hashDomainSecret(sessionSecret)), gt(semedDomainSessions.expiresAt, new Date()), eq(semedDomainUsers.active, true)))
     .limit(1);
 
-  return rows[0] ?? null;
+  const actor = rows[0];
+  if (!actor) return null;
+  const permissions = await database
+    .select({ moduleKey: semedDomainUserPermissions.moduleKey })
+    .from(semedDomainUserPermissions)
+    .where(and(eq(semedDomainUserPermissions.userId, actor.id), eq(semedDomainUserPermissions.granted, true)));
+  return { ...actor, permissions: permissions.map((permission) => permission.moduleKey) };
 }
 
 export async function findDomainUserForLogin(identifier: string) {

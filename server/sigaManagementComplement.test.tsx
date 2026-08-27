@@ -14,6 +14,7 @@ vi.mock("../client/src/lib/trpc", () => ({
       agenda: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
       messages: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) }, markRead: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
       notes: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
+      schools: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) }, classes: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } } },
     },
   },
 }));
