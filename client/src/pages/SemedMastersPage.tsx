@@ -8,7 +8,7 @@ const recordTypes = ["Pessoa", "Contato", "Departamento", "Cargo", "Fornecedor",
 type MastersProps = {
   records: SemedMasterRecord[];
   canWrite: boolean;
-  onSave: (input: SemedMasterRecordInput) => { error: string | null; record: SemedMasterRecord | null };
+  onSave: (input: SemedMasterRecordInput) => Promise<{ error: string | null; record: SemedMasterRecord | null }>;
   onNotify: (message: string) => void;
 };
 
@@ -25,10 +25,10 @@ export default function SemedMastersPage({ records, canWrite, onSave, onNotify }
   const typeCount = new Set(records.map((record) => record.recordType)).size;
 
   function openCreate() { setEditing(emptyRecord()); setFormOpen(true); }
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const result = onSave({ id: editing?.id, recordType: String(form.get("recordType") ?? ""), code: String(form.get("code") ?? ""), name: String(form.get("name") ?? ""), document: String(form.get("document") ?? ""), email: String(form.get("email") ?? ""), phone: String(form.get("phone") ?? ""), department: String(form.get("department") ?? ""), position: String(form.get("position") ?? ""), address: String(form.get("address") ?? ""), notes: String(form.get("notes") ?? ""), status: String(form.get("status") ?? "Ativo") as SemedMasterRecord["status"] });
+    const result = await onSave({ id: editing?.id, recordType: String(form.get("recordType") ?? ""), code: String(form.get("code") ?? ""), name: String(form.get("name") ?? ""), document: String(form.get("document") ?? ""), email: String(form.get("email") ?? ""), phone: String(form.get("phone") ?? ""), department: String(form.get("department") ?? ""), position: String(form.get("position") ?? ""), address: String(form.get("address") ?? ""), notes: String(form.get("notes") ?? ""), status: String(form.get("status") ?? "Ativo") as SemedMasterRecord["status"] });
     if (result.error) return onNotify(result.error);
     setFormOpen(false); setEditing(null); onNotify("Cadastro institucional salvo somente no ambiente local.");
   }

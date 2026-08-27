@@ -690,5 +690,15 @@
 ## Publicação autorizada — expansão local completa
 
 - [x] Revisar os arquivos pendentes e excluir referências externas, capturas, utilitários temporários, dados de validação e credenciais do envio.
-- [ ] Criar o commit da expansão v12, com Unidades/Turmas, Agenda/Mensagens/Lembretes, Cadastros Gerais, Agricultura Familiar, PDDE/FNDE, testes e documentação.
-- [ ] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
+- [x] Criar o commit da expansão v12, com Unidades/Turmas, Agenda/Mensagens/Lembretes, Cadastros Gerais, Agricultura Familiar, PDDE/FNDE, testes e documentação.
+- [x] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
+
+## Backend real incremental — primeira etapa autorizada
+
+- [x] Criar uma ponte segura entre a sessão local aprovada e as rotas tRPC de negócio, sem expor o identificador de usuário como credencial nem alterar a tela de login.
+- [x] Definir a estratégia de compatibilidade entre banco real e localStorage, sem alterar login, interface ou fluxos.
+- [x] Criar e aplicar a migração Drizzle/MySQL de Cadastros Gerais com os campos já modelados no cliente.
+- [x] Implementar rotas tRPC de Cadastros Gerais e conectar a persistência real sem quebrar o modo demonstrativo local.
+- [x] Criar e aplicar a migração de Agenda, Mensagens, confirmações de leitura e Lembretes; integrar suas rotas tRPC.
+- [x] Validar autorização, persistência, reidratação, fallback local, testes, TypeScript, build e interface dos dois grupos.
+- [x] Documentar a cobertura entregue e planejar os módulos restantes por dependência antes de continuar a migração.

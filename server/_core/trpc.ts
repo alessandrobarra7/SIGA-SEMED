@@ -27,6 +27,16 @@ const requireUser = t.middleware(async opts => {
 
 export const protectedProcedure = t.procedure.use(requireUser);
 
+const requireDomainUser = t.middleware(async opts => {
+  if (!opts.ctx.domainUser) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Autenticação de domínio necessária para esta operação." });
+  }
+  return opts.next({ ctx: { ...opts.ctx, domainUser: opts.ctx.domainUser } });
+});
+
+/** Procedimentos de negócio do SIGA autenticados pela sessão de domínio, não pela sessão Manus. */
+export const domainProcedure = t.procedure.use(requireDomainUser);
+
 export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;

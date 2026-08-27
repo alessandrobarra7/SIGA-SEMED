@@ -39,6 +39,7 @@ import SemedUsersPage from "./SemedUsersPage";
 import SemedInstitutionSettingsPage from "./SemedInstitutionSettingsPage";
 import SemedFleetPage from "./SemedFleetPage";
 import SemedHomeOperationsPage from "./SemedHomeOperationsPage";
+import { trpc } from "../lib/trpc";
 import "./siga-identity-refresh.css";
 import "./siga-financial-alert.css";
 import {
@@ -207,7 +208,7 @@ function WelcomeCenter({ user, onStart }: { user: User; onStart: () => void }) {
   </section>;
 }
 
-function HomeDashboard({ records, documents, tasks = [], approvals = [], agendaEvents = [], userNotes = [], currentUser, canReadGovernance = false, canWriteHome = false, onSaveUserNote, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; agendaEvents?: import("./sigaLocalStore").SemedAgendaEvent[]; userNotes?: import("./sigaLocalStore").SemedUserNote[]; currentUser: User; canReadGovernance?: boolean; canWriteHome?: boolean; onSaveUserNote: (content: string) => { error: string | null }; onViewChange: (view: ShellView) => void }) {
+function HomeDashboard({ records, documents, tasks = [], approvals = [], agendaEvents = [], userNotes = [], currentUser, canReadGovernance = false, canWriteHome = false, onSaveUserNote, onViewChange }: { records: SemedRecord[]; documents: SemedDocument[]; tasks?: SemedManagementTask[]; approvals?: SemedManagementApproval[]; agendaEvents?: import("./sigaLocalStore").SemedAgendaEvent[]; userNotes?: import("./sigaLocalStore").SemedUserNote[]; currentUser: User; canReadGovernance?: boolean; canWriteHome?: boolean; onSaveUserNote: (content: string) => Promise<{ error: string | null }>; onViewChange: (view: ShellView) => void }) {
   const [note, setNote] = useState("");
   const [deadlineMonth, setDeadlineMonth] = useState(() => tasks.find((task) => task.dueDate)?.dueDate.slice(0, 7) ?? new Date().toISOString().slice(0, 7));
   const agendaDays = useMemo(() => {
@@ -225,11 +226,11 @@ function HomeDashboard({ records, documents, tasks = [], approvals = [], agendaE
 
   function shiftDeadlineMonth(offset: number) { const value = new Date(`${deadlineMonth}-01T12:00:00`); value.setMonth(value.getMonth() + offset); setDeadlineMonth(`${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}`); }
 
-  function saveNote(event: FormEvent<HTMLFormElement>) {
+  async function saveNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = note.trim();
     if (!value) return;
-    const result = onSaveUserNote(value);
+    const result = await onSaveUserNote(value);
     if (!result.error) setNote("");
   }
 
@@ -292,7 +293,24 @@ function ModulePlaceholder({ view, onHome }: { view: ShellView; onHome: () => vo
 
 export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: { user: User; onLogout: () => void; onPasswordChanged?: () => void }) {
   const repository = useSigaLocalRepository();
+  const domainAvailability = trpc.semed.domain.availability.useQuery(undefined, { staleTime: 60_000, retry: false });
+  const domainIdentity = trpc.semed.domain.me.useQuery(undefined, { enabled: domainAvailability.data?.enabled === true, retry: false });
+  const useDomainPersistence = domainAvailability.data?.enabled === true && domainIdentity.data?.id === user.id;
+  const remoteMasters = trpc.semed.masters.list.useQuery(undefined, { enabled: useDomainPersistence, retry: false });
+  const saveRemoteMaster = trpc.semed.masters.save.useMutation();
+  const remoteAgenda = trpc.semed.agenda.list.useQuery(undefined, { enabled: useDomainPersistence, retry: false });
+  const saveRemoteAgenda = trpc.semed.agenda.save.useMutation();
+  const remoteMessages = trpc.semed.messages.list.useQuery(undefined, { enabled: useDomainPersistence, retry: false });
+  const saveRemoteMessage = trpc.semed.messages.save.useMutation();
+  const markRemoteMessageRead = trpc.semed.messages.markRead.useMutation();
+  const remoteNotes = trpc.semed.notes.list.useQuery(undefined, { enabled: useDomainPersistence, retry: false });
+  const saveRemoteNote = trpc.semed.notes.save.useMutation();
   const [module, setModule] = useState<Module>("records"); const [activeView, setActiveView] = useState<ShellView>("welcome"); const [formOpen, setFormOpen] = useState(false); const [expanded, setExpanded] = useState(""); const [query, setQuery] = useState(""); const [kind, setKind] = useState("Todos"); const [status, setStatus] = useState("Todos"); const [department, setDepartment] = useState("Todos"); const [notice, setNotice] = useState(""); const [securityOpen, setSecurityOpen] = useState(false); const [paymentRecordId, setPaymentRecordId] = useState(""); const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null); const [editing, setEditing] = useState<Editing>(null);
+  const masterRecords = useDomainPersistence && remoteMasters.data ? remoteMasters.data : repository.masterRecords;
+  const agendaEvents = useDomainPersistence && remoteAgenda.data ? remoteAgenda.data : repository.agendaEvents;
+  const userMessages = useDomainPersistence && remoteMessages.data ? remoteMessages.data.messages : repository.userMessages;
+  const userMessageReads = useDomainPersistence && remoteMessages.data ? remoteMessages.data.reads : repository.userMessageReads;
+  const userNotes = useDomainPersistence && remoteNotes.data ? remoteNotes.data : repository.userNotes;
   const departments = useMemo(() => Array.from(new Set(repository.records.map((record) => record.department))).sort(), [repository.records]);
   const filteredRecords = useMemo(() => repository.records.filter((record) => `${record.number} ${record.object} ${record.department} ${record.party}`.toLowerCase().includes(query.toLowerCase()) && (kind === "Todos" || record.kind === kind) && (status === "Todos" || record.status === status || recordAlert(record) === status) && (department === "Todos" || record.department === department)), [department, kind, query, repository.records, status]);
   const filteredDocuments = useMemo(() => repository.documents.filter((document) => `${document.number} ${document.subject} ${document.destination} ${document.relatedRecord}`.toLowerCase().includes(query.toLowerCase()) && (kind === "Todos" || document.kind === kind) && (status === "Todos" || document.status === status || documentAlert(document) === status)), [kind, query, repository.documents, status]);
@@ -310,6 +328,32 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
   function saveRecord(input: SemedRecordInput) { const isEdit = Boolean(recordForm); const result = recordForm ? repository.updateRecord(recordForm.id, input, user.id) : repository.createRecord(input, user.id); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Registro atualizado" : "Registro cadastrado"} na simulação local.`); } else setNotice("Usuário sem permissão para alterar contratos."); }
   function saveDocument(input: SemedDocumentInput) { const isEdit = Boolean(documentForm); const result = documentForm ? repository.updateDocument(documentForm.id, input, user.id) : repository.createDocument(input, user.id); if (result) { closeForm(); setExpanded(result.id); setNotice(`${isEdit ? "Documento atualizado" : "Documento cadastrado"} na simulação local.`); } else setNotice("Usuário sem permissão para alterar documentos."); }
   function confirmDelete(confirmation: string) { const target = deleteTarget; if (!target) return; const deleted = target.kind === "registro" ? repository.deleteRecord(target.id, user.id, confirmation) : repository.deleteDocument(target.id, user.id, confirmation); if (!deleted) return setNotice("Exclusão não confirmada ou usuário sem permissão."); setDeleteTarget(null); setExpanded(""); setNotice(`${target.kind === "registro" ? "Registro" : "Documento"} excluído somente da simulação local.`); }
+  async function saveMasterRecord(input: import("./sigaLocalStore").SemedMasterRecordInput) {
+    if (!useDomainPersistence) return repository.saveMasterRecord(input, user.id);
+    try {
+      const record = await saveRemoteMaster.mutateAsync(input);
+      await remoteMasters.refetch();
+      return { error: null, record };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : "Não foi possível salvar o cadastro no banco.", record: null };
+    }
+  }
+  async function saveAgendaEvent(input: import("./sigaLocalStore").SemedAgendaEventInput) {
+    if (!useDomainPersistence) return repository.saveAgendaEvent(input, user.id);
+    try { await saveRemoteAgenda.mutateAsync(input); await remoteAgenda.refetch(); return { error: null }; } catch (error) { return { error: error instanceof Error ? error.message : "Não foi possível salvar o evento no banco." }; }
+  }
+  async function saveUserMessage(input: import("./sigaLocalStore").SemedUserMessageInput) {
+    if (!useDomainPersistence) return repository.saveUserMessage(input, user.id);
+    try { await saveRemoteMessage.mutateAsync(input); await remoteMessages.refetch(); return { error: null }; } catch (error) { return { error: error instanceof Error ? error.message : "Não foi possível enviar a mensagem pelo banco." }; }
+  }
+  async function markUserMessageRead(messageId: string) {
+    if (!useDomainPersistence) return repository.markUserMessageRead(messageId, user.id);
+    try { await markRemoteMessageRead.mutateAsync({ id: messageId }); await remoteMessages.refetch(); return true; } catch { return false; }
+  }
+  async function saveUserNote(content: string) {
+    if (!useDomainPersistence) return repository.saveUserNote({ content }, user.id);
+    try { await saveRemoteNote.mutateAsync({ content }); await remoteNotes.refetch(); return { error: null }; } catch (error) { return { error: error instanceof Error ? error.message : "Não foi possível salvar o lembrete no banco." }; }
+  }
 
   const isRecords = module === "records";
   const canWriteCurrent = isRecords ? canWriteRecords : canWriteDocuments;
@@ -329,9 +373,9 @@ export default function WorkspacePreview({ user, onLogout, onPasswordChanged }: 
     <SemedOperationalShell user={user} activeView={activeView} onViewChange={changeView} onPassword={() => setSecurityOpen(true)} onLogout={onLogout} isViewAllowed={(view) => { const permissionKey = viewPermissionKey[view]; return permissionKey ? repository.canRead(user.id, permissionKey) : true; }} logo={logo}>
       {notice ? <p className="siga-workspace-notice">{notice}<button type="button" onClick={() => setNotice("")}>×</button></p> : null}
       {activeView === "welcome" ? <WelcomeCenter user={user} onStart={() => changeView("home")} /> : null}
-      {activeView === "home" ? <><HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} agendaEvents={repository.agendaEvents} userNotes={repository.userNotes} currentUser={user} canReadGovernance={repository.canRead(user.id, "gestao")} canWriteHome={repository.canWrite(user.id, "inicio")} onSaveUserNote={(content) => repository.saveUserNote({ content }, user.id)} onViewChange={changeView} /><SemedHomeOperationsPage user={user} users={repository.users} events={repository.agendaEvents} messages={repository.userMessages} messageReads={repository.userMessageReads} canWrite={repository.canWrite(user.id, "inicio")} onSaveEvent={(input) => repository.saveAgendaEvent(input, user.id)} onSaveMessage={(input) => repository.saveUserMessage(input, user.id)} onMarkMessageRead={(messageId) => repository.markUserMessageRead(messageId, user.id)} onNotify={setNotice} /></> : null}
+      {activeView === "home" ? <><HomeDashboard records={repository.records} documents={repository.documents} tasks={repository.managementTasks} approvals={repository.managementApprovals} agendaEvents={agendaEvents} userNotes={userNotes} currentUser={user} canReadGovernance={repository.canRead(user.id, "gestao")} canWriteHome={repository.canWrite(user.id, "inicio")} onSaveUserNote={saveUserNote} onViewChange={changeView} /><SemedHomeOperationsPage user={user} users={repository.users} events={agendaEvents} messages={userMessages} messageReads={userMessageReads} canWrite={repository.canWrite(user.id, "inicio")} onSaveEvent={saveAgendaEvent} onSaveMessage={saveUserMessage} onMarkMessageRead={markUserMessageRead} onNotify={setNotice} /></> : null}
       {activeView === "governance" ? <GovernancePage onNavigate={changeView} readOnly={!repository.canWrite(user.id, "gestao")} canApprove={repository.canGovernanceAction(user.id, "gestao", "aprovar")} actorUserId={user.id} users={repository.users} tasks={repository.managementTasks} attachments={repository.managementAttachments} approvals={repository.managementApprovals} approvalComments={repository.managementApprovalComments} records={repository.records} documents={repository.documents} auditLog={repository.governanceAuditLog} onSaveTask={(input) => repository.saveManagementTask(input, user.id).error} onSaveAttachment={(input) => repository.saveManagementAttachment(input, user.id).error} onSaveApproval={(input) => repository.saveManagementApproval(input, user.id).error} onSaveApprovalComment={(approvalId, content) => repository.addManagementApprovalComment(approvalId, content, user.id).error} onNotify={setNotice} /> : null}
-      {activeView === "masters" ? <SemedMastersPage records={repository.masterRecords} canWrite={repository.canWrite(user.id, "cadastros_gerais")} onSave={(input) => repository.saveMasterRecord(input, user.id)} onNotify={setNotice} /> : null}
+      {activeView === "masters" ? <SemedMastersPage records={masterRecords} canWrite={useDomainPersistence ? domainIdentity.data?.profile === "Administrador" : repository.canWrite(user.id, "cadastros_gerais")} onSave={saveMasterRecord} onNotify={setNotice} /> : null}
       {activeView === "finance" ? <SemedFinancePage sources={repository.financeSources} rules={repository.financeRules} planningEntries={repository.financePlanningEntries} revenues={repository.financeRevenues} executions={repository.financeExecutions} contractCount={repository.records.length} hrRecordCount={repository.hrFinancialRecords.length} canWrite={repository.canWrite(user.id, "financeiro")} canManageRules={user.profile === "Administrador" && repository.canWrite(user.id, "financeiro")} onSaveSource={(input) => repository.saveFinanceSource(input, user.id)} onSaveRule={(input) => repository.saveFinanceRule(input, user.id)} onSavePlanning={(input) => repository.saveFinancePlanningEntry(input, user.id)} onSaveRevenue={(input) => repository.saveFinanceRevenue(input, user.id)} onSaveExecution={(input) => repository.saveFinanceExecution(input, user.id)} onNotify={setNotice} /> : null}
       {activeView === "users" ? <SemedUsersPage currentUser={user} users={repository.users} permissions={repository.userPermissions} auditLog={repository.userAuditLog} onCreate={(input) => repository.createUser(input, user.id)} onUpdate={(userId, input) => repository.updateUser(userId, input, user.id)} onSetActive={(userId, active) => repository.setUserActive(userId, active, user.id)} onIssuePassword={(userId) => repository.issueProvisionalPassword(userId, user.id)} onTerminateSessions={(userId) => repository.terminateUserSessions(userId, user.id)} onNotify={setNotice} /> : null}
       {activeView === "settings" ? <SemedInstitutionSettingsPage settings={repository.institutionSettings} auditLog={repository.institutionSettingsAuditLog} governanceAuditLog={repository.governanceAuditLog} actorUserId={user.id} readOnly={user.profile !== "Administrador"} onSave={repository.saveInstitutionSettings} /> : null}

@@ -6,6 +6,18 @@ import { GovernancePage } from "../client/src/pages/SemedManagementPages";
 import WorkspacePreview from "../client/src/pages/WorkspacePreview";
 import { addLocalManagementApprovalComment, createLocalSemedDatabase, hydrateLocalDatabase, saveLocalManagementApproval, saveLocalManagementAttachment, saveLocalManagementTask } from "../client/src/pages/sigaLocalStore";
 
+vi.mock("../client/src/lib/trpc", () => ({
+  trpc: {
+    semed: {
+      domain: { availability: { useQuery: () => ({ data: { enabled: false } }) }, me: { useQuery: () => ({ data: undefined }) } },
+      masters: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
+      agenda: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
+      messages: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) }, markRead: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
+      notes: { list: { useQuery: () => ({ data: undefined, refetch: async () => undefined }) }, save: { useMutation: () => ({ mutateAsync: async () => undefined }) } },
+    },
+  },
+}));
+
 afterEach(() => cleanup());
 
 describe("Gestão complementar local", () => {

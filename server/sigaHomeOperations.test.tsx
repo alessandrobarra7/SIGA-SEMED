@@ -10,7 +10,7 @@ afterEach(() => cleanup());
 describe("Painel local de Agenda, Mensagens e Notas", () => {
   it("renderiza ações e estados vazios próprios do Início", () => {
     const database = createLocalSemedDatabase();
-    render(<SemedHomeOperationsPage user={{ ...database.semedUsers[0], mustChangePassword: false }} users={database.semedUsers} events={[]} messages={[]} messageReads={[]} canWrite onSaveEvent={vi.fn(() => ({ error: null }))} onSaveMessage={vi.fn(() => ({ error: null }))} onMarkMessageRead={vi.fn(() => true)} onNotify={vi.fn()} />);
+    render(<SemedHomeOperationsPage user={{ ...database.semedUsers[0], mustChangePassword: false }} users={database.semedUsers} events={[]} messages={[]} messageReads={[]} canWrite onSaveEvent={vi.fn(async () => ({ error: null }))} onSaveMessage={vi.fn(async () => ({ error: null }))} onMarkMessageRead={vi.fn(async () => true)} onNotify={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Agenda e compromissos" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Novo evento/i })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Mensagens" })).toBeTruthy();
