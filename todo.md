@@ -724,3 +724,10 @@
 - [x] Revisar os arquivos pendentes para excluir dados reais, capturas, utilitários temporários, arquivos externos e credenciais.
 - [x] Criar o commit das migrações, rotas tRPC, sessão de domínio, fallback local, testes e documentação.
 - [x] Enviar à branch principal do repositório autorizado e confirmar o hash remoto.
+
+## Ativos visuais do login no repositório
+
+- [x] Inventariar o logo e os ativos visuais usados pela tela de login, identificando arquivos físicos e referências atuais.
+- [x] Incluir no repositório somente os ativos visuais elegíveis, sem modificar a composição, a aparência ou o comportamento do login.
+- [x] Validar o carregamento dos ativos, revisar a ausência de credenciais/anexos indevidos e publicar a atualização autorizada na release `login-assets-v1`.
+- [x] Confirmar ao usuário os caminhos dos arquivos e a publicação remota final.
